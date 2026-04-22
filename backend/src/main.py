@@ -19,7 +19,7 @@ async def lifespan(app: fastapi.FastAPI):
         # Outras criações de tabelas vão aqui
 
         # Obs: Muito cuidado com a ordem de criação! Se a tabela A tem uma
-        # coluna X que depende de uma coluna Y na tabela B,chame a função
+        # coluna X que depende de uma coluna Y na tabela B, chame a função
         # create_table_B antes de create_table_A
 
         # Fim das criações de tabelas
