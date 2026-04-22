@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import fastapi
+import asyncio
 
 from config.db import create_pool
 from models.tables import *
@@ -27,5 +28,5 @@ async def lifespan(app: fastapi.FastAPI):
 
     await app.state.pool.close()
 
-
+app = fastapi.FastAPI(lifespan = lifespan)
 

@@ -14,7 +14,7 @@ def set_dsn():
     is_testing = int(os.getenv("testing"))
 
     if is_testing:
-        name = os.getenv("db_test_name")
+        name = os.getenv("db_name_test")
         host = "localhost"
 
     else:
@@ -24,7 +24,9 @@ def set_dsn():
     if any(val is None for val in (user, password, port, host, name)):
         raise ValueError("Campo faltando no .env")
 
-    return f'postgresql://{user}:{password}@{host}:{port}/{name}'
+    dsn = f'postgresql://{user}:{password}@{host}:{port}/{name}'
+    print(dsn)
+    return dsn
 
 
 async def create_pool():

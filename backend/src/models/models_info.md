@@ -5,7 +5,6 @@ Definir as entidades, os atributos e os relacionamentos destes utilizados no ban
 
 ## ⚙️ Tecnologias utilizadas
 - [Postgresql](https://www.postgresql.org/docs/current/)
-- [asyncpg (Python)](https://magicstack.github.io/asyncpg/current/)
 
 ## 📊 Diagrama de funcionamento
 Utilizamos o [dbdiagram.io](https://dbdiagram.io/d/gamerboxd-69e7bbe7d80a958d1ca0428c) para esquematizar as tabelas do banco de dados do Gamerboxd.
