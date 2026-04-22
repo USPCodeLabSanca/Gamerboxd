@@ -71,5 +71,4 @@ async def create_table_games(conn):
         return DB_Result(success = False, message = e)
 
     else:
-        print("yupee!")
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
