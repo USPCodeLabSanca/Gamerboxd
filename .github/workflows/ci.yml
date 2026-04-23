@@ -1,0 +1,44 @@
+name: Vite React CI (Frontend)
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build-test-and-lint:
+    runs-on: ubuntu-latest
+
+    # Isso avisa ao GitHub que todos os comandos 'run' devem ser executados dentro da pasta frontend
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        # Como o package-lock.json não está na raiz, precisamos apontar o caminho para o cache funcionar
+        cache-dependency-path: './frontend/package-lock.json' 
+
+    - name: Instalar dependências
+      run: npm ci
+
+    - name: Rodar Linter (Verificação de código)
+      run: npm run lint
+
+    - name: Rodar Testes
+      run: npm run test:ci
+
+    - name: Build da aplicação (Verificação de compilação)
+      run: npm run build
