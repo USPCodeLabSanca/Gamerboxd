@@ -13,15 +13,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<Home />} />
+        {/* <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/games" element={<Games />} />
         <Route path="/games/:slug" element={<GamePage />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/profile/:username" element={<Profile />} />
         <Route path="/members" element={<Members />} />
-        <Route path="/lists" element={<Lists />} />
+        <Route path="/lists" element={<Lists />} /> */}
       </Routes>
     </BrowserRouter>
   )
