@@ -8,10 +8,14 @@ import Feed from "./pages/feed"
 import Profile from "./pages/profile"
 import Members from "./pages/members"
 import Lists from "./pages/lists"
+import Navbar from "./components/Navbar"
 
 export default function App() {
   return (
     <BrowserRouter>
+
+      <Navbar />
+
       <Routes>
         <Route path="/home" element={<Home />} />
         {/* <Route path="/login" element={<Login />} />
