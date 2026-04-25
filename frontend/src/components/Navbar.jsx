@@ -1,26 +1,78 @@
 import { Link } from "react-router-dom";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export default function Navbar() {
+    const [menuOpen, setMenuOpen] = useState(false);
+
     const animatedLink = "relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors";
 
+    const links = [
+        { to: "/reviews", label: "Reviews" },
+        { to: "/games", label: "Games" },
+        { to: "/lists", label: "Lists" },
+        { to: "/members", label: "Members" },
+        { to: "/login", label: "Sign in" },
+        { to: "/register", label: "Create Account" },
+    ];
+
     return (
-        <nav className="w-full bg-black text-white py-4 px-4 md:px-20 flex items-center justify-between sticky top-0 z-20">
-            <h4 className="font-sans font-bold text-4xl">GAMERBOXD</h4>
+        <nav className="w-full bg-transparent lg:opacity-50 lg:hover:opacity-100 transition-all duration-500 text-white py-4 px-4 lg:px-20 flex items-center justify-between absolute top-0 z-50">
 
-            <div className="flex justify-between w-2xl">
-                <Link to="/reviews" className={animatedLink}>Reviews</Link>
-                <Link to="/games" className={animatedLink}>Games</Link>
-                <Link to="/lists" className={animatedLink}>Lists</Link>
-                <Link to="/members" className={animatedLink}>Members</Link>
-                <Link to="/login" className={animatedLink}>Sign in</Link>
-                <Link to="/register" className={animatedLink}>Create Account</Link>
+            {/* Logo */}
+            <h4 className="font-sans font-bold text-2xl lg:text-4xl hover:cursor-pointer">GAMERBOXD</h4>
+
+            {/* Links — visível só em desktop */}
+            <div className="hidden lg:flex gap-6 items-center">
+                {links.map(({ to, label }) => (
+                    <Link key={to} to={to} className={animatedLink}>{label}</Link>
+                ))}
             </div>
 
-            <div className="flex items-center justify-between bg-gray-400 opacity-60 rounded-4xl py-2 px-2 w-40">
-                <Search />
-                <input type="text" className="w-10/12 border-none outline-0 bg-transparent text-white placeholder-white" placeholder="Search" />
+            {/* Search — visível só em desktop */}
+            <div className="hidden lg:flex items-center bg-gray-400 rounded-4xl py-2 px-3 w-40">
+                <Search size={18} />
+                <input
+                    type="text"
+                    className="w-full border-none outline-0 bg-transparent text-white placeholder-white ml-2 hover:ring-amber-50"
+                    placeholder="Search"
+                />
             </div>
+
+            {/* Botão hamburguer — visível só em mobile */}
+            <button
+                className="lg:hidden text-white"
+                onClick={() => setMenuOpen(!menuOpen)}
+            >
+                {menuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+
+            {/* Menu mobile — dropdown */}
+            {menuOpen && (
+                <div className="absolute top-full left-0 w-full bg-black/90 flex flex-col items-start gap-5 px-6 py-6 lg:hidden">
+
+                    {/* Search mobile */}
+                    <div className="flex items-center bg-gray-500 rounded-full py-2 px-3 w-full">
+                        <Search size={18} />
+                        <input
+                            type="text"
+                            className="w-full border-none outline-0 bg-transparent text-white placeholder-white ml-2"
+                            placeholder="Search"
+                        />
+                    </div>
+
+                    {links.map(({ to, label }) => (
+                        <Link
+                            key={to}
+                            to={to}
+                            className="text-white text-lg font-medium hover:text-gray-300 transition-colors"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            {label}
+                        </Link>
+                    ))}
+                </div>
+            )}
         </nav>
     );
 }

@@ -12,9 +12,12 @@
     "test:ci": "vitest run"
   },
   "dependencies": {
+    "framer-motion": "^12.38.0",
     "lucide-react": "^1.9.0",
+    "motion": "^12.38.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-multi-carousel": "^2.8.6",
     "react-router-dom": "^7.14.2"
   },
   "devDependencies": {
