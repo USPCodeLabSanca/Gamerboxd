@@ -2,6 +2,7 @@ import { UserPlus, Gamepad2, Users } from "lucide-react";
 import registerPage from "../../assets/imgs/Register.png";
 import gamePage from "../../assets/imgs/Game.png";
 import reviewPage from "../../assets/imgs/Review.png";
+import { motion } from "framer-motion";
 
 
 const steps = [
@@ -41,10 +42,10 @@ export default function About() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
                 {steps.map((step) => {
                     return (
-                        <div>
+                        <motion.div initial={{opacity: 0, y: 100}} animate={{opacity: 100, y: 0}} transition={{duration: 0.5, ease: "easeIn"}}>
                             <Card data={step} key={step.id} />
                             <ImgCard data={step} key={step.id} />
-                        </div>
+                        </motion.div>
                     )
                 })}
             </div>
