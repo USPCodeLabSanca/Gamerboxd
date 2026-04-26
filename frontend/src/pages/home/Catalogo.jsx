@@ -11,8 +11,11 @@ import clairImg from "../../assets/imgs/clair-obscure.png"
 export default function Catalogo() {
     return (
         <>
-            <div>
+            <div className="hidden lg:block">
                 <HorizontalScrollCarousel />
+            </div>
+            <div className="md:hidden">
+
             </div>
         </>
     )
@@ -24,16 +27,17 @@ const HorizontalScrollCarousel = () => {
     const targetRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: targetRef,
+        offset: ["start start", "end end"]
     });
 
     // 1. Animação do Carrossel (Move constantemente de 1% a -95%)
     const xCards = useTransform(scrollYProgress, [0, 1], ["1%", "-95%"]);
 
     // 2. Animação do Texto Superior (Fica parado até 75% do scroll, depois sai pela esquerda)
-    const xTextoCima = useTransform(scrollYProgress, [0, 0.75, 1], ["0vw", "0vw", "-100vw"]);
+    const xTextoCima = useTransform(scrollYProgress, [0, 0.5, 1], ["0vw", "0vw", "-100vw"]);
 
     // 3. Animação do Texto Inferior (Escondido na direita até 75%, depois entra na tela)
-    const xTextoBaixo = useTransform(scrollYProgress, [0, 0.75, 1], ["100vw", "100vw", "0vw"]);
+    const xTextoBaixo = useTransform(scrollYProgress, [0, 0.5, 1], ["100vw", "0vw", "0vw"]);
 
     return (
         <section ref={targetRef} className="relative h-[300vh] bg-linear-to-b from-black to-cinza">
@@ -43,7 +47,7 @@ const HorizontalScrollCarousel = () => {
                 {/* TEXTO 1 (Superior) */}
                 <motion.h1
                     style={{ x: xTextoCima }}
-                    className="absolute top-32 left-10 md:left-40 text-white font-bold text-3xl md:text-5xl z-20"
+                    className="absolute top-32 left-10 md:left-40 md:top-16 text-white font-bold text-3xl md:text-5xl z-20"
                 >
                     Um catálogo com os jogos mais amados pela comunidade
                 </motion.h1>

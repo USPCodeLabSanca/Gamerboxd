@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { ParallaxProvider } from 'react-scroll-parallax';
 import Home from "./pages/home"
 import Login from "./pages/login"
 import Register from "./pages/register"
@@ -12,13 +13,15 @@ import Navbar from "./components/Navbar"
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <ParallaxProvider>
 
-      <Navbar />
+      <BrowserRouter>
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* <Route path="/login" element={<Login />} />
+        <Navbar />
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {/* <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/games" element={<Games />} />
         <Route path="/games/:slug" element={<GamePage />} />
@@ -26,7 +29,8 @@ export default function App() {
         <Route path="/profile/:username" element={<Profile />} />
         <Route path="/members" element={<Members />} />
         <Route path="/lists" element={<Lists />} /> */}
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </ParallaxProvider>
   )
 }
