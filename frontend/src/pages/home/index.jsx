@@ -2,18 +2,22 @@ import React from "react";
 import Hero from "./Hero";
 import Catalogo from "./Catalogo";
 import About from "./About";
+import Features from "./Features";
 
 
 export default function Home() {
     return (
         <main>
             <Hero />
-            <div>
+            <section>
                 <Catalogo />
-            </div>
-            <div className="relative z-10 bg-black mt-[-50vh]">
+            </section>
+            <section className="relative z-10 bg-black mt-[-50vh]">
                 <About />
-            </div>
+            </section>
+            <section>
+                <Features />
+            </section>
         </main>
     )
 }

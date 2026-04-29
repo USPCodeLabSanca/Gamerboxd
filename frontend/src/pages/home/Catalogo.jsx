@@ -31,7 +31,7 @@ const HorizontalScrollCarousel = () => {
     });
 
     // 1. Animação do Carrossel (Move constantemente de 1% a -95%)
-    const xCards = useTransform(scrollYProgress, [0, 1], ["1%", "-95%"]);
+    const xCards = useTransform(scrollYProgress, [0, 1], ["1%", "-100%"]);
 
     // 2. Animação do Texto Superior (Fica parado até 75% do scroll, depois sai pela esquerda)
     const xTextoCima = useTransform(scrollYProgress, [0, 0.5, 1], ["0vw", "0vw", "-100vw"]);

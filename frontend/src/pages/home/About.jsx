@@ -32,7 +32,7 @@ const steps = [
 export default function About() {
     return (
        
-        <section id="about" className = "w-full h-screen bg-black text-white py-20 px-6 flex flex-col items-center text-center" >
+        <section id="about" className = "w-full h-screen bg-cinza text-white py-20 px-6 flex flex-col items-center text-center" >
             
             <h2 className="text-roxo font-bold tracking-widest uppercase text-sm mb-2">Como funciona?</h2>
             <h1 className="text-3xl md:text-5xl font-bold mb-4">Apenas 3 passos para começar</h1>
@@ -42,7 +42,12 @@ export default function About() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
                 {steps.map((step) => {
                     return (
-                        <motion.div initial={{opacity: 0, y: 100}} animate={{opacity: 100, y: 0}} transition={{duration: 0.5, ease: "easeIn"}}>
+                        <motion.div 
+
+                            initial={{opacity: 0, y: 100}}
+                            whileInView={{opacity: 100, y: 0}}
+                            transition={{duration: 1.5, ease: "easeIn"}}>
+
                             <Card data={step} key={step.id} />
                             <ImgCard data={step} key={step.id} />
                         </motion.div>
@@ -60,7 +65,7 @@ function Card({ data }) {
     const Icon = data.icon;
 
     return (
-        <div className="bg-[#1A1A1A] h-6/12 rounded-2xl p-8 flex flex-col items-center border border-transparent hover:border-roxo/50 transition-colors duration-300">
+        <div className="bg-dark-card h-6/12 rounded-2xl p-8 flex flex-col items-center border border-transparent hover:border-roxo/50 transition-colors duration-300">
 
             {/* Círculo com o ícone */}
             <div className="w-16 h-16 bg-roxo/10 text-roxo rounded-full flex items-center justify-center mb-6">
