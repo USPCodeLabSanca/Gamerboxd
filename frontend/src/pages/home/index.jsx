@@ -3,6 +3,7 @@ import Hero from "./Hero";
 import Catalogo from "./Catalogo";
 import About from "./About";
 import Features from "./Features";
+import Social from "./Social";
 
 
 export default function Home() {
@@ -17,6 +18,9 @@ export default function Home() {
             </section>
             <section>
                 <Features />
+            </section>
+            <section>
+                <Social />
             </section>
         </main>
     )

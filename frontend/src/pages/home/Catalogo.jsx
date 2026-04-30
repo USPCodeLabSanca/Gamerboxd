@@ -1,5 +1,6 @@
 import { motion, useTransform, useScroll } from "framer-motion";
 import { useRef } from "react";
+import Card from "../../components/gameCard";
 import gtaImg from "../../assets/imgs/gta.png"
 import gowImg from "../../assets/imgs/ragnarok.png"
 import silksongImg from "../../assets/imgs/silksong.png"
@@ -53,7 +54,7 @@ const HorizontalScrollCarousel = () => {
                 </motion.h1>
 
                 {/* CARROSSEL */}
-                <motion.div style={{ x: xCards }} className="flex gap-8 relative z-10 pl-10 md:pl-40">
+                <motion.div style={{ x: xCards }} className="flex gap-8 h-6/12 relative z-10 pl-10 md:pl-40">
                     {cards.map((card) => {
                         return <Card card={card} key={card.id} />;
                     })}
@@ -69,17 +70,6 @@ const HorizontalScrollCarousel = () => {
 
             </div>
         </section>
-    );
-};
-
-const Card = ({ card }) => {
-    return (
-        <div
-            key={card.id}
-            className="group relative h-100 w-80 overflow-hidden bg-neutral-200 rounded-2xl"
-        >
-            <img src={card.url} alt={card.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
-        </div>
     );
 };
 
