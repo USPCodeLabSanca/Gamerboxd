@@ -2,27 +2,43 @@ from contextlib import asynccontextmanager
 import fastapi
 import asyncio
 
-from config.db import create_pool
+from config.db import create_pool, create_database
 from models.tables import *
 
 
 @asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
-    app.state.pool = await create_pool()
+
+    table_creation = await create_database()
+    if not table_creation.success:
+        raise table_creation.error
+
+    pool_creation = await create_pool()
+    if pool_creation.success:
+        app.state.pool = pool_creation.obj
+    
+    else:
+        raise pool_creation.error
 
     async with app.state.pool.acquire() as conn:
         await create_table_pfp(conn)
         await create_table_users(conn)
         await create_table_games(conn)
+        await create_table_tags(conn)
+        await create_table_reviews(conn)
+        await create_table_lists(conn)
+        
+        await create_table_user_tags(conn)
         await create_table_follows(conn)
+        await create_table_blocks(conn)
 
-        # Outras criações de tabelas vão aqui
+        await create_table_list_content(conn)
+        await create_table_list_saved(conn)
+        
+        await create_table_game_tags(conn)
 
-        # Obs: Muito cuidado com a ordem de criação! Se a tabela A tem uma
-        # coluna X que depende de uma coluna Y na tabela B, chame a função
-        # create_table_B antes de create_table_A
-
-        # Fim das criações de tabelas
+        await create_table_review_tags(conn)
+        await create_table_review_likes(conn)
 
     yield
 
