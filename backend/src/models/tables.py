@@ -6,7 +6,7 @@ async def create_table_pfp(conn):
     try:
         await conn.execute('''
             CREATE TABLE IF NOT EXISTS ProfilePictures (
-                pfp_id SERIAL PRIMARY KEY,
+                pfp_id INTEGER GENERATED ALWAYS AS IDENTITY,
                 pfp TEXT UNIQUE NOT NULL
             )
         ''')
@@ -43,7 +43,7 @@ async def create_table_users(conn):
 async def create_table_follows(conn):
     try:
         await conn.execute('''
-                CREATE TABLE IF NOT EXISTS follows (
+                CREATE TABLE IF NOT EXISTS Follows (
                     user_a VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE,
                     user_b VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE,
 
@@ -56,6 +56,7 @@ async def create_table_follows(conn):
 
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
+
 
 async def create_table_games(conn):
     try:
@@ -73,6 +74,7 @@ async def create_table_games(conn):
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
    
+
 async def create_table_tags(conn):
     try:
         await conn.execute('''
@@ -85,11 +87,12 @@ async def create_table_tags(conn):
         return DB_Result(success = False, message = e)
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
-        
+
+
 async def create_table_user_tags(conn):
     try:
         await conn.execute('''
-                CREATE TABLE IF NOT EXISTS UserTags(
+                CREATE TABLE IF NOT EXISTS User_Tags(
                     user VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE
                     tag INTEGER REFERENCES Tags(tag_id) ON DELETE CASCADE
                            
@@ -101,6 +104,7 @@ async def create_table_user_tags(conn):
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
     
+
 async def create_table_game_tags(conn):
     try:
         await conn.execute('''
@@ -116,6 +120,7 @@ async def create_table_game_tags(conn):
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
     
+
 async def create_table_review_tags(conn):
     try:
         await conn.execute('''
@@ -130,7 +135,8 @@ async def create_table_review_tags(conn):
         return DB_Result(success = False, message = e)
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
-    
+
+
 async def create_table_blocks(conn):
     try:
         await conn.execute('''

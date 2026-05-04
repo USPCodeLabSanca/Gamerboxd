@@ -13,8 +13,14 @@ async def lifespan(app: fastapi.FastAPI):
     async with app.state.pool.acquire() as conn:
         await create_table_pfp(conn)
         await create_table_users(conn)
-        await create_table_games(conn)
         await create_table_follows(conn)
+        await create_table_blocks(conn)
+
+        await create_table_games(conn)
+        await create_table_tags(conn)
+        await create_table_game_tags(conn)
+        await create_table_user_tags(conn)
+        await create_table_review_tags(conn)
 
         # Outras criações de tabelas vão aqui
 
