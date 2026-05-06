@@ -27,7 +27,7 @@ async def create_table_users(conn):
                     email VARCHAR(256) UNIQUE NOT NULL,
                     password VARCHAR(256) NOT NULL,
                     bio VARCHAR(280) DEFAULT NULL,
-                    is_verified BOOL NOT NULL,
+                    is_verified BOOL NOT NULL DEFAULT false,
                     pfp INTEGER DEFAULT NULL REFERENCES ProfilePictures(pfp_id) ON DELETE SET DEFAULT,
                     created_at TIMESTAMPTZ DEFAULT now()
                 )
@@ -120,22 +120,6 @@ async def create_table_game_tags(conn):
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
     
-
-async def create_table_review_tags(conn):
-    try:
-        await conn.execute('''
-                CREATE TABLE IF NOT EXISTS ReviewTags (
-                    review VARCHAR(36) REFERENCES Reviews(review_id) ON DELETE CASCADE,
-                    tag INTEGER REFERENCES Tags(tag_id) ON DELETE CASCADE,
-                           
-                    PRIMARY KEY (review, tag)
-                )
-            ''')
-    except PostgresError as e:
-        return DB_Result(success = False, message = e)
-    else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
-
 
 async def create_table_blocks(conn):
     try:
