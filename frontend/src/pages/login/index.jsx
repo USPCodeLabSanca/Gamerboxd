@@ -4,27 +4,28 @@ export default function Login() {
   return (
     // celular: flex-col (empilhado) e permite rolar se a tela for muito pequena.
     // PC: flex-row (lado a lado), trava a altura e tira a rolagem.
-    <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
-      {/* imagem -> celular: largura total e altura fixa (250px). PC: 40% da largura e altura total */}
-      <div className="w-full h-[250px] md:h-full md:w-[40%] bg-black flex-shrink-0">
+    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full md:overflow-hidden">
+      {/* imagem -> celular: largura total e altura fixa (250px). PC: 50% da largura e altura total */}
+      <div className="w-full h-62.5 md:h-full md:w-1/2 bg-black shrink-0 shadow-inner">
         <img
           src="/gta-vi.jpg"
           alt="GTA VI"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-fill object-center block shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]"
         />
+        <div className="absolute w-1/2 inset-0 shadow-[inset_0_50px_100px_rgba(0,0,0,0.8)] pointer-events-none"></div>
       </div>
 
       {/* formulário -> celular: ocupa o resto do espaço. PC: 60% da largura */}
-      <div className="w-full md:w-[60%] flex-grow bg-white flex flex-col justify-center items-center p-8 py-12 md:py-8">
+      <div className="w-full md:w-1/2 grow bg-white flex flex-col justify-start mt-36 items-center p-8 py-12 md:py-8">
         <div className="w-full max-w-md">
-          <h1 className="text-3xl tracking-[0.2em] text-center text-black mb-6">
+          <h1 className="text-6xl text-start mb-20 font-sans text-black">
             GAMERBOXD
           </h1>
 
-          <h2 className="text-[#8b7df0] text-2xl mb-1">Log In</h2>
-          <p className="text-xs text-gray-500 mb-5">
+          <h2 className="text-roxo text-4xl text-start mb-1">Log In</h2>
+          <p className="text-sm text-gray-500 mb-5 mt-2">
             Não possui uma conta?{" "}
-            <Link to="/register" className="text-[#8b7df0] hover:underline">
+            <Link to="/register" className="text-roxo hover:underline">
               Cadastre-se aqui
             </Link>
           </p>
@@ -58,7 +59,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="bg-[#8b7df0] hover:bg-[#7262d9] text-white py-2.5 px-8 rounded-full mt-4 mx-auto w-full sm:w-3/5 transition-colors"
+              className="bg-roxo hover:bg-white hover:border hover:border-roxo hover:text-roxo hover:cursor-pointer text-white px-1 py-3 rounded-lg mt-4 mx-auto w-full sm:w-3/5 transition-colors"
             >
               Login
             </button>
