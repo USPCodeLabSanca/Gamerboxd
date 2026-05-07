@@ -2,22 +2,6 @@ from asyncpg import PostgresError
 from utils.db import DB_Result
 
 
-async def create_table_pfp(conn):
-    try:
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS ProfilePictures (
-                pfp_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                pfp TEXT UNIQUE NOT NULL
-            )
-        ''')
-
-    except PostgresError as e:
-        return DB_Result(success = False, message = e)
-
-    else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
-    
-
 async def create_table_users(conn):
     try:
         await conn.execute('''
@@ -28,7 +12,7 @@ async def create_table_users(conn):
                     password VARCHAR(256) NOT NULL,
                     bio VARCHAR(280) DEFAULT NULL,
                     is_verified BOOL NOT NULL DEFAULT false,
-                    pfp INTEGER DEFAULT NULL REFERENCES ProfilePictures(pfp_id) ON DELETE SET DEFAULT,
+                    pfp TEXT DEFAULT NULL,
                     created_at TIMESTAMPTZ DEFAULT now()
                 )
             ''')
@@ -147,7 +131,9 @@ async def create_table_lists(conn):
                 list_creator VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
                 is_private BOOL NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT now(),
-                last_update TIMESTAMPTZ DEFAULT now()
+                last_update TIMESTAMPTZ DEFAULT now(),
+                           
+                UNIQUE (list_name, list_creator)
             )
         ''')
         
@@ -176,7 +162,7 @@ async def create_table_list_content(conn):
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
 
 
-async def create_table_list_saved(conn):
+async def create_table_saved_lists(conn):
     try:
         await conn.execute('''
             CREATE TABLE IF NOT EXISTS SavedLists (
@@ -201,10 +187,10 @@ async def create_table_reviews(conn):
                 reviewer VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
                 game INTEGER NOT NULL REFERENCES Games(game_id) ON DELETE CASCADE,
                 rating_num FLOAT NOT NULL,
-                rating_text VARCHAR(300),
-                is_private BOOL NOT NULL,
-                time_played FLOAT NOT NULL,
-                liked BOOL NOT NULL,
+                rating_text VARCHAR(300) DEFAULT NULL,
+                is_private BOOL DEFAULT false,
+                time_played FLOAT DEFAULT NULL,
+                liked BOOL DEFAULT NULL,
                 completed BOOL NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT now(),
                 last_update TIMESTAMPTZ DEFAULT now(),
@@ -215,6 +201,22 @@ async def create_table_reviews(conn):
     except PostgresError as e:
         return DB_Result(success = False, message = e)
 
+    else:
+        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+
+
+async def create_table_review_tags(conn):
+    try:
+        await conn.execute('''
+                CREATE TABLE IF NOT EXISTS ReviewTags (
+                    review VARCHAR(36) REFERENCES Reviews(review_id) ON DELETE CASCADE,
+                    tag INTEGER REFERENCES Tags(tag_id) ON DELETE CASCADE,
+                           
+                    PRIMARY KEY (review, tag)
+                )
+            ''')
+    except PostgresError as e:
+        return DB_Result(success = False, message = e)
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")
 

@@ -10,13 +10,15 @@ class SetUserLoginState(BaseHTTPMiddleware):
 
         user_id, needs_new_token = self.assess_user(request)
 
-        request.state.user_login = "NOT_LOGGED" if user_id == None else f"LOGGED_{user_id}"
+        user_login = {"logged_in": False if user_id == None else True, "user_id": user_id}
+
+        request.state.user_login = user_login
         response = await call_next(request)
         
         if needs_new_token:
             key = request.app.state.jwt_key
             new_token = encode_token(user_id, 10, key)
-            response.set_cookie = {"access-token": new_token}
+            response.set_cookie("access-token", new_token)
 
         return response
     

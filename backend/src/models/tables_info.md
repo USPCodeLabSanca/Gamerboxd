@@ -1,4 +1,4 @@
-# 🗂️ /models 
+# 🗂️ src/models/tables 
 
 ## 📈 Função principal
 Definir as entidades, os atributos e os relacionamentos destes utilizados no banco de dados do Gamerboxd.
@@ -10,8 +10,9 @@ Definir as entidades, os atributos e os relacionamentos destes utilizados no ban
 Utilizamos o [dbdiagram.io](https://dbdiagram.io/d/gamerboxd-69e7bbe7d80a958d1ca0428c) para esquematizar as tabelas do banco de dados do Gamerboxd.
 
 ## Construção das tabelas
-Cada tabela é construida a partir de uma função assíncrona que recebe uma conexão de uma connection pool, criada no main.py. Com esta conexão, as tabelas podem ser criadas a partir das especificações expressas no diagrama:
+Cada tabela é construida a partir de uma função assíncrona que recebe uma conexão de uma connection pool, criada no src/config/lifespan.config. Com esta conexão, as tabelas podem ser criadas a partir das especificações expressas no diagrama:
 
+## Exemplo de tabela
 ```
 #/models/tables
 
@@ -37,7 +38,7 @@ async def create_table_employees(conn):
             ''')
 
     except PostgresError as e:
-        return DB_Result(success = False, message = e)
+        return DB_Result(success = False, error = e)
 
     else:
         return DB_Result(success = True, message = "Criação da tabela funcionou!")

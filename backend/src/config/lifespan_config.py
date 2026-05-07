@@ -131,7 +131,6 @@ class LifespanConfig():
         app.state.jwt_key = get_secret_key()
 
         async with app.state.pool.acquire() as conn:
-            await create_table_pfp(conn)
             await create_table_users(conn)
             await create_table_games(conn)
             await create_table_tags(conn)
@@ -143,11 +142,12 @@ class LifespanConfig():
             await create_table_blocks(conn)
 
             await create_table_list_content(conn)
-            await create_table_list_saved(conn)
+            await create_table_saved_lists(conn)
             
             await create_table_game_tags(conn)
 
             await create_table_review_likes(conn)
+            await create_table_review_tags(conn)
 
         yield
 
