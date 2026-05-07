@@ -31,11 +31,10 @@ async def DB_create_order(conn, user_id: str, price: float, item: str):
             INSERT INTO Orders(order_id, customer, price, item)
             VALUES($1, $2, $3)
         ''', order_id, user_id, price, item)
+
+        return DB_Result(success=True, message="Pedido criado com sucesso!", obj=order_id)
         
     except Exception as e:
         return DB_Result(success=False, error=e)
-    
-    else:
-        return DB_Result(success=True, message="Pedido criado com sucesso!", obj=order_id)
 
 ```     
