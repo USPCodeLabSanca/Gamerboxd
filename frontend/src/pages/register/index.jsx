@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Register() {
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-80px)] md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
       {/* lado esquerdo (imagem) */}
       <div className="w-full h-[250px] md:h-full md:w-[40%] bg-black flex-shrink-0">
         <img
@@ -13,7 +13,7 @@ export default function Register() {
       </div>
 
       {/* lado lireito (formulario))*/}
-      <div className="w-full md:w-[60%] flex-grow bg-white flex flex-col justify-center items-center p-8 py-12 md:py-8">
+      <div className="w-full md:w-[60%] grow bg-cinza flex flex-col justify-center items-center p-8 py-12 md:py-8">
         <div className="w-full max-w-md">
           <h1 className="text-3xl tracking-[0.2em] text-center text-black mb-6">
             GAMERBOXD

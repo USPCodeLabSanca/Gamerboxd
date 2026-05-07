@@ -1,34 +1,38 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/home";
-import Login from "./pages/login";
-import Register from "./pages/register";
-import Games from "./pages/games";
-import GamePage from "./pages/gamePage";
-import Feed from "./pages/feed";
-import Profile from "./pages/profile";
-import Members from "./pages/members";
-import Lists from "./pages/lists";
-import Navbar from "./components/Navbar";
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { ParallaxProvider } from 'react-scroll-parallax';
+import Home from "./pages/home"
+import Login from "./pages/login"
+import Register from "./pages/register"
+import Games from "./pages/games"
+import GamePage from "./pages/gamePage"
+import Feed from "./pages/feed"
+import Profile from "./pages/profile"
+import Members from "./pages/members"
+import Lists from "./pages/lists"
+import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
+    <ParallaxProvider>
 
-      <Routes>
-        <Route path="/home" element={<Home />} />
+      <BrowserRouter>
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         {/*
         <Route path="/games" element={<Games />} />
         <Route path="/games/:slug" element={<GamePage />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/profile/:username" element={<Profile />} />
         <Route path="/members" element={<Members />} />
-        <Route path="/lists" element={<Lists />} />
-        */}
-      </Routes>
-    </BrowserRouter>
-  );
+        <Route path="/lists" element={<Lists />} /> */}
+        </Routes>
+        <Footer />
+      </BrowserRouter>
+    </ParallaxProvider>
+  )
 }

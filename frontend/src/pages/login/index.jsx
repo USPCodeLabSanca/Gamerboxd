@@ -4,7 +4,7 @@ export default function Login() {
   return (
     // celular: flex-col (empilhado) e permite rolar se a tela for muito pequena.
     // PC: flex-row (lado a lado), trava a altura e tira a rolagem.
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-80px)] md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
       {/* imagem -> celular: largura total e altura fixa (250px). PC: 40% da largura e altura total */}
       <div className="w-full h-[250px] md:h-full md:w-[40%] bg-black flex-shrink-0">
         <img
