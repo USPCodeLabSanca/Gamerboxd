@@ -13,7 +13,7 @@ auth_router = InferringRouter(prefix="/auth", tags=["auth"])
 
 @cbv(auth_router)
 class LoginController:
-    @auth_router.post("/login")
+    @auth_router.post("/login/")
     async def login(self, user: UserAuth, conn = Depends(get_conn), key = Depends(require_key)):
 
         user_id_result = await DB_read_user_column(conn, "user_id", username=user.email_or_username, email=user.email_or_username)
@@ -47,7 +47,7 @@ class LoginController:
 
 @cbv(auth_router)
 class LogoutController:
-    @auth_router.post("/logout")
+    @auth_router.post("/logout/")
     async def logout(self):
 
         response = JSONResponse({"message": "Log Out"}, status_code= status.HTTP_202_ACCEPTED)
