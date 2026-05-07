@@ -10,6 +10,7 @@ import Profile from "./pages/profile"
 import Members from "./pages/members"
 import Lists from "./pages/lists"
 import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
 
 export default function App() {
   return (
@@ -18,7 +19,6 @@ export default function App() {
       <BrowserRouter>
 
         <Navbar />
-
         <Routes>
           <Route path="/" element={<Home />} />
           {/* <Route path="/login" element={<Login />} />
@@ -30,6 +30,7 @@ export default function App() {
         <Route path="/members" element={<Members />} />
         <Route path="/lists" element={<Lists />} /> */}
         </Routes>
+        <Footer />
       </BrowserRouter>
     </ParallaxProvider>
   )

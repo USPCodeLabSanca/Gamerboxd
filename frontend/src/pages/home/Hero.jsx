@@ -17,7 +17,6 @@ export default function HeroParallax() {
         scale: [1, 1.05, 'easeOutCubic'],
         shouldAlwaysCompleteAnimation: true,
         expanded: false,
-        // CORREÇÃO AQUI: Abracei os componentes com uma div flexível e centralizada
         children: (
             <div className="absolute inset-0 flex flex-col items-center pt-32 z-10">
                 <MainTitle />
@@ -54,14 +53,14 @@ function MainTitle() {
 }
 
 function CAT() {
-    const animatedButton = "relative overflow-hidden bg-white px-8 py-4 rounded-4xl text-black font-semibold mt-10 lg:mt-24 after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-roxo after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-colors duration-300 hover:text-white";
+    const animatedButton = "relative overflow-hidden bg-roxo px-8 py-4 rounded-4xl text-white font-semibold mt-10 lg:mt-24 after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-colors duration-300 hover:text-black";
 
     const animatedLink = "relative text-white mt-4 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors cursor-pointer";
 
     return (
         <div className="flex flex-col items-center">
             <button className={animatedButton}>
-                <span className="relative z-10 transition-colors duration-300 hover:text-white cursor-pointer">
+                <span className="relative z-10 transition-colors duration-300 hover:text-black hover:bg-white cursor-pointer">
                     CADASTRE-SE GRATUITAMENTE
                 </span>
             </button>

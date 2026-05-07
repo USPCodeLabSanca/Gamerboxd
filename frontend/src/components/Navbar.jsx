@@ -20,6 +20,7 @@ export default function Navbar() {
     const animatedLink = "relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors";
 
     const links = [
+        {to: "/", label: "Home"},
         { to: "/reviews", label: "Reviews" },
         { to: "/games", label: "Games" },
         { to: "/lists", label: "Lists" },
@@ -35,7 +36,7 @@ export default function Navbar() {
             className="w-full bg-transparent lg:opacity-50 lg:hover:opacity-100 transition-opacity duration-500 text-white py-4 px-4 lg:px-20 flex items-center justify-between fixed top-0 z-50">
 
             {/* Logo */}
-            <h4 className="font-sans font-bold text-2xl lg:text-4xl hover:cursor-pointer">GAMERBOXD</h4>
+            <h4 onClick={() => window.location.href = "/"} className="font-sans font-bold text-2xl lg:text-4xl hover:cursor-pointer">GAMERBOXD</h4>
 
             {/* Links — visível só em desktop */}
             <div className="hidden lg:flex gap-6 items-center">

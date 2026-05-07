@@ -42,14 +42,14 @@ export default function About() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
                 {steps.map((step) => {
                     return (
-                        <motion.div 
+                        <motion.div key = {step.id}
 
                             initial={{opacity: 0, y: 100}}
                             whileInView={{opacity: 100, y: 0}}
                             transition={{duration: 1.5, ease: "easeIn"}}>
 
-                            <Card data={step} key={step.id} />
-                            <ImgCard data={step} key={step.id} />
+                            <Card data={step} />
+                            <ImgCard data={step} />
                         </motion.div>
                     )
                 })}

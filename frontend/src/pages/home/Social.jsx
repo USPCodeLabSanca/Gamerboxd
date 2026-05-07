@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Heart, Trophy, Star, MessageSquare } from "lucide-react";
+import NumberFlow from '@number-flow/react';
 import notaSvg from "../../assets/icons/nota.svg"
 
 const reviews = [
@@ -46,13 +47,15 @@ const reviews = [
 ];
 
 const stats = [
-    { label: "Gamers cadastrados", value: "28k", icon: "👾" },
-    { label: "Reviews escritas",   value: "140k", icon: "📝" },
-    { label: "Jogos catalogados",  value: "12k",  icon: "🎮" },
-    { label: "Listas criadas",     value: "34k",  icon: "📋" },
+    { label: "Gamers cadastrados", value: 28, suffix: "k", icon: "👾" },
+    { label: "Reviews escritas",   value: 140, suffix: "k", icon: "📝" },
+    { label: "Jogos catalogados",  value: 12,  suffix: "k", icon: "🎮" },
+    { label: "Listas criadas",     value: 34,  suffix: "k", icon: "📋" },
 ];
 
 export default function Social() {
+    const [statsVisible, setStatsVisible] = React.useState(false);
+
     return (
         <section className="w-full bg-cinza text-white py-20 px-6 flex flex-col items-center">
 
@@ -62,7 +65,6 @@ export default function Social() {
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeIn" }}
-                viewport={{ once: true }}
             >
                 <label className="text-roxo font-bold tracking-widest uppercase text-sm mb-2">
                     Comunidade
@@ -78,10 +80,9 @@ export default function Social() {
             {/* Stats */}
             <motion.div
                 className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl mb-16"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeIn", delay: 0.1 }}
-                viewport={{ once: true }}
+
+                onViewportEnter={() => setStatsVisible(true)}
+                onViewportLeave={() => setStatsVisible(false)}
             >
                 {stats.map((stat) => (
                     <div
@@ -89,7 +90,14 @@ export default function Social() {
                         className="bg-dark-card rounded-2xl p-6 flex flex-col items-center border border-transparent hover:border-roxo/50 transition-colors duration-300"
                     >
                         <span className="text-2xl mb-2">{stat.icon}</span>
-                        <span className="text-3xl font-bold text-white">{stat.value}</span>
+                        <span className="text-3xl font-bold text-white tabular-nums">
+                            <NumberFlow
+                                value={statsVisible ? stat.value : 0} 
+                                suffix={stat.suffix}
+                                trend={1}
+                                spinTiming ={{duration: 2000, easing: 'ease-out'}}
+                            />
+                        </span>
                         <span className="text-gray-400 text-sm text-center mt-1">{stat.label}</span>
                     </div>
                 ))}
