@@ -13,7 +13,7 @@ Cada endpoint é contruido a partir de uma classe que recebe um decorador **`@cb
 
 Esta função precisa de um decorador **`XYZ_router.ação("\path")`** que determina que tipo de **ação** ela faz: post, get, put, delete, e qual o **path** da url para chegar nesse endpoint. 
 
-Na maioria dos casos, a função vai receber um **schema** (que é definido em /models/schemas.py, readme dos schemas) como parâmetro, sendo necessário declarar qual schema que está sendo utilizado.
+Na maioria dos casos, a função vai receber um **schema** (que é definido em /models/schemas.py) como parâmetro, sendo necessário declarar qual schema que está sendo utilizado.
 
 As funções também podem receber dependências, que são parâmetros que vem internamente de outras funções. As duas depêndencias mais importantes até agora são a **`get_conn()`** e a **`require_login()`**:
 

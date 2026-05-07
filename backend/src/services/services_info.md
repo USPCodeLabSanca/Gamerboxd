@@ -22,8 +22,6 @@ Dentro de cada arquivo de serviços, haverá várias funções que realizam algu
 ``` 
 #/services/db_services.py
 
-from models.schemas import Order
-
 async def DB_create_order(conn, user_id: str, price: float, item: str):
 
     order_id = str(uuid4())
