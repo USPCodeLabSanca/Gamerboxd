@@ -53,7 +53,7 @@ function MainTitle() {
 }
 
 function CAT() {
-    const animatedButton = "relative overflow-hidden bg-roxo px-8 py-4 rounded-4xl text-white font-semibold mt-10 lg:mt-24 after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-colors duration-300 hover:text-black";
+    const animatedButton = "relative overflow-hidden bg-roxo px-8 py-4 rounded-4xl text-white font-semibold mt-10 lg:mt-40 after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-colors duration-300 hover:text-black";
 
     const animatedLink = "relative text-white mt-4 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors cursor-pointer";
 

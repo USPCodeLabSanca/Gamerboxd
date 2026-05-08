@@ -4,25 +4,26 @@ export default function Register() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
       {/* lado esquerdo (imagem) */}
-      <div className="w-full h-[250px] md:h-full md:w-[40%] bg-black flex-shrink-0">
+      <div className="w-full h-[250px] md:h-full md:w-1/2 bg-black flex-shrink-0">
         <img
           src="/eldenring.jpg"
           alt="Elden Ring"
           className="w-full h-full object-cover object-top block"
         />
+        <div className="absolute w-1/2 inset-0 shadow-[0_20px_20px_rgba(0,0,0,0.5)] pointer-events-none"></div>
       </div>
 
       {/* lado lireito (formulario))*/}
-      <div className="w-full md:w-[60%] grow bg-cinza flex flex-col justify-center items-center p-8 py-12 md:py-8">
+      <div className="w-full md:w-1/2 grow bg-cinza flex flex-col justify-center items-center p-8 py-12 md:py-8">
         <div className="w-full max-w-md">
-          <h1 className="text-3xl tracking-[0.2em] text-center text-black mb-6">
+          <h1 className="text-6xl text-start text-white mb-24">
             GAMERBOXD
           </h1>
 
-          <h2 className="text-[#8b7df0] text-2xl mb-1">Criar Conta</h2>
-          <p className="text-xs text-gray-500 mb-5">
+          <h2 className="text-[#8b7df0] text-4xl mb-1">Criar Conta</h2>
+          <p className="text-xs text-white font-light mb-5 mt-2">
             Já possui uma conta? {/* link aponta para o login */}
-            <Link to="/login" className="text-[#8b7df0] hover:underline">
+            <Link to="/login" className="text-[#8b7df0] font-medium hover:underline">
               Faça login aqui
             </Link>
           </p>
@@ -61,15 +62,15 @@ export default function Register() {
             </div>
 
             <div className="flex items-center text-xs mt-1">
-              <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
-                <input type="checkbox" className="accent-[#8b7df0]" required />
+              <label className="flex items-center gap-2 text-white cursor-pointer">
+                <input type="checkbox" className="accent-[#8b7df0] hover:cursor-pointer" required />
                 Concordo com os Termos de Serviço e Política de Privacidade
               </label>
             </div>
 
             <button
               type="submit"
-              className="bg-[#8b7df0] hover:bg-[#7262d9] text-white py-2.5 px-8 rounded-full mt-4 mx-auto w-full sm:w-3/5 transition-colors"
+              className="bg-roxo hover:bg-white hover:border hover:border-roxo hover:text-roxo hover:cursor-pointer text-white py-2.5 px-8 rounded-full mt-4 mx-auto w-full sm:w-3/5 transition-colors"
             >
               Cadastrar
             </button>
