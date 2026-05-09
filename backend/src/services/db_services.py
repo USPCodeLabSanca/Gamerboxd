@@ -62,6 +62,30 @@ async def DB_create_saved_list(conn, list_id: str, user_id: str):
         return DB_Result(success=False, error=e)
     
 
+async def DB_create_follow(conn, user_follower: str, user_followed:str):
+    try:
+        await conn.execute('''
+            INSERT INTO Follows(user_a, user_b) VALUES($1, $2)
+        ''', user_follower, user_followed)
+
+        return DB_Result(success=True, message="Novo seguidor cadastrado com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+    
+
+async def DB_delete_follow(conn, user_follower: str, user_followed:str):
+    try:
+        await conn.execute('''DELETE FROM Follows WHERE user_a = $1 AND user_b = $2', 
+         ''', user_follower, user_followed)
+    
+        return DB_Result(success=True, message="Novo desseguidor cadastrado com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+    
+
+
 async def DB_read_user_column(conn, column: str, user_id: str = None, email: str = None, username: str = None):
     if username == None and user_id == None and email == None:
         raise TypeError("username, email e user_id não podem estar todos vazios")
@@ -145,20 +169,21 @@ async def DB_read_user_follows(conn, user_id: str):
             """,
             user_id,
         )
- 
-        followers = [User(r["username"], r["pfp"]) for r in follower_rows]
-        followings = [User(r["username"], r["pfp"]) for r in following_rows]
+
+        followers = [User(username=r["username"], pfp=r["pfp"]) for r in follower_rows]
+        followings = [User(username=r["username"], pfp=r["pfp"]) for r in following_rows]
  
         user_follows = UserFollows(
             follower_count=len(followers),
             followers=followers,
             following_count=len(followings),
-            followings=followings,
+            followings=followings
         )
         
         return DB_Result(success=True, message="Relações do usuário encontradas", obj=user_follows)
         
     except Exception as e:
+        print("MUUUUUUUU7")
         return DB_Result(success=False, error=e)
 
 

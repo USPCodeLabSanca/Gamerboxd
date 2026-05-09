@@ -15,7 +15,7 @@ user_router = InferringRouter(prefix="/user", tags=["user"])
 class NewUserController:
 
     @user_router.post("/")
-    async def new_account(self, user: UserIn, conn = Depends(get_conn), key = Depends(require_key)):
+    async def new_user(self, user: UserIn, conn = Depends(get_conn), key = Depends(require_key)):
 
         # Validação do username, email e senha
         try:
@@ -106,12 +106,12 @@ class SeeMyAccountController:
 
     @staticmethod
     async def get_full(conn, user_id):        
-    
-        out = await DB_read_user_out(conn, user_id=user_id)        
+        
+        out = await DB_read_user_out(conn, user_id=user_id)       
         follows = await DB_read_user_follows(conn, user_id=user_id)
         tags = await DB_read_user_tags(conn, user_id=user_id)
         lists= await DB_read_user_lists(conn, user_id=user_id)
-
+        
         for result in (out, tags, lists, follows):
             if not result.success:
                 raise result.error
@@ -144,15 +144,15 @@ class SeeMyAccountController:
 class SeeAccountController(SeeMyAccountController):
     
     @user_router.get("/view/{username}")
-    async def see_other_account(self, username: str, conn = Depends(get_conn)):
+    async def see_account(self, username: str, conn = Depends(get_conn)):
 
         user_id_result = await DB_read_user_column(conn, "user_id", username=username)
         if not user_id_result.success:
-            return JSONResponse({"error": str(user_id_result.error)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise HTTPException(500, detail=str(user_id_result.error))            
         
         user_id = user_id_result.obj
         if not user_id:
-            return JSONResponse({"error": "Não encontramos o usuário"}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise HTTPException(500, detail="Não encontramos o usuário")
 
         try:
             user_full = await self.get_full(conn, user_id)
@@ -161,3 +161,55 @@ class SeeAccountController(SeeMyAccountController):
             raise HTTPException(500, detail=str(e))
 
         return JSONResponse(user_full.model_dump(), status.HTTP_200_OK)
+
+
+@cbv(user_router)
+class FollowController:
+    
+    @user_router.get("/follow/{username}")
+    async def follow(self, username: str, conn = Depends(get_conn), user_id = Depends(require_login)):
+
+        user_id_to_follow_result = await DB_read_user_column(conn, "user_id", username=username)
+        if not user_id_to_follow_result.success:
+            raise HTTPException(500, detail=str(user_id_to_follow_result.error))
+            
+
+        user_id_to_follow = user_id_to_follow_result.obj
+        if not user_id_to_follow:
+            raise HTTPException(500, detail="Não encontramos o usuário a ser seguido!")
+            
+        try:
+            follow_result = await DB_create_follow(conn, user_id, user_id_to_follow)
+            if not follow_result.success:
+                raise HTTPException(500, detail=str(follow_result.error))
+
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponse({"message":follow_result.message}, status.HTTP_202_ACCEPTED)
+
+
+@cbv(user_router)
+class UnfollowController:
+    
+    @user_router.get("/unfollow/{username}")
+    async def unfollow(self, username: str, conn = Depends(get_conn), user_id = Depends(require_login)):
+
+        user_id_to_unfollow_result = await DB_read_user_column(conn, "user_id", username=username)
+        if not user_id_to_unfollow_result.success:
+            raise HTTPException(500, detail=str(user_id_to_unfollow_result.error))
+            
+
+        user_id_to_unfollow = user_id_to_unfollow_result.obj
+        if not user_id_to_unfollow:
+            raise HTTPException(500, detail="Não encontramos o usuário a ser desseguido!")
+            
+        try:
+            unfollow_result = await DB_delete_follow(conn, user_id, user_id_to_unfollow)
+            if not unfollow_result.success:
+                raise HTTPException(500, detail=str(unfollow_result.error))
+
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponse({"message":unfollow_result.message}, status.HTTP_202_ACCEPTED)

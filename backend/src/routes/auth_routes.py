@@ -20,8 +20,7 @@ class LoginController:
 
         if not user_id_result.success:
             raise HTTPException(500, detail= str(user_id_result.error))
-
-        print(user_id_result.message)
+        
         user_id = user_id_result.obj
 
         if not user_id:

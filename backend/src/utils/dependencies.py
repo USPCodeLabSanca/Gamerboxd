@@ -9,8 +9,9 @@ async def get_conn(request: Request):
 def require_login(request: Request) -> str:
     login = request.state.user_login
     if not login["logged_in"]:
-        raise HTTPException(401, "É necessário fazer login paar esta ação")
+        raise HTTPException(401, "É necessário fazer login para esta ação")
     return login["user_id"]
+
 
 def require_key(request: Request) -> str:
     return request.app.state.jwt_key
