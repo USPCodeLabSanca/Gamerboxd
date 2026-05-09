@@ -166,7 +166,7 @@ class SeeAccountController(SeeMyAccountController):
 @cbv(user_router)
 class FollowController:
     
-    @user_router.get("/follow/{username}")
+    @user_router.post("/follow/{username}")
     async def follow(self, username: str, conn = Depends(get_conn), user_id = Depends(require_login)):
 
         user_id_to_follow_result = await DB_read_user_column(conn, "user_id", username=username)
@@ -192,7 +192,7 @@ class FollowController:
 @cbv(user_router)
 class UnfollowController:
     
-    @user_router.get("/unfollow/{username}")
+    @user_router.post("/unfollow/{username}")
     async def unfollow(self, username: str, conn = Depends(get_conn), user_id = Depends(require_login)):
 
         user_id_to_unfollow_result = await DB_read_user_column(conn, "user_id", username=username)
