@@ -4,7 +4,8 @@ from email_validator import validate_email, EmailNotValidError
 from fastapi import HTTPException
 from jose import jwt
 
-from services.db_services import DB_read_user_column
+from models.schemas import ListIn, List
+from services.db_services import DB_read_user_column, DB_read_user_lists
 
 
 def passwords_match(stored_password, tested_password):
@@ -90,3 +91,38 @@ def is_password_valid(password: str):
             raise HTTPException(409, detail="A senha deve conter entre 8 a 64 caractéres, com pelo menos uma letra minúscula, uma letra maiúscula, um número e um símbol")
             
         return password
+
+
+async def is_list_valid(conn, user_id: str, list: ListIn):
+    
+    # Limpar espaços extras
+    for key, value in list:
+        if isinstance(value, str) and value is not None:
+            value = value.strip()
+
+    # Verificar se já existe lista com esse nome
+    user_lists_result = await DB_read_user_lists(conn, user_id)
+
+    if not user_lists_result.success:
+        raise HTTPException(500, detail= str(user_lists_result.error))
+    
+    user_lists = user_lists_result.obj
+
+    for ul in user_lists.lists:
+        if ul.name == list.name:
+            raise HTTPException(400, detail=f"Você já possui uma lista com o nome {list.name}")
+
+    # Verificar tamanhos máximos 
+    if len(list.name) > 60:
+        raise HTTPException(500, detail = f"O nome da lista não pode exceder 60 caracteres")
+    
+    if len(list.description) > 350:
+        raise HTTPException(500, detail = f"A descrição da lista não pode exceder 350 caracteres")
+    
+    list_with_creator = List(name=list.name,
+                            description=list.description,
+                            is_private= list.is_private,
+                            creator=user_id
+                        )
+    
+    return list_with_creator

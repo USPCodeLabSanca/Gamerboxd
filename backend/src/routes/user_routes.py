@@ -1,4 +1,4 @@
-from fastapi import Depends, status, Request
+from fastapi import Depends, status
 from fastapi.responses import JSONResponse
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
@@ -24,8 +24,11 @@ class NewUserController:
             user.password = is_password_valid(user.password)      
             user.password = encrypt_password(user.password)
 
+        except HTTPException as he:
+            raise he
+        
         except Exception as e:
-            raise HTTPException(500, detail = str(e))
+            raise HTTPException(500, detail=str(e))
 
         account_creation_result = await DB_create_user(conn, user)
 

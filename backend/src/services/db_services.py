@@ -22,7 +22,7 @@ async def DB_create_user(conn, user: UserIn):
         return DB_Result(success=True, message="Usuário criado com sucesso!", obj=user_id)
     
 
-async def DB_create_list(conn, game_list: List):
+async def DB_create_list(conn, new_list: List):
         
     list_id = str(uuid4())
 
@@ -30,7 +30,7 @@ async def DB_create_list(conn, game_list: List):
         await conn.execute('''
             INSERT INTO Lists(list_id, list_name, list_description, list_creator, is_private)
             VALUES($1, $2, $3, $4, $5)
-        ''', list_id, game_list.name, game_list.description, game_list.creator, game_list.is_private)
+        ''', list_id, new_list.name, new_list.description, new_list.creator, new_list.is_private)
 
         return DB_Result(success=True, message="Lista criada com sucesso!", obj=list_id)
     
@@ -62,7 +62,7 @@ async def DB_create_saved_list(conn, list_id: str, user_id: str):
         return DB_Result(success=False, error=e)
     
 
-async def DB_create_follow(conn, user_follower: str, user_followed:str):
+async def DB_create_follow(conn, user_follower: str, user_followed: str):
     try:
         await conn.execute('''
             INSERT INTO Follows(user_a, user_b) VALUES($1, $2)
@@ -74,7 +74,19 @@ async def DB_create_follow(conn, user_follower: str, user_followed:str):
         return DB_Result(success=False, error=e)
     
 
-async def DB_delete_follow(conn, user_follower: str, user_followed:str):
+async def DB_create_list_save(conn, list_id: str, user_id: str):
+    try: 
+        await conn.execute('''
+            INSERT INTO SavedLists(user_a, list) VALUES($1, $2)
+        ''', user_id, list_id)
+
+        return DB_Result(success=True, message="Lista salva com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+    
+
+async def DB_delete_follow(conn, user_follower: str, user_followed: str):
     try:
         await conn.execute('''DELETE FROM Follows WHERE user_a = $1 AND user_b = $2', 
          ''', user_follower, user_followed)
@@ -84,6 +96,27 @@ async def DB_delete_follow(conn, user_follower: str, user_followed:str):
     except Exception as e:
         return DB_Result(success=False, error=e)
     
+
+async def DB_delete_list(conn, list_name: str, user_id: str):
+    try:
+        await conn.execute('''DELETE FROM Lists WHERE list = $1 AND user_a = $2', 
+         ''', list_name, user_id)
+        
+        return DB_Result(success=True, message="Lista foi dessalvada com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+
+async def DB_delete_list_save(conn, list_name: str, user_id: str):
+    try:
+        await conn.execute('''DELETE FROM SavedLists WHERE list = $1 AND user_a = $2''',
+            list_name, user_id)
+        
+        return DB_Result(success=True, message="Lista deletada com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
 
 
 async def DB_read_user_column(conn, column: str, user_id: str = None, email: str = None, username: str = None):
@@ -187,6 +220,23 @@ async def DB_read_user_follows(conn, user_id: str):
         return DB_Result(success=False, error=e)
 
 
+async def DB_read_user_list_id(conn, user_id: str, list_name: str, only_public: bool):
+    
+    try:
+        if only_public:
+            query = "SELECT list_id FROM Lists WHERE list_creator = $1 AND list_name = $2 AND is_private = false"
+
+        else:
+            query = "SELECT list_id FROM Lists WHERE list_creator = $1 AND list_name = $2"
+
+        list_id = await conn.fetchval(query, user_id, list_name)
+
+        return DB_Result(success=True, message="Lista encontrada", obj=list_id)
+        
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+
 async def DB_read_user_lists(conn, user_id: str):
     
     try:
@@ -244,3 +294,38 @@ async def DB_read_user_tags(conn, user_id: str = None):
         
     except Exception as e:
         return DB_Result(success=False, error=e)
+    
+
+async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: str):
+
+    try:
+        list_id = await conn.fetchval('''
+            UPDATE Lists 
+            SET list_name = $1, list_description = $2, is_private = $3 
+            WHERE list_name = $4 AND list_creator = $5 
+            RETURNING list_id
+        ''', new_list.name, new_list.description, new_list.is_private, old_list_name, user_id)
+
+        full_row = await conn.fetchrow('''
+            SELECT l.list_name, l.list_description, u.username AS list_creator,
+                   l.is_private, l.created_at, COUNT(sl.user_a) AS list_saves
+            FROM Lists l
+            JOIN Users u ON u.user_id = l.list_creator
+            LEFT JOIN SavedLists sl ON sl.list = l.list_id
+            WHERE l.list_id = $1
+            GROUP BY l.list_name, l.list_description, u.username, l.is_private, l.created_at
+        ''', list_id)
+
+        updated_list = ListFull(
+            name=full_row["list_name"],
+            description=full_row["list_description"],
+            creator=full_row["list_creator"],
+            is_private=full_row["is_private"],
+            created_at=fix_date(full_row["created_at"]),
+            list_saves=full_row["list_saves"],
+        )
+        return DB_Result(success=True, message="Lista alterada com sucesso", obj=updated_list)
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+

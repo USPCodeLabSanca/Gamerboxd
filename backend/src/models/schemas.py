@@ -34,11 +34,14 @@ class UserBlocked(BaseModel):
     blocks: list[User]
 
 
-class List(BaseModel):
-    creator: str = None
+class ListIn(BaseModel):
     name: str
     description: str
-    is_private: bool = True
+    is_private: bool = True    
+
+
+class List(ListIn):
+    creator: str
 
 
 class ListFull(List):

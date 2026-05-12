@@ -131,7 +131,6 @@ async def create_table_lists(conn):
                 list_creator VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
                 is_private BOOL NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT now(),
-                last_update TIMESTAMPTZ DEFAULT now(),
                            
                 UNIQUE (list_name, list_creator)
             )
