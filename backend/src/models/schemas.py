@@ -76,3 +76,29 @@ class ListOut(List):
     games: list[Game]
     created_at: str
     last_update: str
+
+
+class ReviewIn (BaseModel):
+    game: int
+    rating_num: float
+    rating_text: str
+    is_private: bool
+    time_played: float
+    liked: bool
+    completed: bool
+
+
+class Review(ReviewIn):
+    review_id: str
+    reviewer: str
+
+
+class ReviewOut(Review):
+    created_at: str
+    last_update: str
+
+
+class ReviewTags(BaseModel):
+    review: str
+    tag: int
+
