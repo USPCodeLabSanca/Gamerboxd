@@ -36,6 +36,7 @@ export default function HeroParallax() {
 
     return (
         <ParallaxBanner
+            id="#hero"
             layers={[background, gradientOverlay, headline,]}
             className="h-screen bg-gray-900"
         />

@@ -4,7 +4,7 @@ export default function Register() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
       {/* lado esquerdo (imagem) */}
-      <div className="w-full h-[250px] md:h-full md:w-1/2 bg-black flex-shrink-0">
+      <div className="w-full h-62.5 md:h-full md:w-1/2 bg-black shrink-0">
         <img
           src="/eldenring.jpg"
           alt="Elden Ring"
