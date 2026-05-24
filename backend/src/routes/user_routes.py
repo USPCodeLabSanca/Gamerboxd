@@ -216,3 +216,101 @@ class UnfollowController:
             raise HTTPException(500, detail=str(e))
 
         return JSONResponse({"message":unfollow_result.message}, status.HTTP_202_ACCEPTED)
+
+@cbv(user_router)
+class UpdateUserController:
+
+    @user_router.put("/")
+    async def update_user(self, user_id = Depends(require_login), user: UserIn, conn = Depends(get_conn)):
+        
+        user_result = await DB_read_user_out(conn, "user_id")
+        if not user_result.success:
+            raise HTTPException(500, detail=str(user_id_result.error))            
+        
+        user_response = user_result.obj
+        if not user_response:
+            raise HTTPException(500, detail="Não encontramos o usuário")
+        # Validação do username, email
+        try:
+            #É verificado se os campos de email e username foram alterados, pois se tivessem sido alterados
+            #Dariam erro na validação por já existirem, então se foram iguais apenas ignoro.
+            if user_response.username != user.username:
+                user.username = await is_username_valid(user.username, conn)
+            if user_response.email != user.email:
+                user.email =  await is_email_valid(user.email, conn)
+
+        except Exception as e:
+            raise HTTPException(500, detail = str(e))
+
+        account_update_result = await DB_update_user(conn, "user_id", user)
+
+        if not account_update_result.success:
+            raise HTTPException(500, str(account_update_result.error))
+
+        return JSONResponse({"message":account_update_result.message}, status.HTTP_202_ACCEPTED)
+
+@cbv(user_router)
+class DeleteuserController:
+
+    @user_router.delete("/")
+    async def delete_user(self, user_id = Depends(require_login), conn = Depends(get_conn)):
+
+        try:
+            user_delete_result = DB_delete_user(conn, "user_id")
+            if not user_delete_result.success:
+                raise HTTPException(500, detail=str(user_delete_result.error))
+        
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponde({"message":user_delete_result.message}, status.HTTP_202_ACCEPTED)
+
+@cbv(user_router)
+class BlockController:
+
+    @user_router.post("/block/{username}")
+    async def block_user(self, username: str, user_id = Depends(require_login), conn = Depends(get_conn)):
+
+        user_id_to_block_result = await DB_read_user_column(conn, "user_id", username=username)
+        if not user_id_to_block_result.success:
+            raise HTTPException(500, detail=str(user_id_to_block_result.error))
+            
+
+        user_id_to_block = user_id_to_block_result.obj
+        if not user_id_to_block:
+            raise HTTPException(500, detail="Não encontramos o usuário a ser bloqueado!")
+
+        try:
+            block_result = await DB_create_block(conn, user_id, user_id_to_block)
+            if not block_result.success:
+                raise HTTPException(500, detail=str(block_result.error))
+
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponse({"message":block_result.message}, status.HTTP_202_ACCEPTED)
+
+@cbv(user_router)
+class UnblockController:
+
+    @user_router.post("/unblock/{username}")
+    async def block_user(self, username: str, user_id = Depends(require_login), conn = Depends(get_conn)):
+
+        user_id_to_unblock_result = await DB_read_user_column(conn, "user_id", username=username)
+        if not user_id_to_unblock_result.success:
+            raise HTTPException(500, detail=str(user_id_to_unblock_result.error))
+            
+
+        user_id_to_unblock = user_id_to_unblock_result.obj
+        if not user_id_to_unblock:
+            raise HTTPException(500, detail="Não encontramos o usuário a ser bloqueado!")
+
+        try:
+            unblock_result = await DB_delete_block(conn, user_id, user_id_to_unblock)
+            if not unblock_result.success:
+                raise HTTPException(500, detail=str(unblock_result.error))
+
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponse({"message":unblock_result.message}, status.HTTP_202_ACCEPTED)

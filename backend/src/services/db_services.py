@@ -329,3 +329,43 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
     except Exception as e:
         return DB_Result(success=False, error=e)
 
+async def DB_update_user(conn, user_id: str, user: UserIn):
+
+    try:
+        await conn.execute('''
+        UPDATE Users SET username = $1, email = $2, bio = $3, pfp = $4
+        WHERE user_id = $5
+        ''', user.username, user.email, user.bio, user.pfp, user_id)
+
+        return DB_Result(success=True, message="Usuário atualizado com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+
+async def DB_delete_user(conn, user_id: str):
+    try:
+        await conn.execute('''DELETE FROM Users WHERE user_id = $1
+        ''', user_id)
+
+        return DB_Result(success=True, message="Usuário deletado com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+async def DB_create_block(conn, user_a: str, user_b: str):
+    try:
+        await conn.execute('''INSERT INTO Blocks(user_a, user_b) VALUES($1, $2)
+        ''', user_a, user_b)
+
+        return DB_Result(success=True, message = "Bloqueio criado com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+async def DB_delete_block(conn, user_a: str, user_b: str):
+    try:
+        await conn.execute('''DELETE FROM Blocks WHERE user_a = $1 AND user_b=$2
+        ''', user_a, user_b)
+
+        return DB_Result(success=True, message = "Bloqueio deletado com sucesso!")
