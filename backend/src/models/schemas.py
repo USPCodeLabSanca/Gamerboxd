@@ -88,17 +88,19 @@ class ReviewIn (BaseModel):
     completed: bool
 
 
-class Review(ReviewIn):
+class ReviewOut(ReviewIn):
+    last_update: str
+
+
+class Review(ReviewOut):
     review_id: str
     reviewer: str
-
-
-class ReviewOut(Review):
-    created_at: str
-    last_update: str
 
 
 class ReviewTags(BaseModel):
     review: str
     tag: int
 
+class ReviewLike(BaseModel):
+    user_a: str
+    review: str
