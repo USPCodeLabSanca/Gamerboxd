@@ -56,8 +56,8 @@ const HorizontalScrollCarousel = () => {
                 {/* CARROSSEL */}
                 <motion.div style={{ x: xCards }} className="flex gap-8 h-6/12 relative z-10 pl-10 md:pl-40">
                     {cards.map((card) => {
-                        return <Card card={card} key={card.id} />;
-                    })}
+                        return <Card game={card} status={false} key={card.id} />;
+                    })} 
                 </motion.div>
 
                 {/* TEXTO 2 (Inferior) */}

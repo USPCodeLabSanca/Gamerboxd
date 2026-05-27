@@ -10,7 +10,7 @@ export default function Navbar() {
 
     useMotionValueEvent(scrollY, "change", (current) => {
         const previous = scrollY.getPrevious() ?? 0
-        if (current > previous && current > 150) {
+        if (current > previous && current > 10) {
             setHidden(true)
         } else {
             setHidden(false)
