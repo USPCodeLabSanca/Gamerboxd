@@ -129,7 +129,7 @@ function PopularReviews () {
 }
 
 const smallGames = [
-        { id: 1, title: "GTA VI", url: gtaImg, jogou: true, liked: true, nota: 5, complete: true},
+        { id: 1, title: "GTA VI", url: gtaImg, jogou: true, liked: true, nota: 5, complete: true    },
         { id: 2, title: "God of War", url: gowImg, jogou: true, liked: true, nota: 5, complete: true },
         { id: 3, title: "God of War II", url: rdr2Img, jogou: true, liked: true, nota: 5, complete: true },
         { id: 4, title: "Silksong Small", url: silksongImg, jogou: true, liked: true, nota: 4.5, complete: true },
