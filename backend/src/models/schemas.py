@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 class User(BaseModel):
     username: str
-    pfp: str = None
+    pfp: str | None
 
 
 class UserAuth(BaseModel):
@@ -10,16 +10,13 @@ class UserAuth(BaseModel):
     password: str
 
 
-class UserTags(BaseModel):
-    tag_count: int
-    tags: list[str] = []
-
-
 class UserIn(User):
     email: str
     password: str
-    bio: str = None
-    tags: UserTags
+
+class UserEdit(User):
+    email: str
+    bio: str
 
 
 class UserFollows(BaseModel):
@@ -44,35 +41,37 @@ class List(ListIn):
     creator: str
 
 
-class ListFull(List):
+class Game(BaseModel):
+    game_id: int
+    name: str
+    picture: str | None
+    year: int
+
+
+class ListOut(List):
     created_at: str
     list_saves: int
 
 
+class ListFull(ListOut):
+    games: list[Game]
+
+
 class UserLists(BaseModel):
     list_count: int
-    lists: list[ListFull]
+    lists: list[ListOut]
 
 
 class UserOut(User):
     email: str
-    bio: str = None
+    bio: str | None
     created_at: str
 
 
 class UserFull(UserOut):
-    tags: UserTags
     follows: UserFollows
     lists: UserLists
 
-  
-class Game(BaseModel):
-    game_id: int
-    name: str
-    image: str
-
-
-class ListOut(List):
+class GamesOut(BaseModel):
+    count: int
     games: list[Game]
-    created_at: str
-    last_update: str

@@ -50,7 +50,7 @@ async def is_username_valid(username: str, conn):
             raise HTTPException(500, detail=str(username_exists_result.error))
 
         if username_exists_result.obj:
-            raise HTTPException(409, detail=f'O username "{username}" já está sendo utilizado')
+            raise HTTPException(400, detail=f'O username "{username}" já está sendo utilizado')
 
         return username
 
@@ -71,7 +71,7 @@ async def is_email_valid(email: str, conn):
 
     
     if email_exists_result.obj:
-        raise HTTPException(409, detail="Este email já está atrelado a outra conta")
+        raise HTTPException(400, detail="Este email já está atrelado a outra conta")
 
 
     return email

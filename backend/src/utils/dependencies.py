@@ -1,10 +1,16 @@
 from fastapi import Request, HTTPException
 
 async def get_conn(request: Request):
-    pool = request.app.state.pool
+    pool = request.app.state.internal_pool
     
     async with pool.acquire() as conn:
         yield conn
+
+async def get_exconn(request: Request):
+    pool = request.app.state.external_pool
+    
+    async with pool as session:
+        yield session
 
 def require_login(request: Request) -> str:
     login = request.state.user_login
@@ -12,6 +18,9 @@ def require_login(request: Request) -> str:
         raise HTTPException(401, "É necessário fazer login para esta ação")
     return login["user_id"]
 
-
-def require_key(request: Request) -> str:
+def get_key(request: Request) -> str:
     return request.app.state.jwt_key
+
+
+def get_rawg(request: Request) -> str:
+    return  request.app.state.rawg_key 

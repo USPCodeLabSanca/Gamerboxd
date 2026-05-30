@@ -11,9 +11,9 @@ async def DB_create_user(conn, user: UserIn):
 
     try:
         await conn.execute('''
-            INSERT INTO Users(user_id, username, email, password, bio, pfp)
-            VALUES($1, $2, $3, $4, $5, $6)
-        ''', user_id, user.username, user.email, user.password, user.bio, user.pfp)
+            INSERT INTO Users(user_id, username, email, password, pfp)
+            VALUES($1, $2, $3, $4, $5)
+        ''', user_id, user.username, user.email, user.password, user.pfp)
         
     except Exception as e:
         return DB_Result(success=False, error=e)
@@ -38,30 +38,6 @@ async def DB_create_list(conn, new_list: List):
         return DB_Result(success=False, error=e)
 
 
-async def DB_create_user_tags(conn, user_id, tag_name):
-    try:
-        tag_id = await conn.fetchval('SELECT tag_id FROM Tags WHERE tag_name = $1', tag_name)
-
-        await conn.execute('INSERT INTO UserTags (user_a, tag) VALUES($1, $2)', user_id, tag_id)
-
-        return DB_Result(success=True, message="Tag do usuário salva com sucesso!")
-
-    except Exception as e:
-        return DB_Result(success=False, error=e)
-
-
-async def DB_create_saved_list(conn, list_id: str, user_id: str):
-    try:
-        await conn.execute('''
-            INSERT INTO SavedLists(user_a, list) VALUES($1, $2)
-        ''', user_id, list_id)
-
-        return DB_Result(success=True, message="Lista salva com sucesso!", obj=list_id)
-    
-    except Exception as e:
-        return DB_Result(success=False, error=e)
-    
-
 async def DB_create_follow(conn, user_follower: str, user_followed: str):
     try:
         await conn.execute('''
@@ -84,7 +60,33 @@ async def DB_create_list_save(conn, list_id: str, user_id: str):
     
     except Exception as e:
         return DB_Result(success=False, error=e)
+
+
+async def DB_create_list_game(conn, list_id, game_id):
+    try:
+        await conn.execute('''
+            INSERT INTO ListContent(list, game) VALUES($1, $2)
+        ''', list_id, game_id)
+
+        return DB_Result(success=True, message="Game adicionado à lista com sucesso!")
     
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+    
+
+async def DB_create_game(conn, game: Game):
+    try:
+        await conn.execute('''
+            INSERT INTO Games(game_id, game_name, game_picture, game_year)
+            VALUES($1, $2, $3, $4)
+            ON CONFLICT (game_id)
+            DO NOTHING;
+        ''', game.game_id, game.name, game.picture, game.year)
+
+        return DB_Result(success=True, message="Game adicionado ao db com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
 
 async def DB_delete_follow(conn, user_follower: str, user_followed: str):
     try:
@@ -97,10 +99,10 @@ async def DB_delete_follow(conn, user_follower: str, user_followed: str):
         return DB_Result(success=False, error=e)
     
 
-async def DB_delete_list(conn, list_name: str, user_id: str):
+async def DB_delete_list(conn, list_id: str, user_id: str):
     try:
         await conn.execute('''DELETE FROM Lists WHERE list = $1 AND user_a = $2', 
-         ''', list_name, user_id)
+         ''', list_id, user_id)
         
         return DB_Result(success=True, message="Lista foi dessalvada com sucesso!")
     
@@ -108,12 +110,23 @@ async def DB_delete_list(conn, list_name: str, user_id: str):
         return DB_Result(success=False, error=e)
 
 
-async def DB_delete_list_save(conn, list_name: str, user_id: str):
+async def DB_delete_list_save(conn, list_id: str, user_id: str):
     try:
         await conn.execute('''DELETE FROM SavedLists WHERE list = $1 AND user_a = $2''',
-            list_name, user_id)
+            list_id, user_id)
         
         return DB_Result(success=True, message="Lista deletada com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+
+async def DB_delete_list_game(conn, list_id: str, game_id: int):
+    try:
+        await conn.execute('''DELETE FROM ListContent WHERE list = $1 AND game = $2''',
+            list_id, game_id)
+        
+        return DB_Result(success=True, message="Game foi deletado da lista com sucesso!")
     
     except Exception as e:
         return DB_Result(success=False, error=e)
@@ -216,7 +229,6 @@ async def DB_read_user_follows(conn, user_id: str):
         return DB_Result(success=True, message="Relações do usuário encontradas", obj=user_follows)
         
     except Exception as e:
-        print("MUUUUUUUU7")
         return DB_Result(success=False, error=e)
 
 
@@ -255,7 +267,7 @@ async def DB_read_user_lists(conn, user_id: str):
         )
  
         lists = [
-            ListFull(
+            ListOut(
                 name=r["list_name"],
                 description=r["list_description"],
                 creator=r["list_creator"],
@@ -271,30 +283,52 @@ async def DB_read_user_lists(conn, user_id: str):
         return DB_Result(success=True, message="Listas salvas pelo usuário encontrados!", obj=user_lists)
         
     except Exception as e:
-        return DB_Result(success=False, error=e)
+        return DB_Result(success=False, error=e)    
 
-
-async def DB_read_user_tags(conn, user_id: str = None):
-
+async def DB_read_list_full(conn, list_id: str):
     try:
-        rows = await conn.fetch(
-            """
-            SELECT t.tag_name
-            FROM UserTags ut
-            JOIN Tags t ON t.tag_id = ut.tag
-            WHERE ut.user_a = $1
-            """,
-            user_id,
-        )
- 
-        tags = [r["tag_name"] for r in rows]
-        user_tags = UserTags(tag_count=len(tags), tags=tags)
+        full_row = await conn.fetchrow('''
+            SELECT l.list_name, l.list_description, u.username AS list_creator,
+                   l.is_private, l.created_at, COUNT(sl.user_a) AS list_saves
+            FROM Lists l
+            JOIN Users u ON u.user_id = l.list_creator
+            LEFT JOIN SavedLists sl ON sl.list = l.list_id
+            WHERE l.list_id = $1
+            GROUP BY l.list_name, l.list_description, u.username, l.is_private, l.created_at
+        ''', list_id)
 
-        return DB_Result(success=True, message="Listas salvas pelo usuário encontrados!", obj=user_tags)
-        
+        games = await conn.fetch('''
+            SELECT g.game_id, g.game_name, g.game_picture, g.game_year
+            FROM Games g
+            LEFT JOIN ListContent lc on lc.game = g.game_id
+            WHERE lc.list = $1
+        ''', list_id)
+
+        games_list = []
+
+        for g in games:
+            game  = Game(
+                game_id = g["game_id"],
+                name = g["game_name"],
+                picture = g["game_picture"],
+                year = g["game_year"]
+            )
+            games_list.append(game)
+
+        user_list = ListFull(
+            name=full_row["list_name"],
+            description=full_row["list_description"],
+            creator=full_row["list_creator"],
+            is_private=full_row["is_private"],
+            created_at=fix_date(full_row["created_at"]),
+            list_saves=full_row["list_saves"],
+            games=games_list
+        )
+        return DB_Result(success=True, message="Lista encontrada com sucesso", obj=user_list)
+    
     except Exception as e:
         return DB_Result(success=False, error=e)
-    
+
 
 async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: str):
 
@@ -316,6 +350,24 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
             GROUP BY l.list_name, l.list_description, u.username, l.is_private, l.created_at
         ''', list_id)
 
+        games = await conn.fetch('''
+            SELECT g.game_id, g.game_name, g.game_picture, g.game_year
+            FROM Games g
+            JOIN ListContent lc on lc.game = g.game_id
+            WHERE lc.list = $1
+        ''')
+
+        games_list = []
+
+        for g in games:
+            game  = Game(
+                game_id = g["game_id"],
+                name = g["game_name"],
+                picture = g["game_picture"],
+                year = g["game_year"]
+            )
+            games_list.append(game)
+
         updated_list = ListFull(
             name=full_row["list_name"],
             description=full_row["list_description"],
@@ -323,9 +375,24 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
             is_private=full_row["is_private"],
             created_at=fix_date(full_row["created_at"]),
             list_saves=full_row["list_saves"],
+            games=games_list
         )
         return DB_Result(success=True, message="Lista alterada com sucesso", obj=updated_list)
     
     except Exception as e:
         return DB_Result(success=False, error=e)
 
+async def DB_update_user(conn, user: UserEdit, user_id: str):
+
+    try:
+        await conn.execute('''
+            UPDATE Users 
+            SET username = $1, email = $2, bio = $3 , pfp = $4
+            WHERE user_id = $5
+        ''', user.username, user.email, user.bio, user.pfp, user_id)
+        
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+    
+    else:
+        return DB_Result(success=True, message="Usuário atualizado com sucesso!")

@@ -6,6 +6,7 @@ from routes.auth_routes import auth_router
 from routes.user_routes import user_router
 from routes.list_routes import list_router
 from routes.review_routes import review_router
+from routes.game_routes import game_router
 
 lifespan = LifespanConfig()
 app = FastAPI(lifespan = lifespan)
@@ -15,3 +16,4 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(list_router)
 app.include_router(review_router)
+app.include_router(game_router)

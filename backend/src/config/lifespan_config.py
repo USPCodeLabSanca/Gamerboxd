@@ -1,15 +1,25 @@
 import asyncpg
+import aiohttp
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
 import os
 
-from config.auth_config import get_secret_key
 from models.tables import *
 from utils.db import DB_Result
 
 
 class LifespanConfig():
+
+    @staticmethod
+    def get_jwt_key():
+        load_dotenv()
+        return os.getenv("SECRET_KEY_JWT")
+
+    @staticmethod
+    def get_rawg_key():
+        load_dotenv()
+        return os.getenv("RAWG_KEY")
 
     def set_auth(self):
     
@@ -97,7 +107,7 @@ class LifespanConfig():
             return DB_Result(success=True, message="Criação de banco funcionou!")        
 
 
-    async def create_pool(self):
+    async def create_internal_pool(self):
         try:
             pool = await asyncpg.create_pool(
                 dsn = self.dsn(), 
@@ -106,11 +116,20 @@ class LifespanConfig():
                 max_inactive_connection_lifetime = 300,
             )
 
+            return DB_Result(success=True, obj=pool, message="Criação do pool de conexões internas funcionou")
+
         except asyncpg.PostgresError as e:
-            return DB_Result(success=False, message=f"{e}")
+            return DB_Result(success=False, error=e)
+     
         
-        else:
-            return DB_Result(success=True, obj=pool, message="Criação do pool de conexões funcionou")
+    async def create_external_pool(self):
+        try:
+            client_session = aiohttp.ClientSession()
+
+            return DB_Result(success=True, obj=client_session, message="Criação do pool de conexões externas funcionou")
+
+        except Exception as e:
+            return DB_Result(success=False, error=e)
 
     @asynccontextmanager
     async def __call__(self, app: FastAPI):
@@ -121,16 +140,25 @@ class LifespanConfig():
         if not table_creation.success:
             raise table_creation.error
 
-        pool_creation = await self.create_pool()
-        if pool_creation.success:
-            app.state.pool = pool_creation.obj
+        internal_pool_creation = await self.create_internal_pool()
+        if internal_pool_creation.success:
+            app.state.internal_pool = internal_pool_creation.obj
         
         else:
-            raise pool_creation.error
+            raise internal_pool_creation.error
+        
 
-        app.state.jwt_key = get_secret_key()
+        external_pool_creation = await self.create_external_pool()
+        if external_pool_creation.success:
+            app.state.external_pool = external_pool_creation.obj
+        
+        else:
+            raise external_pool_creation.error
 
-        async with app.state.pool.acquire() as conn:
+        app.state.jwt_key = self.get_jwt_key()
+        app.state.rawg_key = self.get_rawg_key()
+
+        async with app.state.internal_pool.acquire() as conn:
             await create_table_users(conn)
             await create_table_games(conn)
             await create_table_tags(conn)
@@ -151,4 +179,6 @@ class LifespanConfig():
 
         yield
 
-        await app.state.pool.close()
+        await app.state.internal_pool.close()
+        await app.state.external_pool.close()
+

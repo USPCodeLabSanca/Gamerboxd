@@ -18,10 +18,12 @@ async def create_table_users(conn):
             ''')
 
     except PostgresError as e:
+        # print(f"Tabela Users: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela Users funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela Users funcionou!")
     
 
 async def create_table_follows(conn):
@@ -30,16 +32,19 @@ async def create_table_follows(conn):
                 CREATE TABLE IF NOT EXISTS Follows (
                     user_a VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE,
                     user_b VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE,
+                    created_at TIMESTAMPTZ DEFAULT now(),
 
                     PRIMARY KEY (user_a, user_b)
                 )
             ''')
 
     except PostgresError as e:
+        # print(f"Tabela Follows: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela Follows funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela Follows funcionou!")
 
 
 async def create_table_games(conn):
@@ -47,16 +52,19 @@ async def create_table_games(conn):
         await conn.execute('''
                 CREATE TABLE IF NOT EXISTS Games (
                     game_id INTEGER PRIMARY KEY,
-                    game_name VARCHAR(30) NOT NULL,
-                    game_picture TEXT
+                    game_name VARCHAR(50) NOT NULL,
+                    game_picture TEXT,
+                    game_year INTEGER
                 )
             ''')
 
     except PostgresError as e:
+        # print(f"Tabela Games: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela Games funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela Games funcionou!")
    
 
 async def create_table_tags(conn):
@@ -67,10 +75,14 @@ async def create_table_tags(conn):
                     tag_name VARCHAR(36) UNIQUE NOT NULL 
                 )
             ''')
+        
     except PostgresError as e:
+        # print(f"Tabela Tags: {e}")
         return DB_Result(success = False, message = e)
+
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela Tags funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela Tags funcionou!")
 
 
 async def create_table_user_tags(conn):
@@ -83,10 +95,14 @@ async def create_table_user_tags(conn):
                     PRIMARY KEY(user_a, tag)
                 )
             ''')
+        
     except PostgresError as e:
+        # print(f"Tabela UserTags: {e}")
         return DB_Result(success = False, message = e)
+
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela UserTags funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela UserTags funcionou!")
     
 
 async def create_table_game_tags(conn):
@@ -99,10 +115,14 @@ async def create_table_game_tags(conn):
                     PRIMARY KEY (tag, game)
                 )
             ''')
+        
     except PostgresError as e:
+        # print(f"Tabela GameTags: {e}")
         return DB_Result(success = False, message = e)
+
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela GameTags funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela GameTags funcionou!")
     
 
 async def create_table_blocks(conn):
@@ -115,10 +135,14 @@ async def create_table_blocks(conn):
                     PRIMARY KEY (user_a, user_b)
                 )
             ''')
+
     except PostgresError as e:
+        # print(f"Tabela Blocks: {e}")
         return DB_Result(success = False, message = e)
+
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela Blocks funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela Blocks funcionou!")
     
 
 async def create_table_lists(conn):
@@ -137,10 +161,12 @@ async def create_table_lists(conn):
         ''')
         
     except PostgresError as e:
+        # print(f"Tabela Lists: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela Lists funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela Lists funcionou!")
 
 
 async def create_table_list_content(conn):
@@ -155,10 +181,12 @@ async def create_table_list_content(conn):
         ''')
     
     except PostgresError as e:
+        # print(f"Tabela ListContent: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela ListContent funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela ListContent funcionou!")
 
 
 async def create_table_saved_lists(conn):
@@ -171,11 +199,14 @@ async def create_table_saved_lists(conn):
                 PRIMARY KEY(user_a, list)
             )
         ''')
+
     except PostgresError as e:
+        # print(f"Tabela SavedLists: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela SavedLists funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela SavedLists funcionou!")
 
 
 async def create_table_reviews(conn):
@@ -197,11 +228,14 @@ async def create_table_reviews(conn):
                 UNIQUE (reviewer, game)
             )
         ''')
+
     except PostgresError as e:
+        # print(f"Tabela Reviews: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela Reviews funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela Reviews funcionou!")
 
 
 async def create_table_review_tags(conn):
@@ -214,10 +248,14 @@ async def create_table_review_tags(conn):
                     PRIMARY KEY (review, tag)
                 )
             ''')
+
     except PostgresError as e:
+        # print(f"Tabela ReviewTags: {e}")
         return DB_Result(success = False, message = e)
+
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela ReviewTags funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela ReviewTags funcionou!")
 
 
 async def create_table_review_likes(conn):
@@ -230,8 +268,11 @@ async def create_table_review_likes(conn):
                 PRIMARY KEY(user_a, review)
             )
         ''')
+
     except PostgresError as e:
+        # print(f"Tabela ReviewLikes: {e}")
         return DB_Result(success = False, message = e)
 
     else:
-        return DB_Result(success = True, message = "Criação da tabela funcionou!")
+        # print("Criação da tabela ReviewLikes funcionou!")
+        return DB_Result(success = True, message = "Criação da tabela ReviewLikes funcionou!")

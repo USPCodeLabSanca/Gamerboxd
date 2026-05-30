@@ -33,12 +33,12 @@ class NewListController:
         
         new_list_id = list_creation_result.obj
 
-        saving_new_list_result = await DB_create_saved_list(conn, new_list_id, user_id)
+        saving_new_list_result = await DB_create_list_save(conn, new_list_id, user_id)
 
         if not saving_new_list_result.success:
             raise HTTPException(500, str(saving_new_list_result.error))
         
-        return JSONResponse({"message":saving_new_list_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":saving_new_list_result.message}, 200)
         
 
 @cbv(list_router)
@@ -52,7 +52,67 @@ class DeleteListController:
         if not list_deletion_result.success:
             raise HTTPException(500, str(list_deletion_result.error))
                 
-        return JSONResponse({"message":list_deletion_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":list_deletion_result.message}, 200)
+
+
+@cbv(list_router)
+class SeeListController:
+    
+    @list_router.get("/{list_creator}/{list_name}")
+    async def see_list(self, list_creator: str, list_name: str, conn = Depends(get_conn)):
+
+        list_creator_id_result = await DB_read_user_column(conn, "user_id", username=list_creator.strip())
+
+        if not list_creator_id_result.success:
+            raise HTTPException(500, detail=str(list_creator_id_result.error))
+        
+        if list_creator_id_result.obj is None:
+            raise HTTPException(400, detail="Erro ao identificar o dono da lista")
+        
+        list_creator_id = list_creator_id_result.obj
+
+        list_id_result = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public = True)
+
+        if not list_id_result.success:
+            raise HTTPException(500, detail=str(list_id_result.error))            
+        
+        list_id = list_id_result.obj
+        if not list_id:
+            raise HTTPException(400, detail="Não encontramos a lista!")
+
+        list_full_result = await DB_read_list_full(conn, list_id)
+
+        if not list_full_result.success:
+            raise HTTPException(500, detail=str(list_id_result.error)) 
+
+        list_full = list_full_result.obj
+        
+        return JSONResponse(list_full.model_dump(), 200)
+
+
+@cbv(list_router)
+class SeeMyListController:
+    
+    @list_router.get("/{list_name}")
+    async def see_my_list(self, list_name: str, conn = Depends(get_conn), user_id = Depends(require_login)):
+
+        list_id_result = await DB_read_user_list_id(conn, user_id, list_name.strip(), only_public = False)
+
+        if not list_id_result.success:
+            raise HTTPException(500, detail=str(list_id_result.error))            
+        
+        list_id = list_id_result.obj
+        if not list_id:
+            raise HTTPException(400, detail="Não encontramos a lista!")
+
+        list_full_result = await DB_read_list_full(conn, list_id)
+
+        if not list_full_result.success:
+            raise HTTPException(500, detail=str(list_id_result.error)) 
+
+        list_full = list_full_result.obj
+        
+        return JSONResponse(list_full.model_dump(), 200)
     
 
 @cbv(list_router)
@@ -78,7 +138,7 @@ class EditListController:
         
         list_update = list_update_result.obj
         
-        return JSONResponse(list_update.model_dump(), status.HTTP_202_ACCEPTED)
+        return JSONResponse(list_update.model_dump(), 200)
 
 @cbv(list_router)
 class SaveListController:
@@ -111,7 +171,7 @@ class SaveListController:
         if not list_saving_result.success:
             raise HTTPException(500, detail=str(list_saving_result.error))
         
-        return JSONResponse({"message": "Lista salva com sucesso"}, status_code=status.HTTP_201_CREATED)
+        return JSONResponse({"message": "Lista salva com sucesso"}, status_code = 200)
 
 
 @cbv(list_router)
@@ -145,6 +205,53 @@ class UnSaveListController:
         if not list_unsaving_result.success:
             raise HTTPException(500, detail=str(list_unsaving_result.error))
         
-        return JSONResponse({"message": "Lista esquecida com sucesso"}, status_code=status.HTTP_201_CREATED)
+        return JSONResponse({"message": "Lista esquecida com sucesso"}, status_code = 200)
 
 
+@cbv(list_router)
+class SaveToListController:
+
+    @list_router.post("/add/{list_name}/{game_id}")
+    async def save_to_list(self, list_name: str, game_id: int, conn = Depends(get_conn), user_id = Depends(require_login)):
+        list_id_result = await DB_read_user_list_id(conn, user_id, list_name, only_public = False)
+
+        if not list_id_result.success:
+            raise HTTPException(500, detail=str(list_id_result.error))
+        
+        list_id = list_id_result.obj
+
+        if not list_id:
+            raise HTTPException(400, detail="Essa lista não existe")
+
+        add_list_game_result = await DB_create_list_game(conn, list_id, game_id)
+
+        if not add_list_game_result.success:
+            raise HTTPException(500, detail=str(add_list_game_result.error))
+
+        else:
+            return JSONResponse(content={"message": add_list_game_result.message}, status_code=200)
+
+    
+
+@cbv(list_router)
+class RemFromListController:
+
+    @list_router.post("/rem/{list_name}/{game_id}")
+    async def rem_from_list(self, list_name: str, game_id: int, conn = Depends(get_conn), user_id = Depends(require_login)):
+        list_id_result = await DB_read_user_list_id(conn, user_id, list_name, only_public = False)
+
+        if not list_id_result.success:
+            raise HTTPException(500, detail=str(list_id_result.error))
+        
+        list_id = list_id_result.obj
+
+        if not list_id:
+            raise HTTPException(400, detail="Essa lista não existe")
+
+        add_list_game_result = await DB_delete_list_game(conn, list_id, game_id)
+
+        if not add_list_game_result.success:
+            raise HTTPException(500, detail=str(add_list_game_result.error))
+
+        else:
+            return JSONResponse(content={"message": add_list_game_result.message}, status_code=200)
