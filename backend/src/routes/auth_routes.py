@@ -1,4 +1,4 @@
-from fastapi import Depends, status, Request, HTTPException
+from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
@@ -37,7 +37,7 @@ class LoginController:
         new_access_token = encode_token(user_id_result.obj, 10, key)
         new_refresh_token = encode_token(user_id_result.obj, 1440, key)
 
-        response = JSONResponse({"message":str(user_id_result.message)}, status.HTTP_200_OK)
+        response = JSONResponse({"message":str(user_id_result.message)}, 200)
         response.set_cookie("access-token", new_access_token, secure=True, httponly=True)
         response.set_cookie("refresh-token", new_refresh_token, secure=True, httponly=True)
         
@@ -49,7 +49,7 @@ class LogoutController:
     @auth_router.post("/logout/")
     async def logout(self):
 
-        response = JSONResponse({"message": "Log Out"}, status_code= status.HTTP_200_OK)
+        response = JSONResponse({"message": "Log Out"}, status_code = 200)
         response.delete_cookie("refresh-token", secure=True, httponly=True)
         response.delete_cookie("access-token", secure=True, httponly=True)
 

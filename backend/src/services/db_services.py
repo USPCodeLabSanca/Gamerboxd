@@ -203,15 +203,18 @@ async def DB_read_user_follows(conn, user_id: str):
             FROM Follows f
             JOIN Users u ON u.user_id = f.user_a
             WHERE f.user_b = $1
+            ORDER BY f.created_at DESC
             """,
             user_id,
         )
+        
         following_rows = await conn.fetch(
             """
             SELECT u.username, u.pfp
             FROM Follows f
             JOIN Users u ON u.user_id = f.user_b
             WHERE f.user_a = $1
+            ORDER BY f.created_at DESC
             """,
             user_id,
         )

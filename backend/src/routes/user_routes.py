@@ -1,4 +1,4 @@
-from fastapi import Depends, status
+from fastapi import Depends
 from fastapi.responses import JSONResponse
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
@@ -47,7 +47,7 @@ class NewUserController:
         new_access_token = encode_token(account_creation_result.obj, 10, key)
         new_refresh_token = encode_token(account_creation_result.obj, 1440, key)
 
-        response = JSONResponse({"message":account_creation_result.message}, status.HTTP_202_ACCEPTED)
+        response = JSONResponse({"message":account_creation_result.message}, 200)
         response.set_cookie("access-token", new_access_token, secure=True, httponly=True)
         response.set_cookie("refresh-token", new_refresh_token, secure=True, httponly=True)
         
@@ -182,7 +182,7 @@ class SeeAccountController(SeeMyAccountController):
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse(user_full.model_dump(), status.HTTP_200_OK)
+        return JSONResponse(user_full.model_dump(), 200)
 
 
 @cbv(user_router)
@@ -208,7 +208,7 @@ class FollowController:
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse({"message":follow_result.message}, status.HTTP_200_OK)
+        return JSONResponse({"message":follow_result.message}, 200)
 
 
 @cbv(user_router)
@@ -234,4 +234,4 @@ class UnfollowController:
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse({"message":unfollow_result.message}, status.HTTP_200_OK)
+        return JSONResponse({"message":unfollow_result.message}, 200)
