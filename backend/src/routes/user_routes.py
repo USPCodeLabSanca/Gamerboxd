@@ -221,15 +221,16 @@ class UnfollowController:
 class UpdateUserController:
 
     @user_router.put("/")
-    async def update_user(self, user_id = Depends(require_login), user: UserIn, conn = Depends(get_conn)):
+    async def update_user(self, user: UserIn, conn = Depends(get_conn), user_id = Depends(require_login)):
         
-        user_result = await DB_read_user_out(conn, "user_id")
+        user_result = await DB_read_user_out(conn, user_id)
         if not user_result.success:
-            raise HTTPException(500, detail=str(user_id_result.error))            
+            raise HTTPException(500, detail=str(user_result.error))            
         
         user_response = user_result.obj
         if not user_response:
             raise HTTPException(500, detail="Não encontramos o usuário")
+        
         # Validação do username, email
         try:
             #É verificado se os campos de email e username foram alterados, pois se tivessem sido alterados
@@ -242,7 +243,7 @@ class UpdateUserController:
         except Exception as e:
             raise HTTPException(500, detail = str(e))
 
-        account_update_result = await DB_update_user(conn, "user_id", user)
+        account_update_result = await DB_update_user(conn, user_id, user)
 
         if not account_update_result.success:
             raise HTTPException(500, str(account_update_result.error))
@@ -256,14 +257,14 @@ class DeleteuserController:
     async def delete_user(self, user_id = Depends(require_login), conn = Depends(get_conn)):
 
         try:
-            user_delete_result = DB_delete_user(conn, "user_id")
+            user_delete_result = DB_delete_user(conn, user_id)
             if not user_delete_result.success:
                 raise HTTPException(500, detail=str(user_delete_result.error))
         
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponde({"message":user_delete_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":user_delete_result.message}, status.HTTP_200_OK)
 
 @cbv(user_router)
 class BlockController:
@@ -288,7 +289,7 @@ class BlockController:
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse({"message":block_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":block_result.message}, status.HTTP_200_OK)
 
 @cbv(user_router)
 class UnblockController:
@@ -313,4 +314,4 @@ class UnblockController:
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse({"message":unblock_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":unblock_result.message}, status.HTTP_200_OK)
