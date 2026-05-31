@@ -215,7 +215,7 @@ async def create_table_reviews(conn):
             CREATE TABLE IF NOT EXISTS Reviews (
                 review_id VARCHAR(36) PRIMARY KEY,
                 reviewer VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
-                game INTEGER NOT NULL REFERENCES Games(game_id) ON DELETE CASCADE,
+                game INTEGER NOT NULL,
                 rating_num FLOAT NOT NULL,
                 rating_text VARCHAR(300) DEFAULT NULL,
                 is_private BOOL DEFAULT false,

@@ -3,6 +3,7 @@ from uuid import uuid4
 from models.schemas import *
 from utils.db import DB_Result
 from utils.helper import fix_date
+from datetime import datetime
 
 
 async def DB_create_user(conn, user: UserIn):
@@ -399,3 +400,129 @@ async def DB_update_user(conn, user: UserEdit, user_id: str):
     
     else:
         return DB_Result(success=True, message="Usuário atualizado com sucesso!")
+
+    
+async def DB_create_review(conn, review: ReviewIn, user_id: str):    
+    review_id = str(uuid4())
+
+    try:
+        await conn.execute('''
+            INSERT INTO Reviews(review_id, reviewer, game, rating_num, rating_text, is_private, time_played, liked, completed)
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)''', review_id, user_id, review.game, review.rating_num, 
+            review.rating_text, review.is_private, review.time_played, review.liked, review.completed)
+
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+    
+    else:
+        return DB_Result(success=True, message="Review criada com sucesso!", obj=review)
+    
+
+async def DB_delete_review(conn, review_game: int, user_id: str):
+    try:
+        await conn.execute('''
+            DELETE FROM Reviews 
+            WHERE game = $1 AND reviewer = $2
+            ''', review_game, user_id)
+    
+        return DB_Result(success = True, message = "Review deletada com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success = False, error = e)
+    
+
+async def DB_update_review(conn, review: ReviewIn, old_review_game: int, user_id: str):
+    
+    try:
+        time_now = datetime.now()
+
+        await conn.execute('''
+            UPDATE Reviews
+            SET game = $1, rating_num = $2, rating_text = $3,
+            is_private = $4, time_played = $5, liked = $6, completed = $7, last_update = $8 
+            WHERE game = $9 AND reviewer = $10''', review.game, review.rating_num, review.rating_text,
+            review.is_private, review.time_played, review.liked, review.completed, time_now,
+            old_review_game, user_id)
+    
+        updated_list = ReviewOut(
+            game = review.game,
+            rating_num = review.rating_num,
+            rating_text = review.rating_text,
+            is_private = review.is_private,
+            time_played = review.time_played,
+            liked = review.liked,
+            completed = review.completed,
+            last_update = fix_date(time_now)
+        )
+
+        return DB_Result(success = True, message="Review alterada com sucesso!", obj = updated_list)
+    
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+    
+async def DB_read_user_game_review(conn, game: int, user_id: str):
+    try:
+
+        review = await conn.fetchrow('''
+            SELECT * FROM Reviews WHERE game = $1 AND reviewer = $2 
+            ''', game, user_id)
+
+        return DB_Result(success=True, obj=review)
+    
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+
+async def DB_read_review_like(conn, review_id: str, user_id: str):
+    try:
+        review_like = await conn.fetchrow('''
+            SELECT * FROM ReviewLikes WHERE user_a = $1 AND review = $2 
+            ''', user_id, review_id)
+
+        return DB_Result(success=True, obj=review_like)
+    
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+
+async def DB_read_review_id(conn, username: str, game: int):
+    try:
+
+        review_id = await conn.fetchval('''
+            SELECT r.review_id
+            FROM Reviews r
+            JOIN Users u ON u.user_id = r.reviewer
+            WHERE u.username = $1
+            AND r.game = $2
+        ''', username, game)
+
+        if review_id is None:
+            return DB_Result(success = False, error="Review não existe!")
+        
+        return DB_Result(success = True, message="Review encontrada com sucesso!", obj = review_id)
+    
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+    
+async def DB_create_like_review(conn, like: ReviewLike):
+    try:
+        
+        await conn.execute('''
+            INSERT INTO ReviewLikes(user_a, review)
+            VALUES($1, $2)''', like.user_a, like.review)
+
+        return DB_Result(success=True, message="Like registrado com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+    
+async def DB_delete_like_review(conn, like: ReviewLike):
+    try:
+        
+        await conn.execute('''
+            DELETE FROM ReviewLikes 
+            WHERE user_a = $1 AND review = $2
+            ''', like.user_a, like.review)
+
+        return DB_Result(success=True, message="Like removido com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error = e)

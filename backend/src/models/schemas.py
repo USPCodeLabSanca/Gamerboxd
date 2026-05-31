@@ -14,6 +14,7 @@ class UserIn(User):
     email: str
     password: str
 
+
 class UserEdit(User):
     email: str
     bio: str
@@ -72,6 +73,36 @@ class UserFull(UserOut):
     follows: UserFollows
     lists: UserLists
 
+
 class GamesOut(BaseModel):
     count: int
     games: list[Game]
+
+
+class ReviewIn (BaseModel):
+    game: int
+    rating_num: float
+    rating_text: str
+    is_private: bool
+    time_played: float
+    liked: bool
+    completed: bool
+
+
+class ReviewOut(ReviewIn):
+    last_update: str
+
+
+class Review(ReviewOut):
+    review_id: str
+    reviewer: str
+
+
+class ReviewTags(BaseModel):
+    review: str
+    tag: int
+
+
+class ReviewLike(BaseModel):
+    user_a: str
+    review: str

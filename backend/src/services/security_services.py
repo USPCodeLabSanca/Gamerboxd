@@ -4,8 +4,8 @@ from email_validator import validate_email, EmailNotValidError
 from fastapi import HTTPException
 from jose import jwt
 
-from models.schemas import ListIn, List
-from services.db_services import DB_read_user_column, DB_read_user_lists
+from models.schemas import ListIn, List, ReviewIn, ReviewLike
+from services.db_services import DB_read_user_column, DB_read_user_lists, DB_read_user_game_review, DB_read_review_like
 
 
 def passwords_match(stored_password, tested_password):
@@ -126,3 +126,43 @@ async def is_list_valid(conn, user_id: str, list: ListIn):
                         )
     
     return list_with_creator
+
+async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
+    user_review_result = await DB_read_user_game_review(conn, review.game, user_id)
+
+    if not user_review_result.success:
+        raise HTTPException(500, detail=str(user_review_result.error))
+    
+    if user_review_result.obj is not None:
+        raise HTTPException(400, detail="Você já possui uma review desse jogo!")
+    
+    if len(review.rating_text) > 1000:
+        raise HTTPException(400, detail = "O texto da review não pode exceder 1000 caracteres")
+    
+    return review
+
+async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id: str):
+
+    if review.game != old_game:
+        raise HTTPException(400, detail = "O jogo não pode ser alterado!")
+
+    user_review_result = await DB_read_user_game_review(conn, review.game, user_id)
+
+    if not user_review_result.success:
+        raise HTTPException(500, detail=str(user_review_result.error))
+    
+    if user_review_result.obj is None:
+        raise HTTPException(400, detail="Você não possui uma review com esse jogo!")
+    
+    if len(review.rating_text) > 1000:
+        raise HTTPException(400, detail = "O texto da review não pode exceder 1000 caracteres")
+    
+    return review
+
+async def is_liked(conn, review_id: str, user_id: str):
+    like_result = await DB_read_review_like(conn, review_id, user_id)
+
+    if not like_result.success:
+        raise HTTPException(500, detail=str(like_result.error))
+    
+    return like_result.obj
