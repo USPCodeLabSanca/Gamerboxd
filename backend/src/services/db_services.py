@@ -12,9 +12,9 @@ async def DB_create_user(conn, user: UserIn):
 
     try:
         await conn.execute('''
-            INSERT INTO Users(user_id, username, email, password, pfp)
-            VALUES($1, $2, $3, $4, $5)
-        ''', user_id, user.username, user.email, user.password, user.pfp)
+            INSERT INTO Users(user_id, username, email, password)
+            VALUES($1, $2, $3, $4)
+        ''', user_id, user.username, user.email, user.password)
         
     except Exception as e:
         return DB_Result(success=False, error=e)
@@ -526,3 +526,34 @@ async def DB_delete_like_review(conn, like: ReviewLike):
 
     except Exception as e:
         return DB_Result(success=False, error = e)
+
+
+async def DB_delete_user(conn, user_id: str):
+    try:
+        await conn.execute('''DELETE FROM Users WHERE user_id = $1
+        ''', user_id)
+
+        return DB_Result(success=True, message="Usuário deletado com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+async def DB_create_block(conn, user_a: str, user_b: str):
+    try:
+        await conn.execute('''INSERT INTO Blocks(user_a, user_b) VALUES($1, $2)
+        ''', user_a, user_b)
+
+        return DB_Result(success=True, message = "Bloqueio criado com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+async def DB_delete_block(conn, user_a: str, user_b: str):
+    try:
+        await conn.execute('''DELETE FROM Blocks WHERE user_a = $1 AND user_b = $2
+        ''', user_a, user_b)
+
+        return DB_Result(success=True, message = "Bloqueio deletado com sucesso!")
+    
+    except Exception as e:
+        return DB_Result(success=False, error=e)

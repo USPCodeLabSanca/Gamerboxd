@@ -10,7 +10,8 @@ class UserAuth(BaseModel):
     password: str
 
 
-class UserIn(User):
+class UserIn(BaseModel):
+    username: str
     email: str
     password: str
 
@@ -34,7 +35,7 @@ class UserBlocked(BaseModel):
 
 class ListIn(BaseModel):
     name: str
-    description: str
+    description: str = None
     is_private: bool = True    
 
 

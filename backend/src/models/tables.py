@@ -151,7 +151,7 @@ async def create_table_lists(conn):
             CREATE TABLE IF NOT EXISTS Lists (
                 list_id VARCHAR(36) PRIMARY KEY,
                 list_name VARCHAR(50) NOT NULL,
-                list_description VARCHAR(300),
+                list_description VARCHAR(310) DEFAULT NULL,
                 list_creator VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
                 is_private BOOL NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT now(),
