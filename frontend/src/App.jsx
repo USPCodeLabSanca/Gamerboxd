@@ -8,6 +8,7 @@ import GamePage from "./pages/gamePage"
 import Feed from "./pages/feed"
 import Profile from "./pages/profile"
 import Members from "./pages/members"
+import MembersList from "./pages/membersList"
 import Lists from "./pages/lists"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/games" element={<Games />} />
           <Route path="/games/:id" element={<GamePage />} />
           <Route path="/members" element={<Members />} />
+          <Route path="/members/all" element={<MembersList />} />
           {/*
         <Route path="/games/:slug" element={<GamePage />} />
         <Route path="/feed" element={<Feed />} />
