@@ -37,15 +37,15 @@ function Filter () {
 
     return (
         <div className="flex flex-row gap-2 items-center w-full">
-            <span className="text-white font-semibold text-2xl">Filtrar por</span>
-            <div className="rounded-2xl border-b border-l border-roxo text-white/80 px-4 py-2 min-w-min gap-2 flex flex-row items-center justify-around">
+            <span className="text-white font-semibold text-2xl">Filtrar por:</span>
+            <div className="rounded-2xl text-white/80 px-4 py-2 min-w-min gap-2 flex flex-row items-center justify-aroun">
                 {filters.map((filter) => {
                     const isSelected = activeFilter === filter.name;
 
                     return (
                         <button 
                         key={filter.name} 
-                        className={isSelected ? "text-roxo scale-105" : "bg-transparent hover:cursor-pointer hover:scale-105 hover:text-roxo transition-transform"}
+                            className={isSelected ? "text-roxo scale-105" : "bg-transparent hover:cursor-pointer hover:scale-105 hover:text-roxo transition-all relative overflow-hidden after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-0.5 duration-300 after:bg-roxo hover:after:w-full"}
                         onClick={() => setActiveFilter(filter.name)}
                         >
                             {filter.name}
