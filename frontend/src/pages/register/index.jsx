@@ -1,78 +1,72 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { createUser } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Register() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", username: "", password: "", confirm: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    if (form.password !== form.confirm) return setError("As senhas não coincidem.");
+    setLoading(true);
+    try {
+      await createUser(form.username, form.email, form.password);
+      await login(form.username, form.password); // loga automaticamente após cadastro
+      navigate("/");
+    } catch (err) {
+      setError(err.detail ?? "Erro ao criar conta.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
-      {/* lado esquerdo (imagem) */}
+    <div className="flex flex-col md:flex-row min-h-screen w-full">
       <div className="w-full h-62.5 md:h-full md:w-1/2 bg-black shrink-0">
-        <img
-          src="/eldenring.jpg"
-          alt="Elden Ring"
-          className="w-full h-full object-cover object-top block"
-        />
-        <div className="absolute w-1/2 inset-0 shadow-[0_20px_20px_rgba(0,0,0,0.5)] pointer-events-none"></div>
+        <img src="/eldenring.jpg" alt="Elden Ring" className="w-full h-full object-cover object-top" />
       </div>
 
-      {/* lado lireito (formulario))*/}
-      <div className="w-full md:w-1/2 grow bg-cinza flex flex-col justify-center items-center p-8 py-12 md:py-8">
+      <div className="w-full md:w-1/2 bg-cinza flex flex-col justify-center items-center p-8">
         <div className="w-full max-w-md">
-          <h1 className="text-6xl text-start text-white mb-24">
-            GAMERBOXD
-          </h1>
-
-          <h2 className="text-[#8b7df0] text-4xl mb-1">Criar Conta</h2>
-          <p className="text-xs text-white font-light mb-5 mt-2">
-            Já possui uma conta? {/* link aponta para o login */}
-            <Link to="/login" className="text-[#8b7df0] font-medium hover:underline">
+          <h1 className="text-6xl text-white mb-24 font-bold">GAMERBOXD</h1>
+          <h2 className="text-roxo text-4xl mb-1">Criar Conta</h2>
+          <p className="text-xs text-white mb-5 mt-2">
+            Já possui uma conta?{" "}
+            <Link to="/login" className="text-roxo font-medium hover:underline">
               Faça login aqui
             </Link>
           </p>
 
-          <form className="flex flex-col gap-4">
-            <div>
-              <input
-                type="email"
-                placeholder="E-mail"
-                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
-              />
-            </div>
+          {error && (
+            <p className="text-red-400 text-sm mb-4 bg-red-400/10 px-4 py-2 rounded-lg">
+              {error}
+            </p>
+          )}
 
-            <div>
-              <input
-                type="text"
-                placeholder="Nome de usuário"
-                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
-              />
-            </div>
-
-            <div>
-              <input
-                type="password"
-                placeholder="Senha"
-                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
-              />
-            </div>
-
-            <div>
-              <input
-                type="password"
-                placeholder="Confirmar Senha"
-                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
-              />
-            </div>
-
-            <div className="flex items-center text-xs mt-1">
-              <label className="flex items-center gap-2 text-white cursor-pointer">
-                <input type="checkbox" className="accent-[#8b7df0] hover:cursor-pointer" required />
-                Concordo com os Termos de Serviço e Política de Privacidade
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              className="bg-roxo hover:bg-white hover:border hover:border-roxo hover:text-roxo hover:cursor-pointer text-white py-2.5 px-8 rounded-full mt-4 mx-auto w-full sm:w-3/5 transition-colors"
-            >
-              Cadastrar
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <input type="email" placeholder="E-mail" value={form.email} onChange={set("email")}
+              className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-roxo transition-colors" />
+            <input type="text" placeholder="Nome de usuário" value={form.username} onChange={set("username")}
+              className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-roxo transition-colors" />
+            <input type="password" placeholder="Senha" value={form.password} onChange={set("password")}
+              className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-roxo transition-colors" />
+            <input type="password" placeholder="Confirmar senha" value={form.confirm} onChange={set("confirm")}
+              className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-roxo transition-colors" />
+            <label className="flex items-center gap-2 text-white text-xs cursor-pointer">
+              <input type="checkbox" className="accent-roxo" required />
+              Concordo com os Termos de Serviço e Política de Privacidade
+            </label>
+            <button type="submit" disabled={loading}
+              className="bg-roxo hover:bg-roxo/80 disabled:opacity-50 text-white py-2.5 rounded-full mt-4 mx-auto w-full sm:w-3/5 transition-colors cursor-pointer">
+              {loading ? "Criando conta..." : "Cadastrar"}
             </button>
           </form>
         </div>
