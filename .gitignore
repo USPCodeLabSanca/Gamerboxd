@@ -1,3 +1,9 @@
 .venv/
 .env
 __pycache__/
+node_modules/
+eslint.config.js
+package.json
+package-lock.json
+setupTests.js
+vite.config.js

@@ -28,12 +28,12 @@ export default function App() {
           <Route path="/games/:id" element={<GamePage />} />
           <Route path="/members" element={<Members />} />
           <Route path="/members/all" element={<MembersList />} />
-          {/*
-        <Route path="/games/:slug" element={<GamePage />} />
-        <Route path="/feed" element={<Feed />} />
-        <Route path="/profile/:username" element={<Profile />} />
-        <Route path="/members" element={<Members />} />
-        <Route path="/lists" element={<Lists />} /> */}
+          <Route path="/profile/:username" element={<Profile />} />
+        
+          {/* <Route path="/games/:slug" element={<GamePage />} />
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/members" element={<Members />} />
+          <Route path="/lists" element={<Lists />} />  */}
         </Routes>
         <Footer />
       </BrowserRouter>
