@@ -25,7 +25,8 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/games" element={<Games />} />
           <Route path="/games/:id" element={<GamePage />} />
-        {/*
+          <Route path="/members" element={<Members />} />
+          {/*
         <Route path="/games/:slug" element={<GamePage />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/profile/:username" element={<Profile />} />

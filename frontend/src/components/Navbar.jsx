@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { motion,  useMotionValueEvent, useScroll } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 
 export default function Navbar() {
     const { scrollY } = useScroll();
@@ -20,7 +20,7 @@ export default function Navbar() {
     const animatedLink = "relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors";
 
     const links = [
-        {to: "/", label: "Home"},
+        { to: "/", label: "Home" },
         { to: "/reviews", label: "Reviews" },
         { to: "/games", label: "Games" },
         { to: "/lists", label: "Lists" },
@@ -30,7 +30,7 @@ export default function Navbar() {
     ];
 
     return (
-        <motion.nav 
+        <motion.nav
             animate={{ y: isHidden ? "-100%" : "0%" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="w-full bg-transparent lg:opacity-50 lg:hover:opacity-100 transition-opacity duration-500 text-white py-4 px-4 lg:px-20 flex items-center justify-between fixed top-0 z-50">
