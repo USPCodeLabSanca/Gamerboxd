@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import Card from "../../components/gameCard";
 import Review from "../../components/gameReview";
 import List from "../../components/List";
+import ReviewModal from "../../components/ReviewModal";
 
 import gtaImg from "../../assets/imgs/gta.png";
 import gowImg from "../../assets/imgs/ragnarok.png";
@@ -157,65 +158,98 @@ const mockLists = [
   },
 ];
 
+// Adicione no topo do GamePage
 export default function GamePage() {
   const { id } = useParams();
   const [game, setGame] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);       // <- novo
+  const [wishlist, setWishlist] = useState(false);         // <- novo
+  const [completo, setCompleto] = useState(false);         // <- novo
 
   useEffect(() => {
     const foundGame = mockGames.find((g) => g.id === Number(id));
     setGame(foundGame);
-
     const foundReviews = mockReviews.filter((r) => r.gameId === Number(id));
     setReviews(foundReviews);
   }, [id]);
 
-  if (!game)
-    return (
-      <div className="bg-linear-to-b from-cinza to-black min-h-screen flex items-center justify-center">
-        <p className="text-white text-4xl">Carregando...</p>
-      </div>
-    );
+  if (!game) return (
+    <div className="bg-linear-to-b from-cinza to-black min-h-screen flex items-center justify-center">
+      <p className="text-white text-4xl">Carregando...</p>
+    </div>
+  );
 
   return (
     <>
+      <ReviewModal
+        game={game}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={(data) => console.log("Review enviada:", data)}
+      />
       <div className="min-h-screen bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20 pb-5 grid grid-cols-6 grid-rows-2 gap-x-20">
-        <GameHero game={game}/>
-        <Details game={game}/>
+        <GameHero
+          game={game}
+          onAvaliar={() => setModalOpen(true)}
+          wishlist={wishlist}
+          onWishlist={() => setWishlist(w => !w)}
+          completo={completo}
+          onCompleto={() => setCompleto(c => !c)}
+        />
+        <Details game={game} />
         <PopularReviews />
-        <GameLists game={game}/>
+        <GameLists game={game} />
       </div>
     </>
   );
 }
 
-function GameHero({game}) {
+function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto }) {
   return (
     <div className="flex flex-row items-center self-center gap-4 h-[50%] relative col-span-4 row-span-1">
       <div className="w-[30%]">
         <Card game={game} status={true} />
       </div>
       <div className="flex flex-col gap-4">
-        <h1 className="text-white text-5xl font-bold z-50">{game.title}</h1>
+        <h1 className="text-white text-5xl font-bold">{game.title}</h1>
         <div className="flex flex-row gap-4 text-white">
           <p>Ano</p>
           <p>Empresa</p>
         </div>
         <p className="text-white">Sinopse</p>
         <div className="flex flex-row items-center justify-center gap-4 text-white font-semibold absolute bottom-0">
-          <button className="w-40 h-10 py-2 bg-roxo/80 rounded-sm shadow-md cursor-pointer">
+
+          <button
+            onClick={onAvaliar}
+            className="w-40 h-10 py-2 bg-roxo/80 hover:bg-roxo rounded-sm shadow-md cursor-pointer transition-colors"
+          >
             AVALIE
           </button>
-          <button className="w-40 h-10 py-2 bg-turquesa/80 rounded-sm shadow-md cursor-pointer">
-            QUERO JOGAR
+
+          <button
+            onClick={onWishlist}
+            className={`w-40 h-10 py-2 rounded-sm shadow-md cursor-pointer transition-colors ${wishlist ? "bg-turquesa text-white font-bold" : "bg-turquesa/80 hover:bg-turquesa"
+              }`}
+          >
+            {wishlist ? "✓ NA WISHLIST" : "QUERO JOGAR"}
           </button>
-          <button class="w-40 h-10 flex items-center group relative overflow-hidden rounded-sm bg-amarelo/90 from-slate-900 to-slate-800 px-6 py-3 border border-slate-700 shadow-md cursor-pointer">
-            <span class="absolute inset-0 block w-full h-full bg-linear-to-r from-transparent via-white/80 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out -skew-x-12"></span>
-            <span class="relative z-10">COMPLETEI</span>
+
+          <button
+            onClick={onCompleto}
+            className={`w-40 h-10 flex items-center justify-center group relative overflow-hidden rounded-sm shadow-md cursor-pointer transition-colors ${completo ? "bg-amarelo text-white font-bold" : "bg-amarelo/90"
+              }`}
+          >
+            {!completo && (
+              <span className="absolute inset-0 block w-full h-full bg-linear-to-r from-transparent via-white/80 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out -skew-x-12" />
+            )}
+            <span className="relative z-10">{completo ? "✓ COMPLETEI" : "COMPLETEI"}</span>
           </button>
+
           <button className="h-9 aspect-square bg-verde/90 rounded-sm shadow-md hover:cursor-pointer flex items-center justify-center">
-            <img src={list} alt="list icon"></img>
+            <img src={list} alt="list icon" />
           </button>
+
         </div>
       </div>
     </div>
