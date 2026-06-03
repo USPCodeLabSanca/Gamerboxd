@@ -21,6 +21,10 @@ export default function Navbar() {
 
     const links = [
         { to: "/", label: "Home" },
+<<<<<<< HEAD
+=======
+        { to: "/reviews", label: "Reviews" },
+>>>>>>> 9fb671860167a518e7881d47ab516deb1dc3929d
         { to: "/games", label: "Games" },
         { to: "/lists", label: "Lists" },
         { to: "/members", label: "Members" },
