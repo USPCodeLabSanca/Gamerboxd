@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 
 import Card from "../../components/gameCard";
 import Review from "../../components/gameReview";
+import List from "../../components/List";
 
 import gtaImg from "../../assets/imgs/gta.png";
 import gowImg from "../../assets/imgs/ragnarok.png";
@@ -134,6 +135,28 @@ const mockReviews = [
   },
 ];
 
+
+const mockLists = [
+  {
+    id: 1,
+    name: "Melhores jogos de 2025",
+    author: "gamer123",
+    games: [mockGames[0], mockGames[1], mockGames[4]],
+  },
+  {
+    id: 2,
+    name: "Jogos que me fizeram chorar",
+    author: "player456",
+    games: [mockGames[1], mockGames[3], mockGames[2]],
+  },
+  {
+    id: 3,
+    name: "Open worlds imperdíveis",
+    author: "gamelover789",
+    games: [mockGames[0], mockGames[5], mockGames[2]],
+  },
+];
+
 export default function GamePage() {
   const { id } = useParams();
   const [game, setGame] = useState(null);
@@ -156,7 +179,7 @@ export default function GamePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20 pb-5 grid grid-cols-6 grid-rows-2">
+      <div className="min-h-screen bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20 pb-5 grid grid-cols-6 grid-rows-2 gap-x-20">
         <GameHero game={game}/>
         <Details game={game}/>
         <PopularReviews />
@@ -245,7 +268,7 @@ function PopularReviews() {
       <div className="flex flex-col gap-6 mt-4">
         {reviews.map((review) => {
           return (
-            <Review key={review.id} review={review} game={smallGames[0]} />
+            <Review key={review.id} review={review} game={mockGames[0]} gameClassName="w-28" />
           );
         })}
       </div>
@@ -299,83 +322,20 @@ function Details({game}) {
   )
 }
 
-function GameLists({game}) {
+function GameLists({ game }) {
+  const animatedLink =
+    "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
+
   return (
-    <div>Teste</div>
-  )
+    <div className="col-span-2 row-span-1 self-start">
+      <div className="mt-20 w-full border-b border-white flex flex-row items-center justify-between py-2">
+        <p className="text-white text-sm">Suas listas com esse jogo</p>
+        <a className={animatedLink}>Mostrar mais</a>
+      </div>
+      <div className="mt-4">
+        <List lists={mockLists} />
+      </div>
+    </div>
+  );
 }
 
-const smallGames = [
-  {
-    id: 1,
-    title: "God of War",
-    url: gowImg,
-    jogou: true,
-    liked: true,
-    nota: 5,
-    complete: true,
-  },
-  {
-    id: 2,
-    title: "GTA VI",
-    url: gtaImg,
-    jogou: true,
-    liked: true,
-    nota: 5,
-    complete: true,
-  },
-  {
-    id: 3,
-    title: "God of War II",
-    url: rdr2Img,
-    jogou: true,
-    liked: true,
-    nota: 5,
-    complete: true,
-  },
-  {
-    id: 4,
-    title: "Silksong Small",
-    url: silksongImg,
-    jogou: true,
-    liked: true,
-    nota: 4.5,
-    complete: true,
-  },
-  {
-    id: 5,
-    title: "Expedition 33",
-    url: clairImg,
-    jogou: true,
-    liked: true,
-    nota: 4.5,
-    complete: true,
-  },
-  {
-    id: 6,
-    title: "Expedition 33 II",
-    url: cyberpunkImg,
-    jogou: true,
-    liked: true,
-    nota: 3.5,
-    complete: true,
-  },
-  {
-    id: 7,
-    title: "Expedition 33 II",
-    url: cyberpunkImg,
-    jogou: true,
-    liked: true,
-    nota: 3.5,
-    complete: true,
-  },
-  {
-    id: 8,
-    title: "Expedition 33 II",
-    url: cyberpunkImg,
-    jogou: true,
-    liked: true,
-    nota: 3.5,
-    complete: true,
-  },
-];

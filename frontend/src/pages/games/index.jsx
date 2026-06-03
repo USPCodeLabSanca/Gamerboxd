@@ -120,7 +120,7 @@ function PopularReviews () {
             <div className="flex flex-col gap-6 mt-4">
                 {reviews.map((review) => {
                     return (
-                        <Review key={review.id} review={review} game={smallGames[0]} />
+                        <Review key={review.id} review={review} game={smallGames[0]} gameClassName="w-40" />
                     )
                 })}
             </div>

@@ -21,7 +21,6 @@ export default function Navbar() {
 
     const links = [
         {to: "/", label: "Home"},
-        { to: "/reviews", label: "Reviews" },
         { to: "/games", label: "Games" },
         { to: "/lists", label: "Lists" },
         { to: "/members", label: "Members" },

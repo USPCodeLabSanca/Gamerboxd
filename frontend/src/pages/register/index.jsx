@@ -33,7 +33,7 @@ export default function Register() {
               <input
                 type="email"
                 placeholder="E-mail"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
@@ -41,7 +41,7 @@ export default function Register() {
               <input
                 type="text"
                 placeholder="Nome de usuário"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
@@ -49,7 +49,7 @@ export default function Register() {
               <input
                 type="password"
                 placeholder="Senha"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
@@ -57,7 +57,7 @@ export default function Register() {
               <input
                 type="password"
                 placeholder="Confirmar Senha"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 

@@ -101,16 +101,7 @@ function SideTabs() {
                 <div className="mt-4 flex flex-row gap-3 items-center justify-center">
                     {cards.map((card) => (
                         <div key={card.id} className="flex flex-col items-center gap-1">
-                            <Card card={card} />
-                            <div className="flex flex-row gap-1 items-center">
-                                {card.played && <img src={jogouSvg} className="h-3" alt="" />}
-                                {card.liked  && <img src={likedSvg}  className="h-3" alt="" />}
-                                {card.complete && <img src={completeSvg} className="h-3" alt="" />}
-                                <span className="text-xs text-roxo flex items-center gap-0.5">
-                                    {card.score}
-                                    <img src={notaSvg} className="h-3" alt="" />
-                                </span>
-                            </div>
+                            <Card game={card} status={true} />
                         </div>
                     ))}
                 </div>
@@ -320,19 +311,19 @@ const cards = [
     {
         url: gtaImg,
         title: "GTA V",
-        score: 9,
+        nota: 5,
         played: false,
-        liked: true,
+        liked: false,
         complete: false,
         id: 1,
     },
     {
         url: gowImg,
         title: "God of War",
-        score: 10,
+        nota: 4.5,
         played: true,
-        liked: true,
-        complete: true,
+        liked: false,
+        complete: false,
         id: 2,
     },
 ];

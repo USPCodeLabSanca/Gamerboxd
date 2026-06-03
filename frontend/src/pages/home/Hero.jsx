@@ -1,6 +1,8 @@
 import HeroBg from "../../assets/imgs/hornet_landscape.jpg"
 import { ParallaxBanner } from "react-scroll-parallax";
+import { Link } from "react-router-dom";
 import About from "./About";
+import Register from "../register/index.jsx"
 
 export default function HeroParallax() {
 
@@ -60,11 +62,11 @@ function CAT() {
 
     return (
         <div className="flex flex-col items-center">
-            <button className={animatedButton}>
+            <Link to={"/register"} className={animatedButton}>
                 <span className="relative z-10 transition-colors duration-300 hover:text-black hover:bg-white cursor-pointer">
                     CADASTRE-SE GRATUITAMENTE
                 </span>
-            </button>
+            </Link>
             <a href="#about" className={animatedLink}>Como funciona?</a>
         </div>
     );
