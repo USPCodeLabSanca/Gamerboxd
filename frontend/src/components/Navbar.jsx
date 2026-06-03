@@ -20,12 +20,8 @@ export default function Navbar() {
     const animatedLink = "relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors";
 
     const links = [
-<<<<<<< HEAD
-        {to: "/", label: "Home"},
-=======
         { to: "/", label: "Home" },
         { to: "/reviews", label: "Reviews" },
->>>>>>> feature/members-page
         { to: "/games", label: "Games" },
         { to: "/lists", label: "Lists" },
         { to: "/members", label: "Members" },
