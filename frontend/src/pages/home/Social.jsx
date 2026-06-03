@@ -196,7 +196,7 @@ function GameScore({ score }) {
     return (
         <div className="flex gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
-                <img className="w-[10%]" src={notaSvg}></img>
+                <img key={i} className="w-[10%]" src={notaSvg}></img>
             ))}
         </div>
     );
