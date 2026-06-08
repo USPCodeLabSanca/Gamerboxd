@@ -502,11 +502,11 @@ async def DB_read_review(conn, username: str, game: int):
             FROM Reviews r
             JOIN Users u ON u.user_id = r.reviewer
             WHERE u.username = $1
-            AND r.game = $2
+            AND r.game = $2 AND r.is_private = false
         ''', username, game)
 
         if review is None:
-            return DB_Result(success = False, error="Review não existe!")
+            return DB_Result(success = False, error="Review não existe ou está privada!")
         
         rows = await conn.fetch(
             """
@@ -523,8 +523,11 @@ async def DB_read_review(conn, username: str, game: int):
         if not likes_result.success:
             raise Exception(str(likes_result.error))
 
-        #game_name = await DB_read_game_name(conn, review.game)
+        game_name = await DB_read_game_name(conn, review.game)
 
+        if game_name is None:
+                return DB_Result(success = False, error="Jogo não existe!")
+            
 
         tags = [r["tag_name"] for r in rows]
         review_found = ReviewOutOne(
@@ -537,7 +540,7 @@ async def DB_read_review(conn, username: str, game: int):
             tags = tags,
             likes_count = likes_result.obj,
             liked = review["liked"],
-            game_name = "arrumarParaNomeJogo",
+            game_name = game_name,
             created_at = fix_date(review["created_at"]),
             last_update = fix_date(review["last_update"])
         )
@@ -583,28 +586,54 @@ async def DB_read_review_id(conn, username: str, game: int):
             AND r.game = $2
         ''', username, game)
 
+        if review_id is None:
+            return DB_Result(success = False, error="Review não existe!")
+
+
         return DB_Result(success = True, message="Review encontrada com sucesso!", obj = review_id)
     
     except Exception as e:
         return DB_Result(success=False, error = e)
     
+async def DB_read_game_name(conn, game:int):
+    try:
+
+        game_name = await conn.fetchval('''
+            SELECT game_name
+            FROM Games
+            WHERE game_id = $1
+        ''', game)
+
+           
+        return DB_Result(success = True, message="Nome do jogo encontrado!", obj = game_name)
+    except Exception as e:
+            return DB_Result(success=False, error = e)
+   
 
 async def DB_read_limit_reviews(conn, username: str, limit: int):
     try:
 
-        reviews_result = await conn.fetch('''
+        reviews= await conn.fetch('''
         SELECT r.* FROM Reviews r 
         JOIN Users u On u.user_id = r.reviewer 
-        WHERE u.username = $1
+        WHERE u.username = $1 AND r.is_private = false 
         LIMIT $2''', username, limit)
 
+        if reviews is None:
+            return DB_Result(success = False, error="Reviews não existem ou estão privadas!")
+
         reviews_out = []
-        for r in reviews_result:
-            #game_name = await DB_read_game_name(conn, r["game"])
+        for r in reviews:
+
+            game_name = await DB_read_game_name(conn, r["game"])
+
+            if game_name is None:
+                return DB_Result(success = False, error="Jogo não existe!")
+            
             likes_result = await DB_read_count_likes(conn, r["review_id"])
 
             if not likes_result.success:
-                raise Exception(str(likes_result.error))
+                return DB_Result(success = False, error = "Erro ao ler os likes")
 
             reviews_out.append(
                 ReviewOut(
@@ -612,7 +641,7 @@ async def DB_read_limit_reviews(conn, username: str, limit: int):
                     rating_text = r["rating_text"],
                     likes_count = likes_result.obj,
                     liked = r["liked"],
-                    game_name = "arrumarParaNomeJogo",
+                    game_name = game_name,
                     created_at = fix_date(r["created_at"])
                 )
             )
@@ -622,55 +651,6 @@ async def DB_read_limit_reviews(conn, username: str, limit: int):
     except Exception as e:
         return DB_Result(success=False, error = e)
     
-async def DB_read_review_id(conn, username: str, game: int):
-    try:
-
-        review_id = await conn.fetchval('''
-            SELECT r.review_id
-            FROM Reviews r
-            JOIN Users u ON u.user_id = r.reviewer
-            WHERE u.username = $1
-            AND r.game = $2
-        ''', username, game)
-
-        return DB_Result(success = True, message="Review encontrada com sucesso!", obj = review_id)
-    
-    except Exception as e:
-        return DB_Result(success=False, error = e)
-    
-
-async def DB_read_limit_reviews(conn, username: str, limit: int):
-    try:
-
-        reviews_result = await conn.fetch('''
-        SELECT r.* FROM Reviews r 
-        JOIN Users u On u.user_id = r.reviewer 
-        WHERE u.username = $1
-        LIMIT $2''', username, limit)
-
-        reviews_out = []
-        for r in reviews_result:
-            #game_name = await DB_read_game_name(conn, r["game"])
-            likes_result = await DB_read_count_likes(conn, r["review_id"])
-
-            if not likes_result.success:
-                raise Exception(str(likes_result.error))
-
-            reviews_out.append(
-                ReviewOut(
-                    rating_num = r["rating_num"],
-                    rating_text = r["rating_text"],
-                    likes_count = likes_result.obj,
-                    liked = r["liked"],
-                    game_name = "arrumarParaNomeJogo",
-                    created_at = fix_date(r["created_at"])
-                )
-            )
-        
-        return DB_Result(success = True, message="Review(s) encontrada(s) com sucesso!", obj = reviews_out)
-
-    except Exception as e:
-        return DB_Result(success=False, error = e)
 
 
 async def DB_delete_user(conn, user_id: str):

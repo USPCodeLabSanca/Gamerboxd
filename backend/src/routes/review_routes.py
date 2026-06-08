@@ -133,7 +133,7 @@ class GetAllReviewsController:
         
         reviews_result = await DB_read_limit_reviews(conn, username, limit)
 
-        if not reviews_result.success or not reviews_result.obj:
+        if not reviews_result.success:
             raise HTTPException(500, str(reviews_result.error))
 
         return JSONResponse(content=[review.model_dump() for review in reviews_result.obj],status_code = status.HTTP_200_OK)
