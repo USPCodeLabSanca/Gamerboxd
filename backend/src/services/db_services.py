@@ -409,22 +409,67 @@ async def DB_read_review_like(conn, review_id: str, user_id: str):
     
     except Exception as e:
         return DB_Result(success=False, error = e)
+    
+async def DB_read_count_likes(conn, review_id: str):
+    try:
+        likes = await conn.fetchval('''
+            SELECT COUNT(*) FROM ReviewLikes WHERE review = $1 
+            ''', review_id)
 
-async def DB_read_review_id(conn, username: str, game: int):
+        return DB_Result(success=True, obj=likes)
+    
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+
+async def DB_read_review(conn, username: str, game: int):
     try:
 
-        review_id = await conn.fetchval('''
-            SELECT r.review_id
+        review = await conn.fetchrow('''
+            SELECT r.*
             FROM Reviews r
             JOIN Users u ON u.user_id = r.reviewer
             WHERE u.username = $1
             AND r.game = $2
         ''', username, game)
 
-        if review_id is None:
+        if review is None:
             return DB_Result(success = False, error="Review não existe!")
         
-        return DB_Result(success = True, message="Review encontrada com sucesso!", obj = review_id)
+        rows = await conn.fetch(
+            """
+            SELECT t.tag_name
+            FROM ReviewTags rt
+            JOIN Tags t ON t.tag_id = rt.tag
+            WHERE rt.review = $1
+            """,
+            review["review_id"]
+            )
+        
+        likes_result = await DB_read_count_likes(conn, review["review_id"])
+
+        if not likes_result.success:
+            raise Exception(str(likes_result.error))
+
+        #game_name = await DB_read_game_name(conn, review.game)
+
+
+        tags = [r["tag_name"] for r in rows]
+        review_found = ReviewOutOne(
+            username = username,
+            rating_num = review["rating_num"],
+            rating_text = review["rating_text"],
+            time_played = review["time_played"],
+            completed = review["completed"],
+            tag_count = len(tags),
+            tags = tags,
+            likes_count = likes_result.obj,
+            liked = review["liked"],
+            game_name = "arrumarParaNomeJogo",
+            created_at = fix_date(review["created_at"]),
+            last_update = fix_date(review["last_update"])
+        )
+        
+        return DB_Result(success = True, message="Review encontrada com sucesso!", obj = review_found)
     
     except Exception as e:
         return DB_Result(success=False, error = e)
@@ -450,6 +495,56 @@ async def DB_delete_like_review(conn, like: ReviewLike):
             ''', like.user_a, like.review)
 
         return DB_Result(success=True, message="Like removido com sucesso!")
+
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+    
+async def DB_read_review_id(conn, username: str, game: int):
+    try:
+
+        review_id = await conn.fetchval('''
+            SELECT r.review_id
+            FROM Reviews r
+            JOIN Users u ON u.user_id = r.reviewer
+            WHERE u.username = $1
+            AND r.game = $2
+        ''', username, game)
+
+        return DB_Result(success = True, message="Review encontrada com sucesso!", obj = review_id)
+    
+    except Exception as e:
+        return DB_Result(success=False, error = e)
+    
+
+async def DB_read_limit_reviews(conn, username: str, limit: int):
+    try:
+
+        reviews_result = await conn.fetch('''
+        SELECT r.* FROM Reviews r 
+        JOIN Users u On u.user_id = r.reviewer 
+        WHERE u.username = $1
+        LIMIT $2''', username, limit)
+
+        reviews_out = []
+        for r in reviews_result:
+            #game_name = await DB_read_game_name(conn, r["game"])
+            likes_result = await DB_read_count_likes(conn, r["review_id"])
+
+            if not likes_result.success:
+                raise Exception(str(likes_result.error))
+
+            reviews_out.append(
+                ReviewOut(
+                    rating_num = r["rating_num"],
+                    rating_text = r["rating_text"],
+                    likes_count = likes_result.obj,
+                    liked = r["liked"],
+                    game_name = "arrumarParaNomeJogo",
+                    created_at = fix_date(r["created_at"])
+                )
+            )
+        
+        return DB_Result(success = True, message="Review(s) encontrada(s) com sucesso!", obj = reviews_out)
 
     except Exception as e:
         return DB_Result(success=False, error = e)
