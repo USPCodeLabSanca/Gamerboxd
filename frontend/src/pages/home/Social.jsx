@@ -1,4 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import Register from "../register/index.jsx";
+
 import { motion } from "framer-motion";
 import { Heart, Trophy, Star, MessageSquare } from "lucide-react";
 import NumberFlow from '@number-flow/react';
@@ -132,9 +135,9 @@ export default function Social() {
                 <p className="text-gray-400 text-lg mb-8 max-w-md">
                     Crie agora sua conta e junte-se à maior rede social exclusiva para gamers do Brasil.
                 </p>
-                <button className="relative overflow-hidden bg-roxo px-10 py-4 rounded-2xl text-white font-bold text-lg after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-white/10 after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-all duration-300 hover:scale-105">
+                <Link to={"/register"} className="relative overflow-hidden bg-roxo px-10 py-4 rounded-2xl text-white font-bold text-lg after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-white/10 after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-all duration-300 hover:scale-105">
                     <span className="relative z-10">Criar conta grátis</span>
-                </button>
+                </Link>
                 <p className="text-gray-600 text-sm mt-4">
                     Grátis para sempre.
                 </p>
@@ -193,7 +196,7 @@ function GameScore({ score }) {
     return (
         <div className="flex gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
-                <img className="w-[10%]" src={notaSvg}></img>
+                <img key={i} className="w-[10%]" src={notaSvg}></img>
             ))}
         </div>
     );

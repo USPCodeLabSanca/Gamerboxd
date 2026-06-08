@@ -4,7 +4,7 @@ export default function Register() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
       {/* lado esquerdo (imagem) */}
-      <div className="w-full h-[250px] md:h-full md:w-1/2 bg-black flex-shrink-0">
+      <div className="w-full h-62.5 md:h-full md:w-1/2 bg-black shrink-0">
         <img
           src="/eldenring.jpg"
           alt="Elden Ring"
@@ -33,7 +33,7 @@ export default function Register() {
               <input
                 type="email"
                 placeholder="E-mail"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
@@ -41,7 +41,7 @@ export default function Register() {
               <input
                 type="text"
                 placeholder="Nome de usuário"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
@@ -49,7 +49,7 @@ export default function Register() {
               <input
                 type="password"
                 placeholder="Senha"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
@@ -57,7 +57,7 @@ export default function Register() {
               <input
                 type="password"
                 placeholder="Confirmar Senha"
-                className="w-full border-b border-gray-300 py-2 outline-none text-gray-800 placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
+                className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 

@@ -50,7 +50,7 @@ async def is_username_valid(username: str, conn):
             raise HTTPException(500, detail=str(username_exists_result.error))
 
         if username_exists_result.obj:
-            raise HTTPException(409, detail=f'O username "{username}" já está sendo utilizado')
+            raise HTTPException(400, detail=f'O username "{username}" já está sendo utilizado')
 
         return username
 
@@ -71,7 +71,7 @@ async def is_email_valid(email: str, conn):
 
     
     if email_exists_result.obj:
-        raise HTTPException(409, detail="Este email já está atrelado a outra conta")
+        raise HTTPException(400, detail="Este email já está atrelado a outra conta")
 
 
     return email
@@ -114,10 +114,10 @@ async def is_list_valid(conn, user_id: str, list: ListIn):
 
     # Verificar tamanhos máximos 
     if len(list.name) > 60:
-        raise HTTPException(500, detail = f"O nome da lista não pode exceder 60 caracteres")
+        raise HTTPException(400, detail = f"O nome da lista não pode exceder 60 caractéres")
     
-    if len(list.description) > 350:
-        raise HTTPException(500, detail = f"A descrição da lista não pode exceder 350 caracteres")
+    if len(list.description) > 300:
+        raise HTTPException(400, detail = f"A descrição da lista não pode exceder 300 caractéres")
     
     list_with_creator = List(name=list.name,
                             description=list.description,
@@ -149,10 +149,10 @@ async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id:
     user_review_result = await DB_read_user_game_review(conn, review.game, user_id)
 
     if not user_review_result.success:
-        raise HTTPException(500, detail=str(user_review_result.error))
+        raise HTTPException(500, detail = str(user_review_result.error))
     
     if user_review_result.obj is None:
-        raise HTTPException(400, detail="Você não possui uma review com esse jogo!")
+        raise HTTPException(400, detail = "Você não possui uma review com esse jogo!")
     
     if len(review.rating_text) > 1000:
         raise HTTPException(400, detail = "O texto da review não pode exceder 1000 caracteres")

@@ -1,4 +1,4 @@
-from fastapi import Depends, status
+from fastapi import Depends
 from fastapi.responses import JSONResponse
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
@@ -6,7 +6,7 @@ from fastapi_utils.inferring_router import InferringRouter
 from models.schemas import *
 from services.security_services import *
 from services.db_services import *
-from utils.dependencies import get_conn, require_login, require_key
+from utils.dependencies import get_conn, require_login, get_key
 
 
 user_router = InferringRouter(prefix="/user", tags=["user"])
@@ -15,7 +15,7 @@ user_router = InferringRouter(prefix="/user", tags=["user"])
 class NewUserController:
 
     @user_router.post("/")
-    async def new_user(self, user: UserIn, conn = Depends(get_conn), key = Depends(require_key)):
+    async def new_user(self, user: UserIn, conn = Depends(get_conn), key = Depends(get_key)):
 
         # Validação do username, email e senha
         try:
@@ -44,16 +44,10 @@ class NewUserController:
         except Exception as e:
             raise HTTPException(500, detail = str(e))
         
-        #Adiciona as tags do usuário (ainda não existe a tabela de tags com os nomes)
-        #for tag in user.tags.tags:
-        #    user_tag_creation_result = await DB_create_user_tags(conn, user_id, tag)
-        #    if not user_tag_creation_result.success:
-        #        return JSONResponse({"message": str(user_tag_creation_result.error)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         new_access_token = encode_token(account_creation_result.obj, 10, key)
         new_refresh_token = encode_token(account_creation_result.obj, 1440, key)
 
-        response = JSONResponse({"message":account_creation_result.message}, status.HTTP_202_ACCEPTED)
+        response = JSONResponse({"message":account_creation_result.message}, 200)
         response.set_cookie("access-token", new_access_token, secure=True, httponly=True)
         response.set_cookie("refresh-token", new_refresh_token, secure=True, httponly=True)
         
@@ -90,20 +84,20 @@ class NewUserController:
                 
                 # Salva a lista de favoritos
                 favorites_list_id = favorites_list_creation_result.obj
-                favorites_list_saving_result = await DB_create_saved_list(conn, favorites_list_id, user_id)
+                favorites_list_saving_result = await DB_create_list_save(conn, favorites_list_id, user_id)
                 if not favorites_list_saving_result.success:
                     raise favorites_list_saving_result.error
                 
                 # Salva a lista de completados
                 finished_list_id = finished_list_creation_result.obj
-                finished_list_saving_result = await DB_create_saved_list(conn, finished_list_id, user_id)
+                finished_list_saving_result = await DB_create_list_save(conn, finished_list_id, user_id)
                 if not finished_list_saving_result.success:
                     raise finished_list_saving_result.error
             
             except Exception as e:
                 raise HTTPException(500, detail=str(e))
         
-
+    
 @cbv(user_router)
 class SeeMyAccountController:
 
@@ -112,10 +106,9 @@ class SeeMyAccountController:
         
         out = await DB_read_user_out(conn, user_id=user_id)       
         follows = await DB_read_user_follows(conn, user_id=user_id)
-        tags = await DB_read_user_tags(conn, user_id=user_id)
         lists= await DB_read_user_lists(conn, user_id=user_id)
         
-        for result in (out, tags, lists, follows):
+        for result in (out, lists, follows):
             if not result.success:
                 raise result.error
 
@@ -125,7 +118,6 @@ class SeeMyAccountController:
             email=out.obj.email,
             bio=out.obj.bio,
             created_at=out.obj.created_at,
-            tags=tags.obj,
             lists=lists.obj,
             follows=follows.obj
         )
@@ -140,7 +132,7 @@ class SeeMyAccountController:
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse(user_full.model_dump(), status.HTTP_200_OK)
+        return JSONResponse(user_full.model_dump(), 200)
 
 
 @cbv(user_router)
@@ -163,7 +155,7 @@ class SeeAccountController(SeeMyAccountController):
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse(user_full.model_dump(), status.HTTP_200_OK)
+        return JSONResponse(user_full.model_dump(), 200)
 
 
 @cbv(user_router)
@@ -189,7 +181,7 @@ class FollowController:
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse({"message":follow_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":follow_result.message}, 200)
 
 
 @cbv(user_router)
@@ -215,4 +207,96 @@ class UnfollowController:
         except Exception as e:
             raise HTTPException(500, detail=str(e))
 
-        return JSONResponse({"message":unfollow_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":unfollow_result.message}, 200)
+    
+@cbv(user_router)
+class EditUserController(SeeMyAccountController):
+
+    @user_router.put("/")
+    async def edit_user(self, user: UserEdit, conn = Depends(get_conn), user_id = Depends(require_login)):
+
+        # Validação do username, email
+        try:
+            user.username = await is_username_valid(user.username, conn)
+            user.email =  await is_email_valid(user.email, conn)
+
+        except HTTPException as he:
+            raise he
+        
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        account_update_result = await DB_update_user(conn, user, user_id)
+
+        if not account_update_result.success:
+            raise HTTPException(500, str(account_update_result.error))
+
+        user_full = await self.get_full(conn, user_id)
+
+        return JSONResponse(user_full.model_dump(), 200)
+
+@cbv(user_router)
+class DeleteuserController:
+
+    @user_router.delete("/")
+    async def delete_user(self, user_id = Depends(require_login), conn = Depends(get_conn)):
+
+        try:
+            user_delete_result = await DB_delete_user(conn, user_id)
+            if not user_delete_result.success:
+                raise HTTPException(500, detail=str(user_delete_result.error))
+        
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponse({"message":user_delete_result.message}, 200)
+
+@cbv(user_router)
+class BlockController:
+
+    @user_router.post("/block/{username}")
+    async def block_user(self, username: str, user_id = Depends(require_login), conn = Depends(get_conn)):
+
+        user_id_to_block_result = await DB_read_user_column(conn, "user_id", username=username)
+        if not user_id_to_block_result.success:
+            raise HTTPException(500, detail=str(user_id_to_block_result.error))
+            
+
+        user_id_to_block = user_id_to_block_result.obj
+        if not user_id_to_block:
+            raise HTTPException(500, detail="Não encontramos o usuário a ser bloqueado!")
+
+        try:
+            block_result = await DB_create_block(conn, user_id, user_id_to_block)
+            if not block_result.success:
+                raise HTTPException(500, detail=str(block_result.error))
+
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponse({"message":block_result.message}, 200)
+
+@cbv(user_router)
+class UnblockController:
+
+    @user_router.post("/unblock/{username}")
+    async def block_user(self, username: str, user_id = Depends(require_login), conn = Depends(get_conn)):
+
+        user_id_to_unblock_result = await DB_read_user_column(conn, "user_id", username=username)
+        if not user_id_to_unblock_result.success:
+            raise HTTPException(500, detail=str(user_id_to_unblock_result.error))
+            
+
+        user_id_to_unblock = user_id_to_unblock_result.obj
+        if not user_id_to_unblock:
+            raise HTTPException(500, detail="Não encontramos o usuário a ser bloqueado!")
+
+        try:
+            unblock_result = await DB_delete_block(conn, user_id, user_id_to_unblock)
+            if not unblock_result.success:
+                raise HTTPException(500, detail=str(unblock_result.error))
+
+        except Exception as e:
+            raise HTTPException(500, detail=str(e))
+
+        return JSONResponse({"message":unblock_result.message}, 200)

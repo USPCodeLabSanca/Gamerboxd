@@ -28,7 +28,7 @@ class NewReviewController:
         if not review_creation_result.success or not review_creation_result.obj:
             raise HTTPException(500, str(review_creation_result.error))
         
-        return JSONResponse({"message":review_creation_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":review_creation_result.message}, status.HTTP_200_OK)
                             
 @cbv(review_router)       
 class UpdateReviewController:
@@ -48,7 +48,7 @@ class UpdateReviewController:
         if not review_update_result.success or not review_update_result.obj:
             raise HTTPException(500, str(review_update_result.error))
         
-        return JSONResponse((review_update_result.obj).model_dump(), status.HTTP_202_ACCEPTED)
+        return JSONResponse((review_update_result.obj).model_dump(), status.HTTP_200_OK)
 
                                                        
 @cbv(review_router)
@@ -60,7 +60,7 @@ class DeleteReviewController:
         if not review_delete_result.success:
             raise HTTPException(500, str(review_delete_result.error))
         
-        return JSONResponse({"message":review_delete_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message":review_delete_result.message}, status.HTTP_200_OK)
     
 @cbv(review_router)
 class LikeReviewController:
@@ -90,7 +90,7 @@ class LikeReviewController:
         if not review_like_result.success:
             raise HTTPException(500, str(review_like_result.error))
 
-        return JSONResponse({"message": review_like_result.message}, status.HTTP_202_ACCEPTED)
+        return JSONResponse({"message": review_like_result.message}, status.HTTP_200_OK)
     
 @cbv(review_router)
 class UnlikeReviewController:
