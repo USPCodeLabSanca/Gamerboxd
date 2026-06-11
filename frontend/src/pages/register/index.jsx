@@ -3,26 +3,29 @@ import { Link } from "react-router-dom";
 export default function Register() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
-      {/* lado esquerdo (imagem) */}
-      <div className="w-full h-62.5 md:h-full md:w-1/2 bg-black shrink-0">
+      
+      {/* imagem -> sem no mobile, visível no desktop */}
+      <div className="hidden md:block md:h-full md:w-1/2 bg-black shrink-0 relative">
         <img
           src="/eldenring.jpg"
           alt="Elden Ring"
           className="w-full h-full object-cover object-top block"
         />
-        <div className="absolute w-1/2 inset-0 shadow-[0_20px_20px_rgba(0,0,0,0.5)] pointer-events-none"></div>
+        {/* sombra com w-full */}
+        <div className="absolute w-full inset-0 shadow-[0_20px_20px_rgba(0,0,0,0.5)] pointer-events-none"></div>
       </div>
 
-      {/* lado lireito (formulario))*/}
-      <div className="w-full md:w-1/2 grow bg-cinza flex flex-col justify-center items-center p-8 py-12 md:py-8">
+      {/* formulario -> Ocupa 100% no mobile e 50% no desktop */}
+      <div className="w-full md:w-1/2 grow bg-cinza flex flex-col justify-center items-center p-8 py-12 md:py-8 overflow-x-hidden">
         <div className="w-full max-w-md">
-          <h1 className="text-6xl text-start text-white mb-24">
+          {/* Título e margem reduzidos no celular */}
+          <h1 className="text-4xl md:text-6xl text-start mb-12 md:mb-24 font-sans text-white truncate">
             GAMERBOXD
           </h1>
 
-          <h2 className="text-[#8b7df0] text-4xl mb-1">Criar Conta</h2>
+          <h2 className="text-[#8b7df0] text-3xl md:text-4xl mb-1">Criar Conta</h2>
           <p className="text-xs text-white font-light mb-5 mt-2">
-            Já possui uma conta? {/* link aponta para o login */}
+            Já possui uma conta? {/* link para o login */}
             <Link to="/login" className="text-[#8b7df0] font-medium hover:underline">
               Faça login aqui
             </Link>
