@@ -5,17 +5,19 @@ import About from "./About";
 import Features from "./Features";
 import Social from "./Social";
 
-
 export default function Home() {
     return (
-        <main>
+        // tirar linhas brancas entre containers
+        <main className="bg-cinza">
             <Hero />
             <section>
                 <Catalogo />
             </section>
-            <section className="relative z-10 bg-black mt-[-50vh]">
+            
+            <section className="relative z-10 md:mt-[-50vh]">
                 <About />
             </section>
+            
             <section>
                 <Features />
             </section>
@@ -25,6 +27,3 @@ export default function Home() {
         </main>
     )
 }
-
-
-
