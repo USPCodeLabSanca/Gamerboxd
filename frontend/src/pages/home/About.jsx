@@ -32,7 +32,7 @@ const steps = [
 export default function About() {
     return (
        
-        <section id="about" className = "w-full h-screen bg-cinza text-white py-20 px-6 flex flex-col items-center text-center" >
+        <section id="about" className="w-full min-h-screen h-auto bg-cinza text-white py-20 px-6 flex flex-col items-center text-center">
             
             <h2 className="text-roxo font-bold tracking-widest uppercase text-sm mb-2">Como funciona?</h2>
             <h1 className="text-3xl md:text-5xl font-bold mb-4">Apenas 3 passos para começar</h1>
