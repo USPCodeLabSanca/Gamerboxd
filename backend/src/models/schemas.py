@@ -84,28 +84,35 @@ class GamesOut(BaseModel):
     games: list[Game]
 
 
-class ReviewIn (BaseModel):
-    game: int
+class Review(BaseModel):
     rating_num: float
     rating_text: str
+    liked: bool
+
+
+class ReviewIn(Review):
+    game: int
     is_private: bool
     time_played: float
-    liked: bool
     completed: bool
 
 
-class ReviewOut(ReviewIn):
+class ReviewOut(Review):
+    likes_count: int
+    game_name: str
+    created_at: str
+
+
+class ReviewOutOne(ReviewOut):
+    username: str
+    tag_count: int
+    tags: list[str] = []
+    completed: bool
+    time_played: float
     last_update: str
 
-
-class Review(ReviewOut):
+class ReviewAll(ReviewOutOne):
     review_id: str
-    reviewer: str
-
-
-class ReviewTags(BaseModel):
-    review: str
-    tag: int
 
 
 class ReviewLike(BaseModel):

@@ -66,17 +66,13 @@ class DeleteReviewController:
 class LikeReviewController:
     @review_router.post("/like/{username}/{game}")
     async def like_review(self, username: str, game: int, conn = Depends(get_conn), user_id = Depends(require_login)):
-        try:
-            review_id_result = await DB_read_review_id(conn, username, game)
-            if review_id_result.obj is not None:
-                review_id = review_id_result.obj
 
-        except HTTPException as he:
-            raise he
-        
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
-        
+        review_id_result = await DB_read_review_id(conn, username, game)
+        if not review_id_result.success or not review_id_result.obj:
+            raise HTTPException(500, str(review_id_result.error))
+
+        review_id = review_id_result.obj
+
         try:
             like_for_insertion = await is_liked(conn, review_id, user_id)
 
@@ -100,16 +96,13 @@ class LikeReviewController:
 class UnlikeReviewController:
     @review_router.post("/unlike/{username}/{game}")
     async def unlike_review(self, username: str, game: int, conn = Depends(get_conn), user_id = Depends(require_login)):
-        try:
-            review_id_result = await DB_read_review_id(conn, username, game)
-            if review_id_result.obj is not None:
-                review_id = review_id_result.obj
 
-        except HTTPException as he:
-            raise he
-        
-        except Exception as e:
-            raise HTTPException(500, detail=str(e))
+        review_id_result = await DB_read_review_id(conn, username, game)
+
+        if not review_id_result.success or not review_id_result.obj:
+            raise HTTPException(500, str(review_unlike_result.error))
+
+        review_id = review_id_result.obj
 
         try:
             like_for_removal = await is_liked(conn, review_id, user_id)
@@ -129,5 +122,30 @@ class UnlikeReviewController:
         if not review_unlike_result.success:
             raise HTTPException(500, str(review_unlike_result.error))
 
-        return JSONResponse({"message": review_unlike_result.message}, status.HTTP_200_OK)
+        return JSONResponse({"message": review_unlike_result.message}, status.HTTP_202_ACCEPTED)
     
+@cbv(review_router)
+class GetAllReviewsController:
+    @review_router.get("/{username}")
+    async def get_all_reviews(self, username: str, limit: int = 10, conn = Depends(get_conn)):
+        if limit > 20:
+            raise HTTPException(400, "Não podem ser apresentadas mais de 20 reviews!")
+        
+        reviews_result = await DB_read_limit_reviews(conn, username, limit)
+
+        if not reviews_result.success:
+            raise HTTPException(500, str(reviews_result.error))
+
+        return JSONResponse(content=[review.model_dump() for review in reviews_result.obj],status_code = status.HTTP_200_OK)
+        
+
+@cbv(review_router)
+class GetOneReviewController:
+    @review_router.get("/{username}/{game}")
+    async def get_one_review(self, username: str, game: int, conn = Depends(get_conn)):
+        review_result = await DB_read_review(conn, username, game)
+
+        if not review_result.success: 
+            raise HTTPException(500, str(review_result.error))
+        
+        return JSONResponse(review_result.obj.model_dump(), status.HTTP_200_OK)
