@@ -43,13 +43,13 @@ class List(ListIn):
     creator: str
 
 
-class Game_Rawg(BaseModel):
+class GameRawg(BaseModel):
     game_id: int
     name: str
     picture: str | None
     year: int
 
-class Game(Game_Rawg):
+class Game(GameRawg):
     like_count: int
     gamerboxd_rating: float
 

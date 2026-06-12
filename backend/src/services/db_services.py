@@ -300,25 +300,31 @@ async def DB_read_list_full(conn, list_id: str):
             WHERE l.list_id = $1
             GROUP BY l.list_name, l.list_description, u.username, l.is_private, l.created_at
         ''', list_id)
-
+ 
         games = await conn.fetch('''
-            SELECT g.game_id, g.game_name, g.game_picture, g.game_year
+            SELECT g.game_id, g.game_name, g.game_picture, g.game_year,
+                   COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,
+                   COALESCE(ROUND(AVG(r.rating_num) FILTER (WHERE r.is_private = false)::numeric, 2), -1) AS gamerboxd_rating
             FROM Games g
-            LEFT JOIN ListContent lc on lc.game = g.game_id
+            LEFT JOIN ListContent lc ON lc.game = g.game_id
+            LEFT JOIN Reviews r ON r.game = g.game_id
             WHERE lc.list = $1
+            GROUP BY g.game_id, g.game_name, g.game_picture, g.game_year
         ''', list_id)
-
+ 
         games_list = []
-
+ 
         for g in games:
-            game  = Game(
-                game_id = g["game_id"],
-                name = g["game_name"],
-                picture = g["game_picture"],
-                year = g["game_year"]
+            game = Game(
+                game_id=g["game_id"],
+                name=g["game_name"],
+                picture=g["game_picture"],
+                year=g["game_year"],
+                like_count=g["like_count"],
+                gamerboxd_rating=float(g["gamerboxd_rating"])
             )
             games_list.append(game)
-
+ 
         user_list = ListFull(
             name=full_row["list_name"],
             description=full_row["list_description"],
@@ -332,10 +338,10 @@ async def DB_read_list_full(conn, list_id: str):
     
     except Exception as e:
         return DB_Result(success=False, error=e)
-
-
+ 
+ 
 async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: str):
-
+ 
     try:
         list_id = await conn.fetchval('''
             UPDATE Lists 
@@ -343,7 +349,7 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
             WHERE list_name = $4 AND list_creator = $5 
             RETURNING list_id
         ''', new_list.name, new_list.description, new_list.is_private, old_list_name, user_id)
-
+ 
         full_row = await conn.fetchrow('''
             SELECT l.list_name, l.list_description, u.username AS list_creator,
                    l.is_private, l.created_at, COUNT(sl.user_a) AS list_saves
@@ -353,25 +359,31 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
             WHERE l.list_id = $1
             GROUP BY l.list_name, l.list_description, u.username, l.is_private, l.created_at
         ''', list_id)
-
+ 
         games = await conn.fetch('''
-            SELECT g.game_id, g.game_name, g.game_picture, g.game_year
+            SELECT g.game_id, g.game_name, g.game_picture, g.game_year,
+                   COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,
+                   COALESCE(ROUND(AVG(r.rating_num) FILTER (WHERE r.is_private = false)::numeric, 2), -1) AS gamerboxd_rating
             FROM Games g
-            JOIN ListContent lc on lc.game = g.game_id
+            JOIN ListContent lc ON lc.game = g.game_id
+            LEFT JOIN Reviews r ON r.game = g.game_id
             WHERE lc.list = $1
-        ''')
-
+            GROUP BY g.game_id, g.game_name, g.game_picture, g.game_year
+        ''', list_id)
+ 
         games_list = []
-
+ 
         for g in games:
-            game  = Game(
-                game_id = g["game_id"],
-                name = g["game_name"],
-                picture = g["game_picture"],
-                year = g["game_year"]
+            game = Game(
+                game_id=g["game_id"],
+                name=g["game_name"],
+                picture=g["game_picture"],
+                year=g["game_year"],
+                like_count=g["like_count"],
+                gamerboxd_rating=float(g["gamerboxd_rating"])
             )
             games_list.append(game)
-
+ 
         updated_list = ListFull(
             name=full_row["list_name"],
             description=full_row["list_description"],
@@ -385,6 +397,7 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
     
     except Exception as e:
         return DB_Result(success=False, error=e)
+
 
 async def DB_update_user(conn, user: UserEdit, user_id: str):
 
@@ -555,5 +568,36 @@ async def DB_delete_block(conn, user_a: str, user_b: str):
 
         return DB_Result(success=True, message = "Bloqueio deletado com sucesso!")
     
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+
+async def DB_read_game_likes(conn, game_id: int):
+    try:
+        like_count = await conn.fetchval('''
+            SELECT COUNT(r.liked)
+            FROM Reviews r 
+            WHERE liked = true
+            AND game = $1
+        ''', game_id)
+
+        return DB_Result(success=True, message="Likes do game encontrados com sucesso!", obj=like_count)
+
+    except Exception as e:
+        return DB_Result(success=False, error=e)
+
+
+async def DB_read_game_avg_rating(conn, game_id: int):
+    try:
+        avg_rating = await conn.fetchval('''
+            SELECT COALESCE(ROUND(AVG(r.rating_num)::numeric, 2), -1)
+            FROM Games g
+            JOIN Reviews r ON r.game = g.game_id
+            WHERE g.game_id = $1
+            AND r.is_private = false
+        ''', game_id)
+
+        return DB_Result(success=True, message="Média do game encontrada com sucesso!", obj=avg_rating)
+
     except Exception as e:
         return DB_Result(success=False, error=e)

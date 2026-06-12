@@ -7,10 +7,7 @@ async def get_conn(request: Request):
         yield conn
 
 async def get_exconn(request: Request):
-    pool = request.app.state.external_pool
-    
-    async with pool as session:
-        yield session
+    yield request.app.state.external_pool
 
 def require_login(request: Request) -> str:
     login = request.state.user_login
