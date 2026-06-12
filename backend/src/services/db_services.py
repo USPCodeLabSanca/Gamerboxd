@@ -84,7 +84,7 @@ async def DB_create_game(conn, game: Game):
             DO NOTHING;
         ''', game.game_id, game.name, game.picture, game.year)
 
-        return DB_Result(success=True, message="Game adicionado ao db com sucesso!")
+        return DB_Result(success=True, message="Game adicionado ao db com sucesso!", obj = game.game_id)
     
     except Exception as e:
         return DB_Result(success=False, error=e)
