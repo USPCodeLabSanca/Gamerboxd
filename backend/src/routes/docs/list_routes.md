@@ -29,11 +29,11 @@ Cria uma nova lista para o usuário autenticado. Ao ser criada, a lista é autom
 }
 ```
 
-| Campo         | Tipo    | Obrigatório | Regras                                        |
-|---------------|---------|-------------|-----------------------------------------------|
-| `name`        | string  | ✅           | Máximo de 60 caracteres, único por usuário    |
-| `description` | string  | ✅           | Máximo de 300 caracteres                      |
-| `is_private`  | boolean | ✅           | Se `true`, a lista só é visível ao criador    |
+| Campo         | Tipo    | Obrigatório | Padrão | Regras                                        |
+|---------------|---------|-------------|--------|-----------------------------------------------|
+| `name`        | string  | ✅           | —      | Máximo de 60 caracteres, único por usuário    |
+| `description` | string  | ❌           | `null` | Máximo de 300 caracteres                      |
+| `is_private`  | boolean | ✅           | `true` | Se `true`, a lista só é visível ao criador    |
 
 ### Resposta de Sucesso — `200`
 
@@ -55,7 +55,7 @@ Cria uma nova lista para o usuário autenticado. Ao ser criada, a lista é autom
 
 ## GET `/list/{list_name}` — Ver minha lista
 
-Retorna os dados completos de uma lista feita pelo usuário autenticado. **Requer login**.
+Retorna os dados completos de uma lista feita pelo usuário autenticado, incluindo listas privadas. **Requer login**.
 
 ### Path Parameter
 
@@ -78,7 +78,9 @@ Retorna os dados completos de uma lista feita pelo usuário autenticado. **Reque
       "game_id": 0,
       "name": "string",
       "picture": "string | null",
-      "year": 0
+      "year": 0,
+      "like_count": 0,
+      "gamerboxd_rating": 0.0
     }
   ]
 }
@@ -124,8 +126,8 @@ Atualiza os dados de uma lista do usuário autenticado. **Requer login**.
 
 ### Path Parameter
 
-| Parâmetro       | Tipo   | Descrição                        |
-|-----------------|--------|----------------------------------|
+| Parâmetro       | Tipo   | Descrição                         |
+|-----------------|--------|-----------------------------------|
 | `old_list_name` | string | Nome atual da lista a ser editada |
 
 ### Request Body
@@ -134,7 +136,7 @@ Mesmo formato do [POST `/list/`](#post-list---criar-lista).
 
 ### Resposta de Sucesso — `200`
 
-Retorna os dados completos da lista atualizada:
+Retorna os dados completos da lista atualizada, incluindo os jogos:
 
 ```json
 {
@@ -143,7 +145,17 @@ Retorna os dados completos da lista atualizada:
   "is_private": true,
   "creator": "string",
   "created_at": "string",
-  "list_saves": 0
+  "list_saves": 0,
+  "games": [
+    {
+      "game_id": 0,
+      "name": "string",
+      "picture": "string | null",
+      "year": 0,
+      "like_count": 0,
+      "gamerboxd_rating": 0.0
+    }
+  ]
 }
 ```
 

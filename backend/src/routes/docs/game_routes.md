@@ -33,7 +33,9 @@ Busca jogos pelo nome. Não requer autenticação.
       "game_id": 0,
       "name": "string",
       "picture": "string | null",
-      "year": 0
+      "year": 0,
+      "like_count": 0,
+      "gamerboxd_rating": 0.0
     }
   ]
 }
