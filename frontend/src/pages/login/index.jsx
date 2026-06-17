@@ -1,6 +1,42 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+    rememberMe: false,
+  });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  function handleChange(e) {
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      await login(form.username, form.password);
+      navigate("/games");
+    } catch (err) {
+      setError("Falha no login. Verifique se digitou corretamente o nome ou senha.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     // celular: flex-col (empilhado) e permite rolar se a tela for muito pequena.
     // PC: flex-row (lado a lado), trava a altura e tira a rolagem.
@@ -31,19 +67,28 @@ export default function Login() {
             </Link>
           </p>
 
-          <form className="flex flex-col gap-5">
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
               <input
+                name="username"
                 type="text"
                 placeholder="Nome de usuário"
+                value={form.username}
+                onChange={handleChange}
+                required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
             <div>
               <input
+                name="password"
                 type="password"
                 placeholder="Senha"
+                value={form.password}
+                required
+                onChange={handleChange}
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
@@ -60,11 +105,15 @@ export default function Login() {
 
             <button
               type="submit"
+              disabled={loading}
               className="bg-roxo hover:bg-white hover:border hover:border-roxo hover:text-roxo hover:cursor-pointer text-white px-1 py-3 rounded-lg mt-4 mx-auto w-full sm:w-3/5 transition-colors"
             >
-              Login
+              {loading ? "Entrando..." : "Login"}
             </button>
           </form>
+
+
+
         </div>
       </div>
     </div>

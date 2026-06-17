@@ -1,6 +1,48 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const {register} = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agreeToTerms: false,
+  })
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({...form, [e.target.name]: e.target.value})
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (form.password !== form.confirmPassword) {
+      setError("As senhas não coincidem.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await register(form.username, form.email, form.password);
+      navigate("/games");
+    } catch (err) {
+      setError(err.response?.data?.detail || "Erro ao criar conta.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] w-full md:overflow-hidden">
       {/* lado esquerdo (imagem) */}
@@ -28,53 +70,81 @@ export default function Register() {
             </Link>
           </p>
 
-          <form className="flex flex-col gap-4">
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <input
+                name="email"
                 type="email"
                 placeholder="E-mail"
+                value={form.email}
+                onChange={handleChange}
+                required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
             <div>
               <input
+                name="username"
                 type="text"
                 placeholder="Nome de usuário"
+                value={form.username}
+                onChange={handleChange}
+                required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
             <div>
               <input
+                name="password"
                 type="password"
                 placeholder="Senha"
+                value={form.password}
+                onChange={handleChange}
+                required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
 
             <div>
               <input
+                name="confirmPassword"
                 type="password"
                 placeholder="Confirmar Senha"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
+            {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
 
             <div className="flex items-center text-xs mt-1">
               <label className="flex items-center gap-2 text-white cursor-pointer">
-                <input type="checkbox" className="accent-[#8b7df0] hover:cursor-pointer" required />
-                Concordo com os Termos de Serviço e Política de Privacidade
+                <input 
+                  name="agreeToTerms"
+                  type="checkbox"
+                  checked={form.agreeToTerms}
+                  onChange={(e) => setForm({...form, agreeToTerms: e.target.checked})} 
+                  className="accent-[#8b7df0] hover:cursor-pointer"
+                  required />
+                  Concordo com os Termos de Serviço e Política de Privacidade
               </label>
             </div>
 
             <button
               type="submit"
+              disabled={loading}
               className="bg-roxo hover:bg-white hover:border hover:border-roxo hover:text-roxo hover:cursor-pointer text-white py-2.5 px-8 rounded-full mt-4 mx-auto w-full sm:w-3/5 transition-colors"
             >
-              Cadastrar
+              {loading ? "Cadastrando..." : "Cadastre-se"}
             </button>
           </form>
+
+
+
         </div>
       </div>
     </div>
