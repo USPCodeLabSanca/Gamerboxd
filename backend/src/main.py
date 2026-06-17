@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from config.lifespan_config import LifespanConfig
 from middlewares.user_states import SetUserLoginState
@@ -10,6 +11,14 @@ from routes.game_routes import game_router
 
 lifespan = LifespanConfig()
 app = FastAPI(lifespan = lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # porta padrão do Vite/React
+    allow_credentials=True,                   # necessário para cookies
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.add_middleware(SetUserLoginState)
 app.include_router(auth_router)

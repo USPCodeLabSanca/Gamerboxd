@@ -15,12 +15,18 @@ export default function Navbar() {
     // O status de logado é derivado diretamente do user
     const isLogged = !!user;
 
+    const handleLogout = () => {
+        logout();
+        navigate("/home");
+        setMenuOpen(false);
+    }
+
     useMotionValueEvent(scrollY, "change", (current) => {
         const previous = scrollY.getPrevious() ?? 0;
         setHidden(current > previous && current > 10);
     });
 
-    const animatedLink = "relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors";
+    const animatedLink = "hover:cursor-pointer  relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-white after:transition-all after:duration-300 hover:after:w-full hover:text-gray-300 transition-colors";
 
     // Configuração dinâmica dos links baseada na autenticação
     const links = [
@@ -53,6 +59,9 @@ export default function Navbar() {
                 {links.map(({ to, label }) => (
                     <Link key={to} to={to} className={animatedLink}>{label}</Link>
                 ))}
+                {isLogged && (
+                    <button onClick={handleLogout} className={animatedLink}>Sair</button>
+                )}
             </div>
 
             {/* Search — desktop */}

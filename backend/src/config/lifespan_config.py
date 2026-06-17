@@ -50,8 +50,8 @@ class LifespanConfig():
         return f'postgresql://{self.db_user}:{self.db_pass}@{self.host}:{self.port}/{self.db_name}'
 
     async def create_database(self):
-
-
+        conn = None
+        
         try:
             conn = await asyncpg.connect(
                 user=self.vm_user, 
@@ -97,15 +97,19 @@ class LifespanConfig():
                         IS_TEMPLATE = False;
                 """
                 await conn.execute(query)
+            
+            # Se chegou até aqui sem erros, retorna sucesso
+            return DB_Result(success=True, message="Criação de banco funcionou!")
 
         except asyncpg.PostgresError as e:
-            await conn.close()
+            # Se der erro, retorna a falha
             return DB_Result(success=False, message=f"{e}")
         
-        else:
-            await conn.close()
-            return DB_Result(success=True, message="Criação de banco funcionou!")        
-
+        finally:
+            # O 'finally' roda SEMPRE (depois do try ou depois do except)
+            # Só fechamos a conexão se ela realmente tiver sido aberta (diferente de None)
+            if conn is not None:
+                await conn.close()
 
     async def create_internal_pool(self):
         try:
@@ -138,7 +142,7 @@ class LifespanConfig():
 
         table_creation = await self.create_database()
         if not table_creation.success:
-            raise table_creation.error
+            raise RuntimeError(table_creation.message)
 
         internal_pool_creation = await self.create_internal_pool()
         if internal_pool_creation.success:
