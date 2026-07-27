@@ -5,21 +5,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 import os
 
-from models.tables import *
-from utils.db import DB_Result
-
+from models.tables import create_tables
 
 class LifespanConfig():
-
-    @staticmethod
-    def get_jwt_key():
-        load_dotenv()
-        return os.getenv("SECRET_KEY_JWT")
-
-    @staticmethod
-    def get_rawg_key():
-        load_dotenv()
-        return os.getenv("RAWG_KEY")
 
     def set_auth(self):
     
@@ -42,8 +30,11 @@ class LifespanConfig():
         else:
             self.db_name = os.getenv("DB_NAME")
             self.host = os.getenv("DB_HOST")
+            
+        self.jwt_key = os.getenv("SECRET_KEY_JWT")
+        self.rawg_key = os.getenv("RAWG_KEY")
 
-        if any(val is None for val in (self.vm_user, self.vm_pass, self.db_user, self.db_pass, self.db_name, self.host, self.port)):
+        if any(val is None for val in (self.vm_user, self.vm_pass, self.db_user, self.db_pass, self.db_name, self.host, self.port, self.jwt_key, self.rawg_key)):
             raise ValueError("Campo faltando no .env!")
         
     def dsn(self):
@@ -97,13 +88,10 @@ class LifespanConfig():
                         IS_TEMPLATE = False;
                 """
                 await conn.execute(query)
-            
-            # Se chegou até aqui sem erros, retorna sucesso
-            return DB_Result(success=True, message="Criação de banco funcionou!")
 
         except asyncpg.PostgresError as e:
             # Se der erro, retorna a falha
-            return DB_Result(success=False, message=f"{e}")
+            raise RuntimeError(str(e))
         
         finally:
             # O 'finally' roda SEMPRE (depois do try ou depois do except)
@@ -119,67 +107,32 @@ class LifespanConfig():
                 max_size = 15,
                 max_inactive_connection_lifetime = 300,
             )
-
-            return DB_Result(success=True, obj=pool, message="Criação do pool de conexões internas funcionou")
-
-        except asyncpg.PostgresError as e:
-            return DB_Result(success=False, error=e)
-     
+            return pool
         
+        except asyncpg.PostgresError as e:
+            raise RuntimeError(str(e))
+             
     async def create_external_pool(self):
         try:
             client_session = aiohttp.ClientSession()
-
-            return DB_Result(success=True, obj=client_session, message="Criação do pool de conexões externas funcionou")
+            return client_session
 
         except Exception as e:
-            return DB_Result(success=False, error=e)
+            raise RuntimeError(str(e))
 
     @asynccontextmanager
     async def __call__(self, app: FastAPI):
 
         self.set_auth()
 
-        table_creation = await self.create_database()
-        if not table_creation.success:
-            raise RuntimeError(table_creation.message)
-
-        internal_pool_creation = await self.create_internal_pool()
-        if internal_pool_creation.success:
-            app.state.internal_pool = internal_pool_creation.obj
-        
-        else:
-            raise internal_pool_creation.error
-        
-
-        external_pool_creation = await self.create_external_pool()
-        if external_pool_creation.success:
-            app.state.external_pool = external_pool_creation.obj
-        
-        else:
-            raise external_pool_creation.error
-
-        app.state.jwt_key = self.get_jwt_key()
-        app.state.rawg_key = self.get_rawg_key()
+        await self.create_database()
+        app.state.internal_pool = await self.create_internal_pool()
+        app.state.external_pool = await self.create_external_pool()
+        app.state.jwt_key = self.jwt_key
+        app.state.rawg_key = self.rawg_key
 
         async with app.state.internal_pool.acquire() as conn:
-            await create_table_users(conn)
-            await create_table_games(conn)
-            await create_table_tags(conn)
-            await create_table_reviews(conn)
-            await create_table_lists(conn)
-            
-            await create_table_user_tags(conn)
-            await create_table_follows(conn)
-            await create_table_blocks(conn)
-
-            await create_table_list_content(conn)
-            await create_table_saved_lists(conn)
-            
-            await create_table_game_tags(conn)
-
-            await create_table_review_likes(conn)
-            await create_table_review_tags(conn)
+            await create_tables(conn)
 
         yield
 

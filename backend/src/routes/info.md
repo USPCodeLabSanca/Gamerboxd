@@ -30,7 +30,7 @@ As funções também podem receber dependências, que são parâmetros que vem i
 
 - **Quando um endpoint encontrar algum erro**, dê um **`raise HTTPException(código_de_erro, detail= string_que_descreve_o_erro)`**.
 
-- **Quando você utilizar um serviço relacionado ao banco de dados**, guarde o resultado desse serviço em uma variável que termina em **`_result`**. Isso porque os serviços do banco de dados sempre retornam um DB_Result (definido em src/utils/db.py), no qual você terá que antes verificar se a operação deu certo `(if not _result.success: raise...)` antes de acessar qual foi o resultado de verdade da sua requisição ao banco de dados `(variable = _result.obj)`
+- **Quando você utilizar um serviço relacionado ao banco de dados**, guarde o resultado desse serviço em uma variável que termina em **`_result`**. Isso porque os serviços do banco de dados sempre retornam um QueryResult (definido em src/utils/db.py), no qual você terá que antes verificar se a operação deu certo `(if not _result.success: raise...)` antes de acessar qual foi o resultado de verdade da sua requisição ao banco de dados `(variable = _result.obj)`
 
 - As classes tem nome **`FuncionalidadeController`**
 

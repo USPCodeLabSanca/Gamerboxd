@@ -1,13 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from config.lifespan_config import LifespanConfig
-from middlewares.user_states import SetUserLoginState
-from routes.auth_routes import auth_router
-from routes.user_routes import user_router
-from routes.list_routes import list_router
-from routes.review_routes import review_router
-from routes.game_routes import game_router
+from config import LifespanConfig
+from middlewares import SetUserLoginState
+from routes import auth_router, game_router, list_router, review_router, user_router
+from utils.utils import QueryError
 
 lifespan = LifespanConfig()
 app = FastAPI(lifespan = lifespan)
@@ -19,6 +17,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(QueryError)
+async def query_error_handler(request: Request, exc: QueryError):
+    return JSONResponse({"message": exc.message}, exc.status_code)
+
+@app.exception_handler(Exception)
+async def generic_error_handler(request: Request, exc: Exception):
+    return JSONResponse(str(exc), 500)
 
 app.add_middleware(SetUserLoginState)
 app.include_router(auth_router)

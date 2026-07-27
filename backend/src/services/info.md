@@ -16,7 +16,7 @@ Dentro de cada arquivo de serviços, haverá várias funções que realizam algu
     - DB_update_
     - DB_delete_
 
-- As funções no arquivo `src/services/db_services.py` todas retornam um **`DB_Result`**, que é o padrão para informar o controller o resultado da ação no banco de dados.
+- As funções no arquivo `src/services/db_services.py` todas retornam um **`QueryResult`**, que é o padrão para informar o controller o resultado da ação no banco de dados.
 
 ## Exemplos de serviço
 ``` 
@@ -32,9 +32,9 @@ async def DB_create_order(conn, user_id: str, price: float, item: str):
             VALUES($1, $2, $3)
         ''', order_id, user_id, price, item)
 
-        return DB_Result(success=True, message="Pedido criado com sucesso!", obj=order_id)
+        return QueryResult(success=True, message="Pedido criado com sucesso!", obj=order_id)
         
     except Exception as e:
-        return DB_Result(success=False, error=e)
+        return QueryResult(success=False, error=e)
 
 ```     

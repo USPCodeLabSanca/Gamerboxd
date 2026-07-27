@@ -1,6 +1,6 @@
-from models.schemas import *
+from models.schemas.game import *
 from services.db_services import DB_create_game, DB_read_game_likes, DB_read_game_avg_rating
-from utils.db import DB_Result
+
 
 async def search_rawg_games(conn, exconn, url, page_size):
     async with exconn.get(url) as response:

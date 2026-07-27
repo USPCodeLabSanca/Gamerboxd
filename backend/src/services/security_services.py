@@ -1,11 +1,11 @@
 import bcrypt
 from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
-from fastapi import HTTPException
 from jose import jwt
 
-from models.schemas import ListIn, List, ReviewIn, ReviewLike
+from models.schemas import ListIn, List, ReviewIn
 from services.db_services import DB_read_user_column, DB_read_user_lists, DB_read_user_game_review, DB_read_review_like
+from utils.utils import QueryError
 
 
 def passwords_match(stored_password, tested_password):
@@ -35,62 +35,48 @@ def decode_token(cookies, token_name, key):
     return jwt.decode(cookies[token_name], key, algorithms=["HS256"], options={"verify_exp": False})
 
 
-async def is_username_valid(username: str, conn):
-        username = username.strip()
+async def is_user_valid(user, conn):
+    username = user.username.strip()
 
-        username_length = len(username)
-        username_has_right_length = (username_length) < 25 and (username_length > 3)
+    if (username < 4) or (username > 24):
+        raise QueryError(400, "O username deve ter entre 4 e 24 caracteres!")
+        
+    username_exists = await DB_read_user_column(conn, "username", username = username)
+    if username_exists is not None:
+        raise QueryError(400, f'O username "{username}" já está sendo utilizado!')
 
-        if not username_has_right_length:
-            raise HTTPException(400, detail="O username deve ter entre 4 e 24 caracteres")
-            
-        username_exists_result = await DB_read_user_column(conn, "username", username = username)
-
-        if not username_exists_result.success:
-            raise HTTPException(500, detail=str(username_exists_result.error))
-
-        if username_exists_result.obj:
-            raise HTTPException(400, detail=f'O username "{username}" já está sendo utilizado')
-
-        return username
-
-
-async def is_email_valid(email: str, conn):
-    email = email.strip()
+    user.username = username
+    
+    email = user.email.strip()
 
     try:
         validate_email(email)
 
     except EmailNotValidError:
-        raise HTTPException(400, detail="Email inválido")
+        return QueryError(400, 'Email inválido!')
 
-    email_exists_result = await DB_read_user_column(conn, "email", email = email)
+    email_exists = await DB_read_user_column(conn, "email", email = email)
+    if email_exists is not None:
+        raise QueryError(400, f'O email "{email}" já está sendo utilizado!')
+
+    user.email = email
     
-    if not email_exists_result.success:
-        raise HTTPException(500, detail=str(email_exists_result.error))
+    if hasattr(user, "password"):
+        password = user.password
 
-    
-    if email_exists_result.obj:
-        raise HTTPException(400, detail="Este email já está atrelado a outra conta")
-
-
-    return email
-
-
-def is_password_valid(password: str):
-        password = password.strip()
-        password_length = len(password)
-
-        pwd_has_right_length = (password_length) < 65 and (password_length > 7)
-        pwd_has_number = any(char.isdigit() for char in password)
-        pwd_has_special = any(not char.isalnum() for char in password)
-        pwd_has_capital = any(char.isupper() for char in password)
-        pwd_has_lower = any(char.islower() for char in password)
+        if not (len(password) < 65) and (len(password) > 7):
+            raise QueryError(400, "A senha deve conter entre 8 a 64 caractéres!")
         
-        if not all([pwd_has_capital, pwd_has_lower, pwd_has_number, pwd_has_special, pwd_has_right_length]):
-            raise HTTPException(409, detail="A senha deve conter entre 8 a 64 caractéres, com pelo menos uma letra minúscula, uma letra maiúscula, um número e um símbol")
-            
-        return password
+        if not any(char.isdigit() for char in password):
+            raise QueryError(400, "A senha deve conter pelo menos um número!")
+        
+        if not any(not char.isalnum() for char in password):
+            raise QueryError(400, "A senha deve conter pelo menos um símbolo!")
+        
+        if not (any(char.isupper() for char in password) or any(char.islower() for char in password)):
+            raise QueryError(400, "A senha deve conter pelo menos uma letra minúscula e uma letra maiúscula!")
+        
+    return user
 
 
 async def is_list_valid(conn, user_id: str, list: ListIn):
@@ -102,67 +88,51 @@ async def is_list_valid(conn, user_id: str, list: ListIn):
 
     # Verificar se já existe lista com esse nome
     user_lists_result = await DB_read_user_lists(conn, user_id)
-
-    if not user_lists_result.success:
-        raise HTTPException(500, detail= str(user_lists_result.error))
+    assert user_lists_result.success, (500, user_lists_result.error)
     
     user_lists = user_lists_result.obj
 
-    for ul in user_lists.lists:
-        if ul.name == list.name:
-            raise HTTPException(400, detail=f"Você já possui uma lista com o nome {list.name}")
+    # Verificar se o usuário não possui uma lista com esse nome
+    assert all(ul.name != list.name for ul in user_lists.lists), (400, f"Você já possui uma lista com o nome {list.name}")
 
     # Verificar tamanhos máximos 
-    if len(list.name) > 60:
-        raise HTTPException(400, detail = f"O nome da lista não pode exceder 60 caractéres")
+    assert len(list.name) <= 60, (400, "O nome da lista não pode exceder 60 caractéres")
+    assert len(list.description) <= 300, (400, "A descrição da lista não pode exceder 300 caractéres")
     
-    if len(list.description) > 300:
-        raise HTTPException(400, detail = f"A descrição da lista não pode exceder 300 caractéres")
-    
-    list_with_creator = List(name=list.name,
-                            description=list.description,
-                            is_private= list.is_private,
-                            creator=user_id
-                        )
+    list_with_creator = List(
+        name=list.name,
+        description=list.description,
+        is_private= list.is_private,
+        creator=user_id
+    )
     
     return list_with_creator
 
 async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
+
     user_review_result = await DB_read_user_game_review(conn, review.game, user_id)
 
-    if not user_review_result.success:
-        raise HTTPException(500, detail=str(user_review_result.error))
-    
-    if user_review_result.obj is not None:
-        raise HTTPException(400, detail="Você já possui uma review desse jogo!")
-    
-    if len(review.rating_text) > 1000:
-        raise HTTPException(400, detail = "O texto da review não pode exceder 1000 caracteres")
+    assert user_review_result.success, (500, user_review_result.error)
+    assert user_review_result.obj is None, (400, "Você já possui uma review desse jogo!")
+    assert len(review.rating_text) <= 1000, (400, "O texto da review não pode exceder 1000 caracteres")
     
     return review
 
 async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id: str):
 
-    if review.game != old_game:
-        raise HTTPException(400, detail = "O jogo não pode ser alterado!")
+    assert review.game == old_game, (400, "O jogo não pode ser alterado!")
 
     user_review_result = await DB_read_user_game_review(conn, review.game, user_id)
 
-    if not user_review_result.success:
-        raise HTTPException(500, detail = str(user_review_result.error))
-    
-    if user_review_result.obj is None:
-        raise HTTPException(400, detail = "Você não possui uma review com esse jogo!")
-    
-    if len(review.rating_text) > 1000:
-        raise HTTPException(400, detail = "O texto da review não pode exceder 1000 caracteres")
+    assert user_review_result.success, (500, user_review_result.error)
+    assert user_review_result.obj is not None, (400, "Você não possui uma review com esse jogo!")
+    assert len(review.rating_text) <= 1000, (400, "O texto da review não pode exceder 1000 caracteres")
     
     return review
 
 async def is_liked(conn, review_id: str, user_id: str):
+    
     like_result = await DB_read_review_like(conn, review_id, user_id)
-
-    if not like_result.success:
-        raise HTTPException(500, detail=str(like_result.error))
+    assert like_result.success, (500, like_result.error)
     
     return like_result.obj
