@@ -10,9 +10,12 @@ def db_query(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
-            return await func(args, kwargs)
+            return await func(*args, **kwargs)
 
         except Exception as e:
             raise QueryError(500, str(e))
     
     return wrapper
+
+
+

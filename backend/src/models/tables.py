@@ -4,71 +4,72 @@ TABLES = {
     "Users":
     ''' 
         CREATE TABLE IF NOT EXISTS Users (
-            user_id VARCHAR(36) PRIMARY KEY,
+            id VARCHAR(36) PRIMARY KEY,
             username VARCHAR(25) UNIQUE NOT NULL,
             email VARCHAR(256) UNIQUE NOT NULL,
             password VARCHAR(256) NOT NULL,
-            bio VARCHAR(280) DEFAULT NULL,
+            bio VARCHAR(290) DEFAULT NULL,
             is_verified BOOL NOT NULL DEFAULT false,
             pfp TEXT DEFAULT NULL,
             created_at TIMESTAMPTZ DEFAULT now()
-            )   
+        )   
     ''',
 
     "Follows":
     '''
         CREATE TABLE IF NOT EXISTS Follows (
-            user_a VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE,
-            user_b VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE,
+            follower VARCHAR(36) REFERENCES Users(id) ON DELETE CASCADE,
+            followed VARCHAR(36) REFERENCES Users(id) ON DELETE CASCADE,
             created_at TIMESTAMPTZ DEFAULT now(),
 
-            PRIMARY KEY (user_a, user_b)
-            )
+            PRIMARY KEY (follower, followed)
+        )
     ''',
 
     "Blocks":
     '''
         CREATE TABLE IF NOT EXISTS Blocks (
-            user_a VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
-            user_b VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
+            blocker VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+            blocked VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+            created_at TIMESTAMPTZ DEFAULT now(),
                     
-            PRIMARY KEY (user_a, user_b)
-            )
+            PRIMARY KEY (blocker, blocked)
+        )
     ''',
 
     "Games":
     '''
         CREATE TABLE IF NOT EXISTS Games (
-            game_id INTEGER PRIMARY KEY,
-            game_name VARCHAR(50) NOT NULL,
-            game_picture TEXT,
-            game_year INTEGER
-            )
+            id INTEGER PRIMARY KEY,
+            name VARCHAR(50) NOT NULL,
+            picture TEXT,
+            year INTEGER
+        )
     ''',
 
     "Tags":
     '''
         CREATE TABLE IF NOT EXISTS Tags (
-            tag_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            tag_name VARCHAR(36) UNIQUE NOT NULL 
+            id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            name VARCHAR(36) UNIQUE NOT NULL 
         )
     ''',
 
     "UserTags":
     '''
         CREATE TABLE IF NOT EXISTS UserTags (
-            user_a VARCHAR(36) REFERENCES Users(user_id) ON DELETE CASCADE,
-            tag INTEGER REFERENCES Tags(tag_id) ON DELETE CASCADE,
+            usr VARCHAR(36) REFERENCES Users(id) ON DELETE CASCADE,
+            tag INTEGER REFERENCES Tags(id) ON DELETE CASCADE,
                     
-            PRIMARY KEY(user_a, tag)
+            PRIMARY KEY(usr, tag)
         )
     ''',
 
     "GameTags":
     '''
         CREATE TABLE IF NOT EXISTS GameTags (
-            tag INTEGER REFERENCES Tags(tag_id) ON DELETE CASCADE,
-            game INTEGER REFERENCES Games(game_id) ON DELETE CASCADE,
+            game INTEGER REFERENCES Games(id) ON DELETE CASCADE,
+            tag INTEGER REFERENCES Tags(id) ON DELETE CASCADE,
 
             PRIMARY KEY (tag, game)
         )
@@ -77,22 +78,22 @@ TABLES = {
     "Lists":
     '''
         CREATE TABLE IF NOT EXISTS Lists (
-            list_id VARCHAR(36) PRIMARY KEY,
-            list_name VARCHAR(50) NOT NULL,
-            list_description VARCHAR(310) DEFAULT NULL,
-            list_creator VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
+            id VARCHAR(36) PRIMARY KEY,
+            name VARCHAR(50) NOT NULL,
+            description VARCHAR(310) DEFAULT NULL,
+            creator VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
             is_private BOOL NOT NULL,
             created_at TIMESTAMPTZ DEFAULT now(),
                            
-            UNIQUE (list_name, list_creator)
+            UNIQUE (name, creator)
         )
     ''',
 
     "ListContent":
     '''
         CREATE TABLE IF NOT EXISTS ListContent (
-            list VARCHAR(36) NOT NULL REFERENCES Lists(list_id) ON DELETE CASCADE,
-            game INTEGER NOT NULL REFERENCES Games(game_id) ON DELETE CASCADE,
+            list VARCHAR(36) NOT NULL REFERENCES Lists(id) ON DELETE CASCADE,
+            game INTEGER NOT NULL REFERENCES Games(id) ON DELETE CASCADE,
 
             PRIMARY KEY(list, game) 
         )
@@ -101,19 +102,19 @@ TABLES = {
     "SavedLists":
     '''
         CREATE TABLE IF NOT EXISTS SavedLists (
-            user_a VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
-            list VARCHAR(36) NOT NULL REFERENCES Lists(list_id) ON DELETE CASCADE,
+            usr VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+            list VARCHAR(36) NOT NULL REFERENCES Lists(id) ON DELETE CASCADE,
 
-            PRIMARY KEY(user_a, list)
+            PRIMARY KEY(usr, list)
         )
     ''',
 
     "Reviews":
     '''
         CREATE TABLE IF NOT EXISTS Reviews (
-            review_id VARCHAR(36) PRIMARY KEY,
-            reviewer VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
-            game INTEGER NOT NULL,
+            id VARCHAR(36) PRIMARY KEY,
+            reviewer VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+            game INTEGER NOT NULL REFERENCES Games(id) ON DELETE NO ACTION,
             rating_num FLOAT NOT NULL,
             rating_text VARCHAR(300) DEFAULT NULL,
             is_private BOOL DEFAULT false,
@@ -130,8 +131,8 @@ TABLES = {
     "ReviewTags":
     '''
         CREATE TABLE IF NOT EXISTS ReviewTags (
-            review VARCHAR(36) REFERENCES Reviews(review_id) ON DELETE CASCADE,
-            tag INTEGER REFERENCES Tags(tag_id) ON DELETE CASCADE,
+            review VARCHAR(36) REFERENCES Reviews(id) ON DELETE CASCADE,
+            tag INTEGER REFERENCES Tags(id) ON DELETE CASCADE,
                            
             PRIMARY KEY (review, tag)
         )
@@ -140,10 +141,10 @@ TABLES = {
     "ReviewLikes":
     '''
         CREATE TABLE IF NOT EXISTS ReviewLikes (
-            user_a VARCHAR(36) NOT NULL REFERENCES Users(user_id) ON DELETE CASCADE,
-            review VARCHAR(36) NOT NULL REFERENCES Reviews(review_id) ON DELETE CASCADE,
+            usr VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+            review VARCHAR(36) NOT NULL REFERENCES Reviews(id) ON DELETE CASCADE,
 
-            PRIMARY KEY(user_a, review)
+            PRIMARY KEY(usr, review)
         )
     ''',
 }

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 import os
 
-from models.tables import create_tables
+from models import create_tables
 
 class LifespanConfig():
 
@@ -21,9 +21,11 @@ class LifespanConfig():
 
         self.port = os.getenv("DB_PORT")
 
-        is_testing = int(os.getenv("TESTING"))
+        self.is_testing = int(os.getenv("TESTING"))
+        
+        self.wipe_bd = int(os.getenv("WIPE_DB"))
 
-        if is_testing:
+        if self.is_testing:
             self.db_name = os.getenv("DB_NAME_TEST")
             self.host = 'localhost'
 
@@ -40,9 +42,9 @@ class LifespanConfig():
     def dsn(self):
         return f'postgresql://{self.db_user}:{self.db_pass}@{self.host}:{self.port}/{self.db_name}'
 
-    async def create_database(self):
+    async def conn(self):
         conn = None
-        
+  
         try:
             conn = await asyncpg.connect(
                 user=self.vm_user, 
@@ -51,6 +53,18 @@ class LifespanConfig():
                 port=self.port
             )
 
+            return conn
+
+        except asyncpg.PostgresError as e:
+            # Se der erro, retorna a falha
+            raise RuntimeError(str(e))
+
+
+    async def create_database(self):
+        conn = None
+        conn = await self.conn()
+        
+        try:
             # Cria o usuário que vai fazer as operações no servidor, se ele já não existir
             role_exists = await conn.fetchval(
                 "SELECT 1 FROM pg_roles WHERE rolname = $1", self.db_user
@@ -92,12 +106,11 @@ class LifespanConfig():
         except asyncpg.PostgresError as e:
             # Se der erro, retorna a falha
             raise RuntimeError(str(e))
-        
+
         finally:
-            # O 'finally' roda SEMPRE (depois do try ou depois do except)
-            # Só fechamos a conexão se ela realmente tiver sido aberta (diferente de None)
             if conn is not None:
                 await conn.close()
+    
 
     async def create_internal_pool(self):
         try:
@@ -138,4 +151,16 @@ class LifespanConfig():
 
         await app.state.internal_pool.close()
         await app.state.external_pool.close()
+
+        if self.is_testing and self.wipe_bd:
+            conn = None
+            try:
+                conn = await self.conn()
+
+                await conn.execute(f"DROP DATABASE IF EXISTS {self.db_name} WITH (FORCE)")               
+
+            finally:
+                if conn is not None:
+                    await conn.close()
+
 

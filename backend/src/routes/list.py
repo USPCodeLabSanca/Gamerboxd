@@ -13,8 +13,10 @@ list_router = APIRouter(prefix="/list", tags=["list"])
 @list_router.post("/")
 async def new_list(new_list: ListIn, conn = Depends(get_conn), user_id = Depends(require_login)):
     validated_list = await is_list_valid(conn, user_id, new_list)
-    new_list_id = await DB_create_list(conn, validated_list)
-    await DB_create_list_save(conn, new_list_id, user_id)
+
+    async with conn.transaction():
+        new_list_id = await DB_create_list(conn, validated_list)
+        await DB_create_list_save(conn, new_list_id, user_id)
 
     return JSONResponse({"message":"Lista criada com sucesso"})
     
@@ -28,8 +30,8 @@ async def delete_list(list_name: str, conn = Depends(get_conn), user_id = Depend
 
 @list_router.get("/{list_creator}/{list_name}")
 async def see_list(list_creator: str, list_name: str, conn = Depends(get_conn)):
-    list_creator_id = await DB_read_user_column(conn, "user_id", username=list_creator.strip())
-    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public = True)
+    list_creator_id = await DB_read_user_column(conn, "id", username=list_creator.strip())
+    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public=True)
 
     if list_id is None:
         raise QueryError(404, "Lista não encontrada!")
@@ -41,7 +43,7 @@ async def see_list(list_creator: str, list_name: str, conn = Depends(get_conn)):
 
 @list_router.get("/{list_name}")
 async def see_my_list(list_name: str, conn = Depends(get_conn), user_id = Depends(require_login)):
-    list_id = await DB_read_user_list_id(conn, user_id, list_name.strip(), only_public = False)
+    list_id = await DB_read_user_list_id(conn, user_id, list_name.strip(), only_public=False)
 
     if list_id is None:
         raise QueryError(404, "Lista não encontrada!")
@@ -61,12 +63,12 @@ async def edit_list(old_list_name: str, new_list: ListIn, conn = Depends(get_con
 
 @list_router.post("/save/{list_creator}/{list_name}")
 async def save_list(list_creator: str, list_name: str, conn = Depends(get_conn), user_id = Depends(require_login)):  
-    list_creator_id = await DB_read_user_column(conn, "user_id", username=list_creator.strip())
+    list_creator_id = await DB_read_user_column(conn, "id", username=list_creator.strip())
 
     if list_creator_id is None:
         raise QueryError(404, "Usuário não encontrado!")
     
-    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public = True)
+    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public=True)
 
     if list_id is None:
         raise QueryError(404, "Lista não encontrada!")
@@ -78,12 +80,12 @@ async def save_list(list_creator: str, list_name: str, conn = Depends(get_conn),
 
 @list_router.post("/unsave/{list_creator}/{list_name}")
 async def unsave_list(list_creator: str, list_name: str, conn = Depends(get_conn), user_id = Depends(require_login)):
-    list_creator_id = await DB_read_user_column(conn, "user_id", username=list_creator.strip())
+    list_creator_id = await DB_read_user_column(conn, "id", username=list_creator.strip())
 
     if list_creator_id is None:
         raise QueryError(404, "Usuário não encontrado!")
     
-    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public = True)
+    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public=True)
 
     if list_id is None:
         raise QueryError(404, "Lista não encontrada!")
@@ -95,7 +97,7 @@ async def unsave_list(list_creator: str, list_name: str, conn = Depends(get_conn
 
 @list_router.post("/add/{list_name}/{game_id}")
 async def save_to_list(list_name: str, game_id: int, conn = Depends(get_conn), user_id = Depends(require_login)):
-    list_id = await DB_read_user_list_id(conn, user_id, list_name, only_public = False)
+    list_id = await DB_read_user_list_id(conn, user_id, list_name, only_public=False)
 
     if list_id is None:
         raise QueryError(404, "Lista não encontrada!")
@@ -107,7 +109,7 @@ async def save_to_list(list_name: str, game_id: int, conn = Depends(get_conn), u
 
 @list_router.post("/rem/{list_name}/{game_id}")
 async def rem_from_list(list_name: str, game_id: int, conn = Depends(get_conn), user_id = Depends(require_login)):
-    list_id = await DB_read_user_list_id(conn, user_id, list_name, only_public = False)
+    list_id = await DB_read_user_list_id(conn, user_id, list_name, only_public=False)
 
     if list_id is None:
         raise QueryError(404, "Lista não encontrada!")

@@ -9,7 +9,7 @@ from utils.helper import fix_date
 async def DB_create_user(conn, user: UserIn):
     user_id = str(uuid4())
     await conn.execute('''
-        INSERT INTO Users(user_id, username, email, password)
+        INSERT INTO Users(id, username, email, password)
         VALUES($1, $2, $3, $4)
     ''', user_id, user.username, user.email, user.password)
     
@@ -19,47 +19,56 @@ async def DB_create_user(conn, user: UserIn):
 @db_query
 async def DB_create_follow(conn, user_follower: str, user_followed: str):
     await conn.execute('''
-        INSERT INTO Follows(user_a, user_b) VALUES($1, $2)
+        INSERT INTO Follows(follower, followed)
+        VALUES($1, $2)
+        ON CONFLICT
+        DO NOTHING
     ''', user_follower, user_followed)
 
 
 @db_query
-async def DB_create_block(conn, user_a: str, user_b: str):
+async def DB_create_block(conn, user_blocker: str, user_blocked:str):
     await conn.execute('''
-        INSERT INTO Blocks(user_a, user_b) VALUES($1, $2)
-    ''', user_a, user_b)
+        INSERT INTO Blocks(blocker, blocked)
+        VALUES($1, $2)
+        ON CONFLICT
+        DO NOTHING
+    ''', user_blocker, user_blocked)
 
 
 @db_query
 async def DB_delete_user(conn, user_id: str):
     await conn.execute('''
-        DELETE FROM Users WHERE user_id = $1
+        DELETE FROM Users
+        WHERE id = $1
     ''', user_id)
 
 
 @db_query    
 async def DB_delete_follow(conn, user_follower: str, user_followed: str):
     await conn.execute('''
-            DELETE FROM Follows WHERE user_a = $1 AND user_b = $2', 
-        ''', user_follower, user_followed)
+        DELETE FROM Follows
+        WHERE follower = $1 AND followed = $2 
+    ''', user_follower, user_followed)
 
 
 @db_query
-async def DB_delete_block(conn, user_a: str, user_b: str):
+async def DB_delete_block(conn, user_blocker: str, user_blocked:str):
     await conn.execute('''
-        DELETE FROM Blocks WHERE user_a = $1 AND user_b = $2
-    ''', user_a, user_b)
+        DELETE FROM Blocks
+        WHERE blocker = $1 AND blocked = $2
+    ''', user_blocker, user_blocked)
 
 
 @db_query
 async def DB_read_user_column(conn, column: str, user_id: str = None, email: str = None, username: str = None):
-    if username == None and user_id == None and email == None:
-        raise TypeError("username, email e user_id não podem estar todos vazios")
+    if not any([x is not None for x in (username, user_id, email)]):
+        raise TypeError("username, email e id não podem estar todos vazios")
 
     column_result = None
 
     if (user_id) and (column_result is None):
-        column_result = await conn.fetchval(f"SELECT {column} FROM Users WHERE user_id = $1", user_id)
+        column_result = await conn.fetchval(f"SELECT {column} FROM Users WHERE id = $1", user_id)
 
     if (email) and (column_result is None):
         column_result = await conn.fetchval(f"SELECT {column} FROM Users WHERE email = $1", email)
@@ -72,14 +81,11 @@ async def DB_read_user_column(conn, column: str, user_id: str = None, email: str
 
 @db_query
 async def DB_read_user_out(conn, user_id: str):
-    row = await conn.fetchrow(
-        """
+    row = await conn.fetchrow('''
         SELECT username, pfp, email, bio, created_at
         FROM Users
-        WHERE user_id = $1
-        """,
-        user_id
-    )
+        WHERE id = $1
+    ''', user_id)
 
     if row is None:
         return None
@@ -97,27 +103,21 @@ async def DB_read_user_out(conn, user_id: str):
 
 @db_query
 async def DB_read_user_follows(conn, user_id: str):
-    follower_rows = await conn.fetch(
-        """
+    follower_rows = await conn.fetch('''
         SELECT u.username, u.pfp
         FROM Follows f
-        JOIN Users u ON u.user_id = f.user_a
-        WHERE f.user_b = $1
+        JOIN Users u ON u.id = f.follower
+        WHERE f.followed = $1
         ORDER BY f.created_at DESC
-        """,
-        user_id,
-    )
+    ''', user_id)
     
-    following_rows = await conn.fetch(
-        """
+    following_rows = await conn.fetch('''
         SELECT u.username, u.pfp
         FROM Follows f
-        JOIN Users u ON u.user_id = f.user_b
-        WHERE f.user_a = $1
+        JOIN Users u ON u.id = f.followed
+        WHERE f.follower = $1
         ORDER BY f.created_at DESC
-        """,
-        user_id,
-    )
+    ''', user_id)
 
     followers = [User(username=r["username"], pfp=r["pfp"]) for r in follower_rows]
     followings = [User(username=r["username"], pfp=r["pfp"]) for r in following_rows]
@@ -131,14 +131,39 @@ async def DB_read_user_follows(conn, user_id: str):
     
     return user_follows
 
+@db_query
+async def DB_read_user_blockeds(conn, user_id: str):
+    blockeds = await conn.fetch('''
+        SELECT blocked FROM Blocks
+        WHERE blocker = $1
+    ''', user_id)
+
+    return blockeds
+
+@db_query
+async def DB_read_user_blockeds_full(conn, user_id: str):
+    blocked_rows = await conn.fetch('''
+        SELECT u.username, u.pfp
+        FROM Blocks b
+        JOIN Users u ON u.id = b.blocked
+        WHERE b.blocker = $1
+        ORDER BY b.created_at DESC
+    ''', user_id)
+
+    blockeds = [User(username=r["username"], pfp=r["pfp"]) for r in blocked_rows]
+
+    user_blockeds = UserBlocked(
+        blocked_count=len(blockeds),
+        blocks = blockeds
+    )
+    
 
 @db_query
 async def DB_update_user(conn, user: UserEdit, user_id: str):
-
     await conn.execute('''
         UPDATE Users 
         SET username = $1, email = $2, bio = $3 , pfp = $4
-        WHERE user_id = $5
+        WHERE id = $5
     ''', user.username, user.email, user.bio, user.pfp, user_id)
 
     return user

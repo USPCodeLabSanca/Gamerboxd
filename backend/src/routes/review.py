@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.review import *
-from services.security_services import is_review_insertion_valid, is_review_update_valid, is_liked
+from services.security_services import is_review_insertion_valid, is_review_update_valid
 from services.db_services.review import *
 from utils.dependencies import get_conn, require_login
 from utils.utils import QueryError
@@ -40,7 +40,7 @@ async def like_review(username: str, game: int, conn = Depends(get_conn), user_i
     if review_id is None:
         raise QueryError(404, "Review não encontrada!")
 
-    like_validated = await is_liked(conn, review_id, user_id)
+    like_validated = await DB_read_review_like(conn, review_id, user_id)
 
     if like_validated is not None:
         raise QueryError(400, "Você já deu like nessa review!")
@@ -57,7 +57,7 @@ async def unlike_review(username: str, game: int, conn = Depends(get_conn), user
     if review_id is None:
         raise QueryError(404, "Review não encontrada!")
 
-    like_validated = await is_liked(conn, review_id, user_id)
+    like_validated = await DB_read_review_like(conn, review_id, user_id)
 
     if like_validated is None:
         raise QueryError(400, "Você não deu like nessa review!")

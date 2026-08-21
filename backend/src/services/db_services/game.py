@@ -5,9 +5,9 @@ from utils.utils import db_query
 @db_query
 async def DB_create_game(conn, game: Game):
     await conn.execute('''
-        INSERT INTO Games(game_id, game_name, game_picture, game_year)
+        INSERT INTO Games(id, name, picture, year)
         VALUES($1, $2, $3, $4)
-        ON CONFLICT (game_id)
+        ON CONFLICT
         DO NOTHING;
     ''', game.game_id, game.name, game.picture, game.year)
 
@@ -15,9 +15,9 @@ async def DB_create_game(conn, game: Game):
 @db_query    
 async def DB_read_game_name(conn, game: int):
     game_name = await conn.fetchval('''
-        SELECT game_name
+        SELECT name
         FROM Games
-        WHERE game_id = $1
+        WHERE id = $1
     ''', game)
 
     return game_name
@@ -40,8 +40,8 @@ async def DB_read_game_avg_rating(conn, game_id: int):
     avg_rating = await conn.fetchval('''
         SELECT COALESCE(ROUND(AVG(r.rating_num)::numeric, 2), -1)
         FROM Games g
-        JOIN Reviews r ON r.game = g.game_id
-        WHERE g.game_id = $1
+        JOIN Reviews r ON r.game = g.id
+        WHERE g.id = $1
         AND r.is_private = false
     ''', game_id)
 

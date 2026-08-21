@@ -8,7 +8,7 @@
 ## 📝 Como Rodar
 
 ### Criando o ambiente virtual
-1. Entre na pasta do código fonte: `cd /backend/src`
+1. Entre na pasta do código fonte: `cd /backend`
 2. Crie o ambiente virtual com `python3 -m venv .venv`
 3. Ative o ambiente no terminal com `source .venv/bin/activate`
 4. Selecione o interpretador de python do .venv

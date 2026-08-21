@@ -17,24 +17,15 @@ async def search_rawg_games(conn, exconn, url, page_size):
             year = int(result["released"][0:4])
         )
 
-        games_result = await DB_create_game(conn, game)
-        if not games_result.success:
-            raise games_result.error
-        
-        like_count_result = await DB_read_game_likes(conn, game.game_id)
+        async with conn.transaction():
+            await DB_create_game(conn, game)
 
-        if not like_count_result.success:
-            raise like_count_result.error
-    
-        avg_review_result = await DB_read_game_avg_rating(conn, game.game_id)
+        like_count = await DB_read_game_likes(conn, game.game_id)
+        avg_review = await DB_read_game_avg_rating(conn, game.game_id)
 
-        if not avg_review_result.success:
-            raise like_count_result.error
-        
         full_game = Game(**game.model_dump(),
-                        like_count=like_count_result.obj,
-                        gamerboxd_rating=avg_review_result.obj
-                    )
+                        like_count=like_count,
+                        gamerboxd_rating=avg_review)
         
         games_list.append(full_game)
 

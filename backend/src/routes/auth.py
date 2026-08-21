@@ -13,7 +13,7 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 @auth_router.post("/login")
 async def login(user: UserAuth, conn = Depends(get_conn), key = Depends(get_key)):
-    user_id = await DB_read_user_column(conn, "user_id", username=user.email_or_username, email=user.email_or_username)
+    user_id = await DB_read_user_column(conn, "id", username=user.email_or_username, email=user.email_or_username)
 
     if user_id is None:
         raise QueryError(400, "Usuário ou senha incorretos")
