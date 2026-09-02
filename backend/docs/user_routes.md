@@ -1,20 +1,23 @@
 # 📡 Documentação das Rotas de Usuário
+
  
 ## Sumário
  
-- [POST `/user/`](#post-user---criar-conta)
-- [GET `/user/`](#get-user---ver-minha-conta)
-- [PUT `/user/`](#put-user---editar-conta)
-- [GET `/user/view/{username}`](#get-userview-username---ver-conta-de-outro-usuário)
+- [POST `/user`](#post-user---criar-conta)
+- [GET `/user`](#get-user---ver-minha-conta)
+- [PUT `/user`](#put-user---editar-conta)
+- [GET `/user/{username}`](#get-user-username---ver-conta-de-outro-usuário)
 - [POST `/user/follow/{username}`](#post-userfollow-username---seguir-usuário)
-- [POST `/user/unfollow/{username}`](#post-userunfollow-username---deixar-de-seguir-usuário)
-- [DELETE `/user/`](#delete-user---deletar-conta)
+- [DELETE `/user/follow/{username}`](#delete-userfollow-username---deixar-de-seguir-usuário)
+- [GET `/user/follow`](#get-user-follow---ver-os-seguidores-e-os-seguidos-do-usuário)
+- [DELETE `/user`](#delete-user---deletar-conta)
 - [POST `/user/block/{username}`](#post-userblockusername---bloquear-usuário)
-- [POST `/user/unblock/{username}`](#post-userunblockusername---desbloquear-usuário)
+- [DELETE `/user/block/{username}`](#delete-userblockusername---desbloquear-usuário)
+- [GET `/user/block`](#get-userblock---ver-os-bloqueados-pelo-usuário)
 
 ---
  
-## POST `/user/` — Criar conta
+## POST `/user` — Criar conta
  
 Cria uma nova conta de usuário. Ao criar a conta, duas listas padrão são geradas automaticamente: **Favoritos** e **Completados**.
  
@@ -28,11 +31,11 @@ Cria uma nova conta de usuário. Ao criar a conta, duas listas padrão são gera
 }
 ```
  
-| Campo      | Tipo            | Obrigatório | Regras |
-|------------|-----------------|-------------|--------|
-| `username` | string          | ✅          | Entre 4 e 24 caractéres, não pode estar em uso |
-| `email`    | string          | ✅          | Formato de e-mail válido, não pode estar em uso|
-| `password` | string          | ✅          | Entre 8 e 64 caracteres, com ao menos: 1 maiúscula, 1 minúscula, 1 número e 1 símbolo|
+| Campo      | Tipo   | Obrigatório | Regras                                                                                 |
+|------------|--------|-------------|----------------------------------------------------------------------------------------|
+| `username` | string | ✅          | Entre 4 e 24 caractéres, não pode estar em uso                                         |
+| `email`    | string | ✅          | Formato de e-mail válido, não pode estar em uso                                        |
+| `password` | string | ✅          | Entre 8 e 64 caracteres, com ao menos: 1 maiúscula, 1 minúscula, 1 número e 1 símbolo  |
 
 ### Resposta de Sucesso — `200`
  
@@ -51,11 +54,12 @@ Dois cookies `httponly` são definidos automaticamente na resposta:
  
 ### Erros possíveis
  
-| Status | Causa                                                            |
-|--------|------------------------------------------------------------------|
-| `400`  | Username muito curto/longo ou já em uso, e-mail inválido ou já em uso, senha fora do padrão |
-| `500`  | Erro interno ao salvar no banco                                  |
- 
+| Status | Causa                                                                 |
+|--------|-----------------------------------------------------------------------|
+| `400`  | Username muito curto/longo, e-mail inválido uso, senha fora do padrão |
+| `409`  | Username já em uso, e-mail já em uso                                  |
+| `500`  | Erro interno ao salvar no banco                                       |
+
 ---
  
 ## GET `/user/` — Ver minha conta
@@ -106,7 +110,7 @@ Retorna os dados completos do usuário autenticado. **Requer login**.
  
 ---
  
-## PUT `/user/` — Editar conta
+## PUT `/user` — Editar conta
  
 Atualiza os dados do usuário autenticado. **Requer login**.
  
@@ -121,12 +125,12 @@ Atualiza os dados do usuário autenticado. **Requer login**.
 }
 ```
  
-| Campo      | Tipo           | Obrigatório | Regras                                          |
-|------------|----------------|-------------|-------------------------------------------------|
-| `username` | string         | ✅           | Entre 4 e 24 caracteres                         |
-| `email`    | string         | ✅           | Formato de e-mail válido, não pode estar em uso |
-| `bio`      | string         | ✅           | Texto livre de biografia                        |
-| `pfp`      | string ou null | ✅           | URL/caminho da foto de perfil                   |
+| Campo      | Tipo           | Obrigatório  | Padrão | Regras                                            |
+|------------|----------------|--------------|--------|---------------------------------------------------|
+| `username` | string         | ✅           | -      | Entre 4 e 24 caracteres, não pode estar em uso    |
+| `email`    | string         | ✅           | -      | Formato de e-mail válido, não pode estar em uso   |
+| `bio`      | string ou null | ❌           | null   | Até 280 caractéres, não pode ser só espaço vazios |
+| `pfp`      | string ou null | ❌           | null   | URL/caminho da foto de perfil                     |
  
 ### Resposta de Sucesso — `200`
  
@@ -167,15 +171,16 @@ Retorna os dados completos atualizados do usuário
  
 ### Erros possíveis
  
-| Status | Causa                                                  |
-|--------|--------------------------------------------------------|
-| `400`  | Username inválido, e-mail inválido ou já em uso        |
-| `401`  | Usuário não autenticado                                |
-| `500`  | Erro interno ao atualizar os dados                     |
+| Status | Causa                                          |
+|--------|------------------------------------------------|
+| `400`  | Username inválido, e-mail inválido             |
+| `401`  | Usuário não autenticado                        |
+| `409`  | Username já está em uso, e-mail já está em uso |
+| `500`  | Erro interno ao atualizar os dados             |
  
 ---
  
-## GET `/user/view/{username}` — Ver conta de outro usuário
+## GET `/user/{username}` — Ver conta de outro usuário
  
 Retorna os dados públicos de qualquer usuário pelo username. **Não requer login**.
  
@@ -224,9 +229,11 @@ Retorna os dados completos atualizados do usuário
  
 ### Erros possíveis
  
-| Status | Causa                          |
-|--------|--------------------------------|
-| `500`  | Usuário não encontrado ou erro interno |
+| Status | Causa                                                      |
+|--------|------------------------------------------------------------|
+| `403`  | Usuário está tentando ver a conta de alguém que o bloqueou |
+| `404`  | Usuário alvo não encontrado                                |
+| `500`  | Erro interno ao buscar os dados                            |
  
 ---
  
@@ -250,14 +257,16 @@ Faz o usuário autenticado seguir outro usuário. **Requer login**.
  
 ### Erros possíveis
  
-| Status | Causa                                     |
-|--------|-------------------------------------------|
-| `401`  | Usuário não autenticado                   |
-| `500`  | Usuário alvo não encontrado ou erro interno |
+| Status | Causa                                                            |
+|--------|------------------------------------------------------------------|
+| `401`  | Usuário não autenticado                                          |
+| `403`  | Usuário está tentando seguir a si mesmo ou alguém que o bloqueou |
+| `404`  | Usuário a ser seguido não encontrado                             |
+| `500`  | Erro interno ao buscar os dados                                  |   
  
 ---
  
-## POST `/user/unfollow/{username}` — Deixar de seguir usuário
+## DELETE `/user/follow/{username}` — Deixar de seguir usuário
  
 Faz o usuário autenticado deixar de seguir outro usuário. **Requer login**.
  
@@ -277,11 +286,37 @@ Faz o usuário autenticado deixar de seguir outro usuário. **Requer login**.
  
 ### Erros possíveis
  
-| Status | Causa                                        |
-|--------|----------------------------------------------|
-| `401`  | Usuário não autenticado                      |
-| `500`  | Usuário alvo não encontrado ou erro interno  |
+| Status | Causa                                          |
+|--------|------------------------------------------------|
+| `401`  | Usuário não autenticado                        |
+| `404`  | Usuário a deixar de ser seguido não encontrado |
+| `500`  | Erro interno ao buscar os dados                |
+
+
+## GET `/user/follow` — Ver os seguidores e os seguidos do usuário
+
+Retorna os seguidores e os seguidos pelo usuário. **Requer login**.
+
+```json
+{    
+  "follower_count": 0,
+  "followers": [
+      { "username": "string", "pfp": "string | null" }
+    ],
+  "following_count": 0,
+  "followings": [
+      { "username": "string", "pfp": "string | null" }
+    ]
+}
+```
  
+### Erros possíveis
+ 
+| Status | Causa                            |
+|--------|----------------------------------|
+| `401`  | Usuário não autenticado          |
+| `500`  | Erro interno ao buscar os dados  |  
+
 ---
  
 ## DELETE `/user/` — Deletar conta
@@ -328,11 +363,13 @@ Faz o usuário autenticado bloquear outro usuário. **Requer login**.
 | Status | Causa                                       |
 |--------|---------------------------------------------|
 | `401`  | Usuário não autenticado                     |
+| `403`  | Usuário está tentando bloquear a si mesmo   |
+| `404`  | Usuário a ser bloqueado não encontrado      |
 | `500`  | Usuário alvo não encontrado ou erro interno |
 
 ---
 
-## POST `/user/unblock/{username}` — Desbloquear usuário
+## DELETE `/user/block/{username}` — Desbloquear usuário
 
 Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requer login**.
 
@@ -355,22 +392,29 @@ Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requ
 | Status | Causa                                       |
 |--------|---------------------------------------------|
 | `401`  | Usuário não autenticado                     |
-| `500`  | Usuário alvo não encontrado ou erro interno |
+| `404`  | Usuário a ser desbloqueado não encontrado   |
+| `500`  | Erro interno ao buscar os dados             |
 
 ---
 
-## 🔐 Autenticação
- 
-As rotas que requerem login dependem do cookie `access-token` enviado automaticamente pelo browser. Certifique-se de que as requisições são feitas com `credentials: 'include'` (fetch) ou `withCredentials: true` (axios).
- 
-```js
-// Exemplo com fetch
-fetch('/user/', {
-  credentials: 'include'
-})
- 
-// Exemplo com axios
-axios.get('/user/', { withCredentials: true })
+## GET `/user/block` — Ver os bloqueados pelo usuário
+
+Retorna os bloqueados pelo usuário. **Requer login**.
+
+```json
+{    
+  "blocked_count": 0,
+  "blocks": [
+      { "username": "string", "pfp": "string | null" }
+    ],
+}
 ```
  
+### Erros possíveis
+ 
+| Status | Causa                            |
+|--------|----------------------------------|
+| `401`  | Usuário não autenticado          |
+| `500`  | Erro interno ao buscar os dados  |  
+
 ---

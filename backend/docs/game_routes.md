@@ -1,5 +1,6 @@
 # 📡 Documentação das Rotas de Games
 
+
 ## Sumário
 
 - [GET `/game/{search}`](#get-gamesearch---buscar-games)
@@ -8,7 +9,7 @@
 
 ## GET `/game/{search}` — Buscar games
 
-Busca jogos pelo nome. Não requer autenticação.
+Busca jogos pelo nome. **Não requer login**.
 
 ### Path Parameter
 

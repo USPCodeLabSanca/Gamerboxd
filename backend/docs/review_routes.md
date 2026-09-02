@@ -1,5 +1,6 @@
 # 📡 Documentação das Rotas de Reviews
 
+
 ## Sumário
 
 - [POST `/review/`](#post-review---criar-review)
@@ -8,7 +9,7 @@
 - [GET `/review/{username}`](#get-reviewusername---listar-reviews-de-um-usuário)
 - [GET `/review/{username}/{game}`](#get-reviewusernamegame---ver-review-de-um-usuário)
 - [POST `/review/like/{username}/{game}`](#post-reviewlikeusernamegame---dar-like-em-review)
-- [POST `/review/unlike/{username}/{game}`](#post-reviewunlikeusernamegame---remover-like-de-review)
+- [DELETE `/review/like/{username}/{game}`](#delete-reviewlikeusernamegame---remover-like-de-review)
 
 ---
 
@@ -22,7 +23,7 @@ Cria uma review para um jogo. Cada usuário pode ter apenas uma review por jogo.
 {
   "game": 0,
   "rating_num": 0.0,
-  "rating_text": "string",
+  "rating_text": "string | null",
   "is_private": true,
   "time_played": 0.0,
   "liked": true,
@@ -30,15 +31,15 @@ Cria uma review para um jogo. Cada usuário pode ter apenas uma review por jogo.
 }
 ```
 
-| Campo         | Tipo    | Obrigatório | Regras                                         |
-|---------------|---------|-------------|------------------------------------------------|
-| `game`        | int     | ✅          | ID do jogo a ser avaliado                      |
-| `rating_num`  | float   | ✅          | Nota numérica da avaliação                     |
-| `rating_text` | string  | ✅          | Texto da review, máximo de 1000 caracteres     |
-| `is_private`  | boolean | ✅          | Se `true`, a review só é visível ao criador    |
-| `time_played` | float   | ✅          | Tempo jogado                                   |
-| `liked`       | boolean | ✅          | Se o usuário gostou do jogo                    |
-| `completed`   | boolean | ✅          | Se o usuário completou o jogo                  |
+| Campo         | Tipo            | Obrigatório | Padrão  | Descrição/Regras                               |
+|---------------|-----------------|-------------|---------|------------------------------------------------|
+| `game`        | int             | ✅          | -       | ID do jogo a ser avaliado                      |
+| `rating_num`  | float           | ✅          | -       | Nota numérica da avaliação                     |
+| `rating_text` | string ou null  | ❌          | null    | Texto da review, máximo de 1000 caracteres     |
+| `is_private`  | boolean         | ✅          | -       | Se `true`, a review só é visível ao criador    |
+| `time_played` | float           | ✅          | -       | Tempo jogado                                   |
+| `liked`       | boolean         | ✅          | -       | Se o usuário gostou do jogo                    |
+| `completed`   | boolean         | ✅          | -       | Se o usuário completou o jogo                  |
 
 ### Resposta de Sucesso — `200`
 
@@ -50,11 +51,12 @@ Cria uma review para um jogo. Cada usuário pode ter apenas uma review por jogo.
 
 ### Erros possíveis
 
-| Status | Causa                                                                    |
-|--------|--------------------------------------------------------------------------|
-| `400`  | Usuário já possui uma review desse jogo, texto acima de 1000 caracteres  |
-| `401`  | Usuário não autenticado                                                  |
-| `500`  | Erro interno ao salvar no banco                                          |
+| Status | Causa                                    |
+|--------|------------------------------------------|
+| `400`  | Texto acima de 1000 caracteres           |
+| `401`  | Usuário não autenticado                  |
+| `409`  | Usuário já possui uma review desse jogo  |
+| `500`  | Erro interno ao salvar no banco          |
 
 ---
 
@@ -78,7 +80,7 @@ Mesmo formato do [POST `/review/`](#post-review---criar-review). O campo `game` 
 {
   "game": 0,
   "rating_num": 0.0,
-  "rating_text": "string",
+  "rating_text": "string | null",
   "is_private": true,
   "time_played": 0.0,
   "liked": true,
@@ -89,11 +91,12 @@ Mesmo formato do [POST `/review/`](#post-review---criar-review). O campo `game` 
 
 ### Erros possíveis
 
-| Status | Causa                                                                              |
-|--------|------------------------------------------------------------------------------------|
-| `400`  | Tentativa de alterar o jogo da review, review não encontrada, texto acima de 1000 caracteres |
-| `401`  | Usuário não autenticado                                                            |
-| `500`  | Erro interno ao atualizar no banco                                                 |
+| Status | Causa                                                                 |
+|--------|-----------------------------------------------------------------------|
+| `400`  | Tentativa de alterar o jogo da review, texto acima de 1000 caracteres |
+| `401`  | Usuário não autenticado                                               |
+| `404`  | Review a ser alterada não encontrada                                  |
+| `500`  | Erro interno ao atualizar no banco                                    |
 
 ---
 
@@ -136,8 +139,8 @@ Retorna uma lista das reviews públicas mais recentes de um usuário. **Não req
 
 ### Query Parameters
 
-| Parâmetro | Tipo | Obrigatório | Padrão | Descrição                                      |
-|-----------|------|-------------|--------|------------------------------------------------|
+| Parâmetro | Tipo | Obrigatório | Padrão | Descrição                                       |
+|-----------|------|-------------|--------|-------------------------------------------------|
 | `limit`   | int  | ❌          | `10`   | Quantidade de reviews retornadas (máximo: `20`) |
 
 ### Resposta de Sucesso — `200`
@@ -148,7 +151,7 @@ Retorna um array de reviews:
 [
   {
     "rating_num": 0.0,
-    "rating_text": "string",
+    "rating_text": "string | null",
     "likes_count": 0,
     "liked": true,
     "game_name": "string",
@@ -159,10 +162,12 @@ Retorna um array de reviews:
 
 ### Erros possíveis
 
-| Status | Causa                                          |
-|--------|------------------------------------------------|
-| `400`  | `limit` acima de 20                            |
-| `500`  | Reviews não encontradas ou erro interno        |
+| Status | Causa                                                                     |
+|--------|---------------------------------------------------------------------------|
+| `400`  | `limit` acima de 20                                                       |
+| `403`  | Ususário está tentando ver as reviews escritas por alguém que o bloqueou  |
+| `404`  | Usuário alvo não encontrado                                               |  
+| `500`  | Erro interno ao buscar dados no banco                                     |
 
 ---
 
@@ -172,10 +177,10 @@ Retorna os detalhes completos da review pública de um usuário para um jogo esp
 
 ### Path Parameters
 
-| Parâmetro  | Tipo   | Descrição                        |
-|------------|--------|----------------------------------|
-| `username` | string | Username do autor da review      |
-| `game`     | int    | ID do jogo da review             |
+| Parâmetro  | Tipo   | Descrição                   |
+|------------|--------|-----------------------------|
+| `username` | string | Username do autor da review |
+| `game`     | int    | ID do jogo da review        |
 
 ### Resposta de Sucesso — `200`
 
@@ -183,7 +188,7 @@ Retorna os detalhes completos da review pública de um usuário para um jogo esp
 {
   "username": "string",
   "rating_num": 0.0,
-  "rating_text": "string",
+  "rating_text": "string | null",
   "time_played": 0.0,
   "completed": true,
   "tag_count": 0,
@@ -198,9 +203,10 @@ Retorna os detalhes completos da review pública de um usuário para um jogo esp
 
 ### Erros possíveis
 
-| Status | Causa                                                  |
-|--------|--------------------------------------------------------|
-| `500`  | Review não encontrada, privada, jogo não existe, ou erro interno |
+| Status | Causa                                  |
+|--------|----------------------------------------|
+| `404`  | Review não encontrada ou privada       |
+| `500`  | Erro interno ao buscar dados no banco  |
 
 ---
 
@@ -225,26 +231,28 @@ Dá like na review pública de outro usuário para um jogo. **Requer login**.
 
 ### Erros possíveis
 
-| Status | Causa                                        |
-|--------|----------------------------------------------|
-| `400`  | Usuário já deu like nessa review             |
-| `401`  | Usuário não autenticado                      |
-| `500`  | Review não encontrada ou erro interno        |
+| Status | Causa                                                                           |
+|--------|---------------------------------------------------------------------------------|
+| `401`  | Usuário não autenticado                                                         |
+| `403`  | Usuário está tentando dar like em uma review escrita por alguém que o bloqueou  |
+| `404`  | Review não encontrada ou privada, usuário alvo não encontrado                   |
+| `409`  | Usuário já deu like nessa review                                                |
+| `500`  | Erro interno ao adicionar dados no banco                                        |
 
 ---
 
-## POST `/review/unlike/{username}/{game}` — Remover like de review
+## DELETE `/review/like/{username}/{game}` — Remover like de review
 
 Remove o like do usuário autenticado de uma review. **Requer login**.
 
 ### Path Parameters
 
-| Parâmetro  | Tipo   | Descrição                                       |
-|------------|--------|-------------------------------------------------|
-| `username` | string | Username do autor da review                     |
-| `game`     | int    | ID do jogo da review a ter o like removido      |
+| Parâmetro  | Tipo   | Descrição                                   |
+|------------|--------|---------------------------------------------|
+| `username` | string | Username do autor da review                 |
+| `game`     | int    | ID do jogo da review a ter o like removido  |
 
-### Resposta de Sucesso — `202`
+### Resposta de Sucesso — `200`
 
 ```json
 {
@@ -254,26 +262,9 @@ Remove o like do usuário autenticado de uma review. **Requer login**.
 
 ### Erros possíveis
 
-| Status | Causa                                        |
-|--------|----------------------------------------------|
-| `400`  | Usuário não havia dado like nessa review     |
-| `401`  | Usuário não autenticado                      |
-| `500`  | Review não encontrada ou erro interno        |
-
----
-
-## 🔐 Autenticação
-
-As rotas que requerem login dependem do cookie `access-token` enviado automaticamente pelo browser. Certifique-se de que as requisições são feitas com `credentials: 'include'` (fetch) ou `withCredentials: true` (axios).
-
-```js
-// Exemplo com fetch
-fetch('/review/', {
-  credentials: 'include'
-})
-
-// Exemplo com axios
-axios.post('/review/', body, { withCredentials: true })
-```
-
----
+| Status | Causa                                    |
+|--------|------------------------------------------|
+| `401`  | Usuário não autenticado                  |
+| `404`  | Review não encontrada ou privada         |
+| `409`  | Usuário não havia dado like nessa review |
+| `500`  | Erro interno ao remover dados no banco   |
