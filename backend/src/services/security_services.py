@@ -9,6 +9,8 @@ from utils.utils import QueryError
 
 
 def passwords_match(stored_password, tested_password):
+    """Testa se a senha que o usuário está tentando para logar é a mesma que ele cadastrou a criar a conta"""
+
     tested_password_bytes = tested_password.encode('utf-8')
     stored_password_bytes = stored_password.encode('utf-8')
 
@@ -16,12 +18,16 @@ def passwords_match(stored_password, tested_password):
 
 
 def encrypt_password(password: str):
+    """Encripta a senha"""
+
     password_bytes = password.encode('utf-8')
     encrypted_password_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
     return encrypted_password_bytes.decode('utf-8')
 
 
 def encode_token(user_id, exp_in_minutes, key):
+    """Cria os jwt para guardar nos cookies"""
+
     exp_time = datetime.now(tz=timezone.utc) + timedelta(minutes=exp_in_minutes)
     exp_time_int = int(exp_time.timestamp())
 
@@ -32,10 +38,14 @@ def encode_token(user_id, exp_in_minutes, key):
 
 
 def decode_token(cookies, token_name, key):
+    """Lê o que está num jwt"""
+
     return jwt.decode(cookies[token_name], key, algorithms=["HS256"], options={"verify_exp": False})
 
 
 async def is_user_valid(user, conn, user_id):
+    """Testa se uma conta de usuário ao criar ou editar é válida para entrar no BD"""
+
     username = user.username.strip()
 
     if (len(username) < 4) or (len(username) > 24):
@@ -93,43 +103,52 @@ async def is_user_valid(user, conn, user_id):
     return user
 
 
-async def is_list_valid(conn, user_id: str, list: ListIn):
-    
-    # Limpar espaços extras
-    for key, value in list:
-        if isinstance(value, str) and value is not None:
-            value = value.strip()
+async def is_list_valid(conn, user_id: str, list_in: ListIn, old_list_name: str = None):
+    """Testa se uma lista ao criar ou editar é válida para entrar no BD"""
 
-    # Verificar se já existe lista com esse nome
+    name = list_in.name.strip()
     user_lists = await DB_read_user_lists(conn, user_id)
 
-    # Verificar se o usuário não possui uma lista com esse nome
-    if any([ul.name == list.name for ul in user_lists.lists]):
-        raise QueryError(400, f"Você já possui uma lista com o nome {list.name}")
+    if any([ul.name == name for ul in user_lists.lists]) and (name !=  old_list_name):
+        raise QueryError(409, f'O usuário já possui uma lista com o nome "{name}"!')
 
-    # Verificar tamanhos máximos 
-    if len(list.name) > 60:
-        raise QueryError(400, "O nome da lista não pode exceder 60 caractéres")
+    if len(name) > 45:
+        raise QueryError(400, "O nome da lista não pode exceder 45 caractéres!")
 
-    if len(list.description) > 300:
-        raise QueryError(400, "A descrição da lista não pode exceder 300 caractéres")
-    
-    list_with_creator = List(
-        name=list.name,
-        description=list.description,
-        is_private= list.is_private,
+    if len(name) == 0:
+        raise QueryError(400, "O nome da lista não pode ser apenas espaço vazio!")
+
+    list_in.name = name
+
+    if list_in.description is not None:
+        description = list_in.description.strip()
+
+        if len(description) > 300:
+            raise QueryError(400, "A descrição da lista não pode exceder 300 caractéres!")
+
+        if len(description) == 0:
+            raise QueryError(400, "A descrição da lista não pode ser apenas espaço vazio!")
+
+        list_in.description = description
+        
+    return List(
+        name=list_in.name,
+        description=list_in.description,
+        is_private=list_in.is_private,
         creator=user_id
     )
-    
-    return list_with_creator
 
 
 async def is_blocked(conn, user_id_blocker: str, user_id_blocked: str):
+    """Testa se um usuário foi bloqueado por outro"""
+
     blockeds = await DB_read_user_blockeds(conn, user_id_blocker)
     return any([user_id_blocked == b["blocked"] for b in blockeds])
 
 
 async def already_follows(conn, user_id_follower:str, username_followed:str):
+    """Testa se um usuário segue outro"""
+
     followings = await DB_read_user_follows(conn, user_id_follower)
 
     for f in followings.followings:
@@ -140,11 +159,12 @@ async def already_follows(conn, user_id_follower:str, username_followed:str):
 
 
 async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
+    """Testa se uma review ao criar é válida para entrar no BD"""
 
     user_review = await DB_read_user_game_review(conn, review.game, user_id)
 
     if user_review is not None:
-        raise QueryError(400, "Você já possui uma review desse jogo!")
+        raise QueryError(409, "Você já possui uma review desse jogo!")
 
     if review.rating_text > 1000:
         raise QueryError(400, "O texto da review não pode exceder 1000 caracteres")
@@ -153,6 +173,7 @@ async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
 
 
 async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id: str):
+    """Testa se uma review ao editar é válida para entrar no BD"""
 
     if review.game != old_game:
         raise QueryError(400, "O jogo não pode ser alterado!")
@@ -160,7 +181,7 @@ async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id:
     user_review = await DB_read_user_game_review(conn, review.game, user_id)
 
     if user_review is None:
-        raise QueryError(400, "Você não possui uma review com esse jogo!")
+        raise QueryError(404, "Review antiga não encontrada!")
     
     if review.rating_text > 1000:
         raise QueryError(400, "O texto da review não pode exceder 1000 caracteres")

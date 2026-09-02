@@ -4,15 +4,17 @@ from fastapi.responses import JSONResponse
 from models.schemas import UserAuth
 from services.security_services import passwords_match, encode_token
 from services.db_services import DB_read_user_column
-from utils.dependencies import get_conn, get_key
+from utils.dependencies import get_conn, get_key, require_login
 from utils.utils import QueryError
 
 
-auth_router = APIRouter(prefix="/auth", tags=["auth"])
+auth_router = APIRouter(tags=["auth"])
 
 
 @auth_router.post("/login")
 async def login(user: UserAuth, conn = Depends(get_conn), key = Depends(get_key)):
+    """Autentica o usuário com email ou username e senha"""
+
     user_id = await DB_read_user_column(conn, "id", username=user.email_or_username, email=user.email_or_username)
 
     if user_id is None:
@@ -26,17 +28,18 @@ async def login(user: UserAuth, conn = Depends(get_conn), key = Depends(get_key)
     new_access_token = encode_token(user_id, 10, key)
     new_refresh_token = encode_token(user_id, 1440, key)
 
-    response = JSONResponse({"message":"Login feito com sucesso"})
+    response = JSONResponse({"message":"Login feito com sucesso!"})
     response.set_cookie("access-token", new_access_token, secure=True, httponly=True)
     response.set_cookie("refresh-token", new_refresh_token, secure=True, httponly=True)
     
     return response
 
 
-@auth_router.post("/logout")
-async def logout():
+@auth_router.delete("/login")
+async def logout( user_id = Depends(require_login)):
+    """Encerra a sessão do usuário removendo os cookies de autenticação"""
 
-    response = JSONResponse({"message": "Logout feito com sucesso"})
+    response = JSONResponse({"message": "Logout feito com sucesso!"})
     response.delete_cookie("refresh-token", secure=True, httponly=True)
     response.delete_cookie("access-token", secure=True, httponly=True)
 

@@ -1,1 +1,1 @@
-from .lifespan_config import LifespanConfig
+from .lifespan import LifespanConfig

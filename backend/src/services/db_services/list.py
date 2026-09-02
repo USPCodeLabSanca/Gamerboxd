@@ -6,7 +6,9 @@ from utils.helper import fix_date
 
 
 @db_query
-async def DB_create_list(conn, new_list: List):      
+async def DB_create_list(conn, new_list: List):
+    """Adiciona uma lista nova ao BD"""
+
     list_id = str(uuid4())
     await conn.execute('''
         INSERT INTO Lists(id, name, description, creator, is_private)
@@ -18,6 +20,8 @@ async def DB_create_list(conn, new_list: List):
 
 @db_query
 async def DB_create_list_save(conn, list_id: str, user_id: str):
+    """Salva uma lista na "biblioteca" do usuário"""
+
     await conn.execute('''
         INSERT INTO SavedLists(usr, list) VALUES($1, $2)
     ''', user_id, list_id)
@@ -25,6 +29,8 @@ async def DB_create_list_save(conn, list_id: str, user_id: str):
 
 @db_query
 async def DB_create_list_game(conn, list_id, game_id):
+    """Inclui um game em uma lista"""
+
     await conn.execute('''
         INSERT INTO ListContent(list, game) VALUES($1, $2)
     ''', list_id, game_id)
@@ -32,6 +38,8 @@ async def DB_create_list_game(conn, list_id, game_id):
 
 @db_query
 async def DB_delete_list(conn, list_name: str, user_id: str):
+    """Deleta uma lista do BD"""
+
     await conn.execute('''
         DELETE FROM Lists WHERE name = $1 AND creator = $2
     ''', list_name, user_id)
@@ -39,6 +47,8 @@ async def DB_delete_list(conn, list_name: str, user_id: str):
 
 @db_query
 async def DB_delete_list_save(conn, list_id: str, user_id: str):
+    """Remove uma lista na "biblioteca" do usuário"""
+
     await conn.execute('''
         DELETE FROM SavedLists WHERE list = $1 AND usr = $2
     ''', list_id, user_id)
@@ -46,6 +56,8 @@ async def DB_delete_list_save(conn, list_id: str, user_id: str):
 
 @db_query
 async def DB_delete_list_game(conn, list_id: str, game_id: int):
+    """Remove um game de uma lista"""
+
     await conn.execute('''
         DELETE FROM ListContent WHERE list = $1 AND game = $2
     ''', list_id, game_id)
@@ -53,6 +65,8 @@ async def DB_delete_list_game(conn, list_id: str, game_id: int):
 
 @db_query
 async def DB_read_user_list_id(conn, user_id: str, list_name: str, only_public: bool):
+    """Lê o id de uma lista a partir do nome e do criador"""
+
     if only_public:
         query = "SELECT list_id FROM Lists WHERE creator = $1 AND name = $2 AND is_private = false"
 
@@ -66,6 +80,8 @@ async def DB_read_user_list_id(conn, user_id: str, list_name: str, only_public: 
 
 @db_query
 async def DB_read_user_saved_lists(conn, user_id: str):
+    """Lê as listas salvas por um usuário"""
+
     rows = await conn.fetch(
         '''
         SELECT l.name, l.description, u.username AS creator, l.is_private, l.created_at,
@@ -98,6 +114,8 @@ async def DB_read_user_saved_lists(conn, user_id: str):
 
 @db_query
 async def DB_read_user_lists(conn, user_id: str):
+    """Lê as listas criadas por um usuário"""
+
     rows = await conn.fetch('''
         SELECT l.name, l.description, u.username AS creator, l.is_private, l.created_at,
         COUNT(sl.usr) AS saves
@@ -128,6 +146,8 @@ async def DB_read_user_lists(conn, user_id: str):
 
 @db_query
 async def DB_read_list_full(conn, list_id: str):
+    """Lê os dados completos de uma lista"""
+
     full_row = await conn.fetchrow('''
         SELECT l.name, l.description, u.username AS creator, l.is_private, l.created_at,
         COUNT(sl.usr) AS saves
@@ -177,6 +197,8 @@ async def DB_read_list_full(conn, list_id: str):
 
 @db_query
 async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: str):
+    """Atualiza os dados de uma lista e a retorna completa e atualizada"""
+    
     list_id = await conn.fetchval('''
         UPDATE Lists 
         SET name = $1, description = $2, is_private = $3 

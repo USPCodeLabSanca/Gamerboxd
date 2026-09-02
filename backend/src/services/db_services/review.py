@@ -25,7 +25,7 @@ async def DB_create_like_review(conn, like: ReviewLike):
     await conn.execute('''
         INSERT INTO ReviewLikes(usr, review)
         VALUES($1, $2)
-    ''', like.user_a, like.review)
+    ''', like.user, like.review)
     
     
 @db_query
@@ -41,7 +41,7 @@ async def DB_delete_like_review(conn, like: ReviewLike):
     await conn.execute('''
         DELETE FROM ReviewLikes 
         WHERE usr = $1 AND review = $2
-    ''', like.user_a, like.review)
+    ''', like.user, like.review)
 
 
 @db_query

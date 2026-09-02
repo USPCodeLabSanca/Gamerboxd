@@ -8,12 +8,12 @@ from routes import auth_router, game_router, list_router, review_router, user_ro
 from utils.utils import QueryError
 
 lifespan = LifespanConfig()
-app = FastAPI(lifespan = lifespan)
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # porta padrão do Vite/React
-    allow_credentials=True,                   # necessário para cookies
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -156,6 +156,7 @@ async def DB_read_user_blockeds_full(conn, user_id: str):
         blocked_count=len(blockeds),
         blocks = blockeds
     )
+    return user_blockeds
     
 
 @db_query

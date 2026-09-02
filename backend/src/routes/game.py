@@ -9,6 +9,8 @@ game_router = APIRouter(prefix="/game", tags=["game"])
   
 @game_router.get("/{search}")
 async def search_games(search: str, page: int = 1, page_size: int = 20, conn = Depends(get_conn), exconn = Depends(get_exconn), rawg = Depends(get_rawg)):
+    """Busca jogos pelo nome"""
+    
     url = rawg + f"&search={search}" + f"&page={page}" + f"&page_size={page_size}"
     games = await search_rawg_games(conn, exconn, url, page_size)          
 

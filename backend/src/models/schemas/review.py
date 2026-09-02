@@ -39,5 +39,5 @@ class ReviewAll(ReviewOutOne):
 
 class ReviewLike(BaseModel):
     """Dados sobre o like de uma review"""
-    user_a: str
+    user: str
     review: str

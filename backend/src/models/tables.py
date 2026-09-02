@@ -65,16 +65,6 @@ TABLES = {
         )
     ''',
 
-    "GameTags":
-    '''
-        CREATE TABLE IF NOT EXISTS GameTags (
-            game INTEGER REFERENCES Games(id) ON DELETE CASCADE,
-            tag INTEGER REFERENCES Tags(id) ON DELETE CASCADE,
-
-            PRIMARY KEY (tag, game)
-        )
-    ''',
-
     "Lists":
     '''
         CREATE TABLE IF NOT EXISTS Lists (
@@ -84,6 +74,7 @@ TABLES = {
             creator VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
             is_private BOOL NOT NULL,
             created_at TIMESTAMPTZ DEFAULT now(),
+            last_update TIMESTAMPTZ DEFAULT now(),
                            
             UNIQUE (name, creator)
         )

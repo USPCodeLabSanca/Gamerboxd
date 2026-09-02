@@ -4,6 +4,8 @@ from utils.utils import db_query
 
 @db_query
 async def DB_create_game(conn, game: Game):
+    """Adiciona um jogo ao BD"""
+
     await conn.execute('''
         INSERT INTO Games(id, name, picture, year)
         VALUES($1, $2, $3, $4)
@@ -14,6 +16,8 @@ async def DB_create_game(conn, game: Game):
 
 @db_query    
 async def DB_read_game_name(conn, game: int):
+    """Lê o nome de um game do BD a partir do seu id"""
+
     game_name = await conn.fetchval('''
         SELECT name
         FROM Games
@@ -25,6 +29,8 @@ async def DB_read_game_name(conn, game: int):
 
 @db_query
 async def DB_read_game_likes(conn, game_id: int):
+    """Conta quantas reviews disseram que gostaram do jogo"""
+
     like_count = await conn.fetchval('''
         SELECT COUNT(r.liked)
         FROM Reviews r 
@@ -37,6 +43,8 @@ async def DB_read_game_likes(conn, game_id: int):
 
 @db_query
 async def DB_read_game_avg_rating(conn, game_id: int):
+    """Acha a média das avaliações do jogo"""
+
     avg_rating = await conn.fetchval('''
         SELECT COALESCE(ROUND(AVG(r.rating_num)::numeric, 2), -1)
         FROM Games g

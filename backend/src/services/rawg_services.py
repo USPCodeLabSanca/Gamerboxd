@@ -3,6 +3,8 @@ from services.db_services import DB_create_game, DB_read_game_likes, DB_read_gam
 
 
 async def search_rawg_games(conn, exconn, url, page_size):
+    """Busca games na Api Rawg"""
+    
     async with exconn.get(url) as response:
         json = await response.json()
     
