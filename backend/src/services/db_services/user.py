@@ -21,8 +21,6 @@ async def DB_create_follow(conn, user_follower: str, user_followed: str):
     await conn.execute('''
         INSERT INTO Follows(follower, followed)
         VALUES($1, $2)
-        ON CONFLICT
-        DO NOTHING
     ''', user_follower, user_followed)
 
 
@@ -31,8 +29,6 @@ async def DB_create_block(conn, user_blocker: str, user_blocked:str):
     await conn.execute('''
         INSERT INTO Blocks(blocker, blocked)
         VALUES($1, $2)
-        ON CONFLICT
-        DO NOTHING
     ''', user_blocker, user_blocked)
 
 
@@ -133,15 +129,6 @@ async def DB_read_user_follows(conn, user_id: str):
 
 @db_query
 async def DB_read_user_blockeds(conn, user_id: str):
-    blockeds = await conn.fetch('''
-        SELECT blocked FROM Blocks
-        WHERE blocker = $1
-    ''', user_id)
-
-    return blockeds
-
-@db_query
-async def DB_read_user_blockeds_full(conn, user_id: str):
     blocked_rows = await conn.fetch('''
         SELECT u.username, u.pfp
         FROM Blocks b

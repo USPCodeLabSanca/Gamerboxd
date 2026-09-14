@@ -32,26 +32,22 @@ async def delete_list(list_name: str, conn = Depends(get_conn), user_id = Depend
     return JSONResponse({"message":"Lista deletada com sucesso!"})
 
 
-@list_router.get("/{list_creator}/{list_name}")
-async def see_list(list_creator: str, list_name: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
-    """Retorna os dados completos de uma lista pública de qualquer usuário"""
+# PAGINAÇÃO!!!
+@list_router.get("/saved")
+async def view_saved_lists(conn = Depends(get_conn), user_id = Depends(require_login)):
+    """Busca as listas salvas pelo usuário"""
 
-    list_creator_id = await DB_read_user_column(conn, "id", username=list_creator.strip())
+    lists = await DB_read_user_saved_lists(conn, user_id)
+    return JSONResponse(lists.model_dump())
 
-    if list_creator_id is None:
-        raise QueryError(404, "Usuário não encontrado!")
 
-    if (user_id is not None) and (await is_blocked(conn, list_creator_id, user_id)):
-        raise QueryError(403, "Usuário está bloqueado por quem ele quer ver a lista!")
-    
-    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public=True)
+# PAGINAÇÃO!!!
+@list_router.get("/created")
+async def view_created_lists(conn = Depends(get_conn), user_id = Depends(require_login)):
+    """Busca as listas criadas pelo usuário"""
 
-    if list_id is None:
-        raise QueryError(404, "Lista não encontrada!")
-
-    list_full = await DB_read_list_full(conn, list_id)
-
-    return JSONResponse(list_full.model_dump())
+    lists = await DB_read_user_lists(conn, user_id)
+    return JSONResponse(lists.model_dump())
 
 
 @list_router.get("/{list_name}")
@@ -68,14 +64,43 @@ async def see_my_list(list_name: str, conn = Depends(get_conn), user_id = Depend
     return JSONResponse(list_full.model_dump())
 
 
+@list_router.get("/{list_creator}/{list_name}")
+async def see_list(list_creator: str, list_name: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
+    """Retorna os dados completos de uma lista pública de qualquer usuário"""
+
+    list_creator_id = await DB_read_user_column(conn, "id", username=list_creator.strip())
+
+    if list_creator_id is None:
+        raise QueryError(404, "Usuário não encontrado!")
+
+    if (user_id is not None):
+        username = await DB_read_user_column(conn, "username", user_id=user_id)
+        if await is_blocked(conn, list_creator_id, username):
+            raise QueryError(403, "Usuário está bloqueado por quem ele quer ver a lista!")
+    
+    list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public=True)
+
+    if list_id is None:
+        raise QueryError(404, "Lista não encontrada!")
+
+    list_full = await DB_read_list_full(conn, list_id)
+
+    return JSONResponse(list_full.model_dump())
+
+
 @list_router.put("/{old_list_name}")
 async def edit_list(old_list_name: str, new_list: ListIn, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Atualiza os dados de uma lista do usuário autenticado"""
 
     list_for_insertion = await is_list_valid(conn, user_id, new_list, old_list_name)
-    list_update = await DB_update_list(conn, list_for_insertion, old_list_name, user_id)
+    list_id = await DB_update_list(conn, list_for_insertion, old_list_name, user_id)
+
+    if list_for_insertion.is_private == True:
+        await DB_delete_list_saves_after_privacy_change(conn, list_id, user_id)
+
+    list_full = await DB_read_list_full(conn, list_id)
     
-    return JSONResponse(list_update.model_dump())
+    return JSONResponse(list_full.model_dump())
 
 
 @list_router.post("/save/{list_creator}/{list_name}")
@@ -87,7 +112,12 @@ async def save_list(list_creator: str, list_name: str, conn = Depends(get_conn),
     if list_creator_id is None:
         raise QueryError(404, "Usuário não encontrado!")
 
-    if await is_blocked(conn, list_creator_id, user_id):
+    if list_creator_id == user_id:
+        # POR WARNING AQ
+        return JSONResponse({"message": "Lista salva com sucesso!"})
+
+    username = await DB_read_user_column(conn, "username", user_id=user_id)
+    if await is_blocked(conn, list_creator_id, username):
         raise QueryError(403, "Usuário está tentando salvar lista de alguém que o bloqueou")
     
     list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public=True)
@@ -110,7 +140,7 @@ async def unsave_list(list_creator: str, list_name: str, conn = Depends(get_conn
         raise QueryError(404, "Usuário não encontrado!")
 
     if list_creator_id == user_id:
-        raise QueryError(403, "Não é possível dessalvar sua própria lista, tente deletá-la!")
+        raise QueryError(403, "Não é possível dessalvar sua própria lista, apenas deletá-la!")
     
     list_id = await DB_read_user_list_id(conn, list_creator_id, list_name.strip(), only_public=True)
 

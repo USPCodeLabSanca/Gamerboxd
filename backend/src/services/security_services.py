@@ -139,23 +139,18 @@ async def is_list_valid(conn, user_id: str, list_in: ListIn, old_list_name: str 
     )
 
 
-async def is_blocked(conn, user_id_blocker: str, user_id_blocked: str):
+async def is_blocked(conn, user_id_blocker: str, username_blocked: str):
     """Testa se um usuário foi bloqueado por outro"""
 
     blockeds = await DB_read_user_blockeds(conn, user_id_blocker)
-    return any([user_id_blocked == b["blocked"] for b in blockeds])
+    return any([username_blocked == b.username for b in blockeds.blocks])
 
 
 async def already_follows(conn, user_id_follower:str, username_followed:str):
     """Testa se um usuário segue outro"""
 
     followings = await DB_read_user_follows(conn, user_id_follower)
-
-    for f in followings.followings:
-        if username_followed == f.username:
-            return True
-        
-    return False
+    return any([username_followed == f.username for f in followings.followings])
 
 
 async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
@@ -166,8 +161,8 @@ async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
     if user_review is not None:
         raise QueryError(409, "Você já possui uma review desse jogo!")
 
-    if review.rating_text > 1000:
-        raise QueryError(400, "O texto da review não pode exceder 1000 caracteres")
+    if review.rating_text is not None and len(review.rating_text) > 300:
+        raise QueryError(400, "O texto da review não pode exceder 300 caracteres")
     
     return review
 

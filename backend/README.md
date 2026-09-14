@@ -15,7 +15,7 @@
 5. Uma vez dentro do ambiente virtual, instale as bibliotecas utilizadas no projeto com `pip install -r requirements.txt`
 6. Para desativar o ambiente, use no terminal `deactivate`
 
-### Rodando o projeto (ainda não funciona!)
+### Rodando o projeto
 
 1. Na pasta `/src`, crie o arquivo `.env` e atribua as variáveis de ambiente do banco de dados conforme o arquivo `.env.example` mostra
 2. Rode o programa com o comando `fastapi dev`

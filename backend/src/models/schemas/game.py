@@ -5,7 +5,7 @@ class GameRawg(BaseModel):
     game_id: int
     name: str
     picture: str | None = None
-    year: int
+    year: int | None
 
 
 class Game(GameRawg):

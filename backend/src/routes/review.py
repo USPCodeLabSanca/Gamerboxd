@@ -48,7 +48,8 @@ async def like_review(username: str, game: int, conn = Depends(get_conn), user_i
     if review_creator_id is None:
        raise QueryError(404, "Usuário não encontrado!")
 
-    if await is_blocked(conn, review_creator_id, user_id):
+    username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
+    if await is_blocked(conn, review_creator_id, username_reader):
         raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
 
     review_id = await DB_read_review_id(conn, username, game)
@@ -89,13 +90,14 @@ async def unlike_review(username: str, game: int, conn = Depends(get_conn), user
 async def get_all_reviews(username: str, limit: int = 10, conn = Depends(get_conn), user_id = Depends(optional_login)):
     """Retorna uma lista das reviews públicas mais recentes de um usuário"""
 
+    review_creator_id = await DB_read_user_column(conn, "id", username=username)
+
+    if review_creator_id is None:
+        raise QueryError(404, "Usuário não encontrado!")
+    
     if user_id is not None:
-        review_creator_id = await DB_read_user_column(conn, "id", username=username)
-
-        if review_creator_id is None:
-            raise QueryError(404, "Usuário não encontrado!")
-
-        if await is_blocked(conn, review_creator_id, user_id):
+        username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
+        if await is_blocked(conn, review_creator_id, username_reader):
             raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
 
     if limit > 20:
@@ -110,13 +112,14 @@ async def get_all_reviews(username: str, limit: int = 10, conn = Depends(get_con
 async def get_one_review(username: str, game: int, conn = Depends(get_conn), user_id = Depends(optional_login)):
     """Retorna os detalhes completos da review pública de um usuário para um jogo específico"""
 
+    review_creator_id = await DB_read_user_column(conn, "id", username=username)
+
+    if review_creator_id is None:
+        raise QueryError(404, "Usuário não encontrado!")
+    
     if user_id is not None:
-        review_creator_id = await DB_read_user_column(conn, "id", username=username)
-
-        if review_creator_id is None:
-            raise QueryError(404, "Usuário não encontrado!")
-
-        if await is_blocked(conn, review_creator_id, user_id):
+        username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
+        if await is_blocked(conn, review_creator_id, username_reader):
             raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
 
     review = await DB_read_review(conn, username, game)

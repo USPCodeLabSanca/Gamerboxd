@@ -20,10 +20,13 @@ app.add_middleware(
 
 @app.exception_handler(QueryError)
 async def query_error_handler(request: Request, exc: QueryError):
+    if exc.status_code == 500:
+        print(exc.message)
     return JSONResponse({"message": exc.message}, exc.status_code)
 
 @app.exception_handler(Exception)
 async def generic_error_handler(request: Request, exc: Exception):
+    print(str(exc))
     return JSONResponse(str(exc), 500)
 
 app.add_middleware(SetUserLoginState)

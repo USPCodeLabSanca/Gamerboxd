@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.user import *
-from services.security_services import is_user_valid, encrypt_password, encode_token, is_blocked
+from services.security_services import is_user_valid, encrypt_password, encode_token, is_blocked, already_follows
 from services.db_services.user import *
 from services.db_services.list import *
 from utils.dependencies import get_conn, require_login, get_key, optional_login
@@ -55,7 +55,7 @@ async def first_lists(user_id, conn):
     finished_list_id = await DB_create_list(conn, finished_list)
     await DB_create_list_save(conn, finished_list_id, user_id)
 
-
+# ======================= REPENSAR OS DADOS ENVIADOS =======================
 async def get_full(conn, user_id): 
     """Lê os dados completos de uma conta de usuário"""
 
@@ -83,23 +83,6 @@ async def see_my_account(conn = Depends(get_conn), user_id = Depends(require_log
     user_full = await get_full(conn, user_id)
     return JSONResponse(user_full.model_dump())
 
-
-@user_router.get("/{username}")
-async def see_account(username: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
-    """Retorna os dados públicos de qualquer usuário pelo username"""
-
-    target_user_id = await DB_read_user_column(conn, "id", username=username)  
-
-    if (user_id is not None) and (await is_blocked(conn, target_user_id, user_id)):
-        raise QueryError(403, "Usuário está tentando ver a conta que alguém que o bloqueou!")
-        
-    if target_user_id is None:
-        raise QueryError(404, "Usuário não encontrado!")
-
-    user_full = await get_full(conn, target_user_id)
-
-    return JSONResponse(user_full.model_dump())
-    
 
 @user_router.put("/")
 async def edit_user(user: UserEdit, conn = Depends(get_conn), user_id = Depends(require_login)):
@@ -133,8 +116,14 @@ async def follow(username: str, conn = Depends(get_conn), user_id = Depends(requ
     if user_id_to_follow == user_id:
         raise QueryError(403, "O usuário não pode seguir a si mesmo!")
 
-    if await is_blocked(conn, user_id_to_follow, user_id):
+    username_follower = await DB_read_user_column(conn, "username", user_id=user_id)
+
+    if await is_blocked(conn, user_id_to_follow, username_follower):
         raise QueryError(403, "O usuário está tentando seguir alguém que o bloqueou!")
+
+    if await already_follows(conn, user_id, username): # O usuário já segue o cara
+        # POR WARNING AQ
+        return JSONResponse({"message":"Conta seguida com sucesso!"})
         
     await DB_create_follow(conn, user_id, user_id_to_follow)
 
@@ -155,6 +144,7 @@ async def unfollow(username: str, conn = Depends(get_conn), user_id = Depends(re
     return JSONResponse({"message":"Conta desseguida com sucesso!"})
 
 
+# PAGINAÇÃO!!!
 @user_router.get("/follow")
 async def view_follows(conn = Depends(get_conn), user_id = Depends(require_login)):
     """Busca os seguidores e seguidos do usuário autenticado"""
@@ -172,6 +162,10 @@ async def block_user(username: str, user_id = Depends(require_login), conn = Dep
 
     if user_id_to_block is None:
         raise QueryError(404, "Usuário não encontrado!")
+
+    if await is_blocked(conn, user_id, username): # Usuário já bloqueia o cara
+        # POR WARNING AQ
+        return JSONResponse({"message":"Conta bloqueada com sucesso!"})
 
     if user_id_to_block == user_id:
         raise QueryError(403, "O usuário não pode bloquear a si mesmo!")
@@ -197,9 +191,28 @@ async def unblock_user(username: str, user_id = Depends(require_login), conn = D
     return JSONResponse({"message":"Conta desbloqueada com sucesso!"})
 
 
+# PAGINAÇÃO!!!
 @user_router.get("/block")
 async def view_blocks(conn = Depends(get_conn), user_id = Depends(require_login)):
     """Busca os usuários bloqueados pelo usuário autenticado"""
 
-    blocks = await DB_read_user_blockeds_full(conn, user_id)
+    blocks = await DB_read_user_blockeds(conn, user_id)
     return JSONResponse(blocks.model_dump())
+
+
+@user_router.get("/{username}")
+async def see_account(username: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
+    """Retorna os dados públicos de qualquer usuário pelo username"""
+
+    target_user_id = await DB_read_user_column(conn, "id", username=username)  
+
+    if (user_id is not None) and (await is_blocked(conn, target_user_id, user_id)):
+        raise QueryError(403, "Usuário está tentando ver a conta que alguém que o bloqueou!")
+        
+    if target_user_id is None:
+        raise QueryError(404, "Usuário não encontrado!")
+
+    user_full = await get_full(conn, target_user_id)
+
+    return JSONResponse(user_full.model_dump())
+    

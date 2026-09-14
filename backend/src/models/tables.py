@@ -107,7 +107,7 @@ TABLES = {
             reviewer VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
             game INTEGER NOT NULL REFERENCES Games(id) ON DELETE NO ACTION,
             rating_num FLOAT NOT NULL,
-            rating_text VARCHAR(300) DEFAULT NULL,
+            rating_text VARCHAR(301) DEFAULT NULL,
             is_private BOOL DEFAULT false,
             time_played FLOAT DEFAULT NULL,
             liked BOOL DEFAULT NULL,

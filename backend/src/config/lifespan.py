@@ -116,9 +116,9 @@ class LifespanConfig():
             app.state.jwt_key = self.jwt_key
             app.state.rawg_key = self.rawg_key
 
-
             # Cria as tabelas
-            await create_tables(conn)
+            async with app.state.internal_pool.acquire() as pool_conn:
+                await create_tables(pool_conn)
 
         except Exception as e:
             raise RuntimeError(str(e))
@@ -128,7 +128,6 @@ class LifespanConfig():
             if conn is not None:
                 await conn.close()
                
-
         yield   # Roda o app
 
         # Fecha os pools de conexão

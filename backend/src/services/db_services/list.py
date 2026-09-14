@@ -55,6 +55,15 @@ async def DB_delete_list_save(conn, list_id: str, user_id: str):
 
 
 @db_query
+async def DB_delete_list_saves_after_privacy_change(conn, list_id: str, user_id: str):
+    """Remove a lista da "biblioteca" de todos os usuários que tinham salvado ela, menos o criador"""
+
+    await conn.execute('''
+        DELETE FROM SavedLists WHERE list = $1 AND usr != $2
+    ''', list_id, user_id)
+
+
+@db_query
 async def DB_delete_list_game(conn, list_id: str, game_id: int):
     """Remove um game de uma lista"""
 
@@ -68,10 +77,10 @@ async def DB_read_user_list_id(conn, user_id: str, list_name: str, only_public: 
     """Lê o id de uma lista a partir do nome e do criador"""
 
     if only_public:
-        query = "SELECT list_id FROM Lists WHERE creator = $1 AND name = $2 AND is_private = false"
+        query = "SELECT id FROM Lists WHERE creator = $1 AND name = $2 AND is_private = false"
 
     else:
-        query = "SELECT list_id FROM Lists WHERE creator = $1 AND name = $2"
+        query = "SELECT id FROM Lists WHERE creator = $1 AND name = $2"
 
     list_id = await conn.fetchval(query, user_id, list_name)
 
@@ -173,22 +182,22 @@ async def DB_read_list_full(conn, list_id: str):
 
     for g in games:
         game = Game(
-            game_id=g["game_id"],
-            name=g["game_name"],
-            picture=g["game_picture"],
-            year=g["game_year"],
+            game_id=g["id"],
+            name=g["name"],
+            picture=g["picture"],
+            year=g["year"],
             like_count=g["like_count"],
             gamerboxd_rating=float(g["gamerboxd_rating"])
         )
         games_list.append(game)
 
     user_list = ListFull(
-        name=full_row["list_name"],
-        description=full_row["list_description"],
-        creator=full_row["list_creator"],
+        name=full_row["name"],
+        description=full_row["description"],
+        creator=full_row["creator"],
         is_private=full_row["is_private"],
         created_at=fix_date(full_row["created_at"]),
-        list_saves=full_row["list_saves"],
+        list_saves=full_row["saves"],
         games=games_list
     )
 
@@ -206,48 +215,5 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
         RETURNING id
     ''', new_list.name, new_list.description, new_list.is_private, old_list_name, user_id)
 
-    full_row = await conn.fetchrow('''
-        SELECT l.name, l.description, u.username AS creator,
-                l.is_private, l.created_at, COUNT(sl.usr) AS saves
-        FROM Lists l
-        JOIN Users u ON u.id = l.creator
-        LEFT JOIN SavedLists sl ON sl.list = l.id
-        WHERE l.id = $1
-        GROUP BY l.name, l.description, u.username, l.is_private, l.created_at
-    ''', list_id)
-
-    games = await conn.fetch('''
-        SELECT g.id, g.name, g.picture, g.year,
-        COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,
-        COALESCE(ROUND(AVG(r.rating_num) FILTER (WHERE r.is_private = false)::numeric, 2), -1) AS gamerboxd_rating
-        FROM Games g
-        JOIN ListContent lc ON lc.game = g.id
-        LEFT JOIN Reviews r ON r.game = g.id
-        WHERE lc.list = $1
-        GROUP BY g.id, g.name, g.picture, g.year
-    ''', list_id)
-
-    games_list = []
-
-    for g in games:
-        game = Game(
-            game_id=g["id"],
-            name=g["name"],
-            picture=g["picture"],
-            year=g["year"],
-            like_count=g["like_count"],
-            gamerboxd_rating=float(g["gamerboxd_rating"])
-        )
-        games_list.append(game)
-
-    updated_list = ListFull(
-        name=full_row["name"],
-        description=full_row["description"],
-        creator=full_row["creator"],
-        is_private=full_row["is_private"],
-        created_at=fix_date(full_row["created_at"]),
-        list_saves=full_row["saves"],
-        games=games_list
-    )
-    return updated_list
+    return list_id
 
