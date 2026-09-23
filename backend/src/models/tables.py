@@ -11,7 +11,7 @@ TABLES = {
             bio VARCHAR(290) DEFAULT NULL,
             is_verified BOOL NOT NULL DEFAULT false,
             pfp TEXT DEFAULT NULL,
-            created_at TIMESTAMPTZ DEFAULT now()
+            created_at TIMESTAMPTZ DEFAULT NOW()
         )   
     ''',
 
@@ -20,7 +20,7 @@ TABLES = {
         CREATE TABLE IF NOT EXISTS Follows (
             follower VARCHAR(36) REFERENCES Users(id) ON DELETE CASCADE,
             followed VARCHAR(36) REFERENCES Users(id) ON DELETE CASCADE,
-            created_at TIMESTAMPTZ DEFAULT now(),
+            created_at TIMESTAMPTZ DEFAULT NOW(),
 
             PRIMARY KEY (follower, followed)
         )
@@ -31,7 +31,7 @@ TABLES = {
         CREATE TABLE IF NOT EXISTS Blocks (
             blocker VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
             blocked VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
-            created_at TIMESTAMPTZ DEFAULT now(),
+            created_at TIMESTAMPTZ DEFAULT NOW(),
                     
             PRIMARY KEY (blocker, blocked)
         )
@@ -51,7 +51,8 @@ TABLES = {
     '''
         CREATE TABLE IF NOT EXISTS Tags (
             id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name VARCHAR(36) UNIQUE NOT NULL 
+            name VARCHAR(20) NOT NULL,
+            type VARCHAR(20)
         )
     ''',
 
@@ -73,8 +74,8 @@ TABLES = {
             description VARCHAR(310) DEFAULT NULL,
             creator VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
             is_private BOOL NOT NULL,
-            created_at TIMESTAMPTZ DEFAULT now(),
-            last_update TIMESTAMPTZ DEFAULT now(),
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW(),
                            
             UNIQUE (name, creator)
         )
@@ -85,6 +86,7 @@ TABLES = {
         CREATE TABLE IF NOT EXISTS ListContent (
             list VARCHAR(36) NOT NULL REFERENCES Lists(id) ON DELETE CASCADE,
             game INTEGER NOT NULL REFERENCES Games(id) ON DELETE CASCADE,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
 
             PRIMARY KEY(list, game) 
         )
@@ -112,8 +114,8 @@ TABLES = {
             time_played FLOAT DEFAULT NULL,
             liked BOOL DEFAULT NULL,
             completed BOOL NOT NULL,
-            created_at TIMESTAMPTZ DEFAULT now(),
-            last_update TIMESTAMPTZ DEFAULT now(),
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW(),
                         
             UNIQUE (reviewer, game)
         )

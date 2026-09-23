@@ -35,6 +35,8 @@ async def DB_create_list_game(conn, list_id, game_id):
         INSERT INTO ListContent(list, game) VALUES($1, $2)
     ''', list_id, game_id)
 
+    await DB_update_list_updated_at(conn, list_id)
+
 
 @db_query
 async def DB_delete_list(conn, list_name: str, user_id: str):
@@ -62,6 +64,8 @@ async def DB_delete_list_saves_after_privacy_change(conn, list_id: str, user_id:
         DELETE FROM SavedLists WHERE list = $1 AND usr != $2
     ''', list_id, user_id)
 
+    await DB_update_list_updated_at(conn, list_id)
+
 
 @db_query
 async def DB_delete_list_game(conn, list_id: str, game_id: int):
@@ -70,6 +74,8 @@ async def DB_delete_list_game(conn, list_id: str, game_id: int):
     await conn.execute('''
         DELETE FROM ListContent WHERE list = $1 AND game = $2
     ''', list_id, game_id)
+
+    await DB_update_list_updated_at(conn, list_id)
 
 
 @db_query
@@ -88,11 +94,43 @@ async def DB_read_user_list_id(conn, user_id: str, list_name: str, only_public: 
 
 
 @db_query
+async def DB_read_user_basic_lists(conn, user_id: str):
+    """Lê dados das listas básicas de um usuário"""
+    basic_lists_names = ("Jogos Favoritos", "Jogos completados")
+
+    basic_lists = []
+
+    for bl in basic_lists_names:
+        games = await conn.fetch('''
+            SELECT g.id, g.name, g.picture, g.year
+            FROM Games g
+            JOIN ListContent lc ON lc.game = g.id
+            JOIN Lists l ON lc.list = l.id
+            WHERE l.creator = $1 AND l.name = $2
+            ORDER BY lc.created_at DESC
+            LIMIT 4
+        ''', user_id, bl)
+
+        games_schema = [
+            GameRawg(
+                game_id=g["id"],
+                name=g["name"],
+                picture=g["picture"],
+                year=g["year"]
+            ) for g in games
+        ]
+
+        list_games = ListGames(name=bl, count=len(games_schema), games=games_schema)
+
+        basic_lists.append(list_games)
+
+    return basic_lists
+
+@db_query
 async def DB_read_user_saved_lists(conn, user_id: str):
     """Lê as listas salvas por um usuário"""
 
-    rows = await conn.fetch(
-        '''
+    rows = await conn.fetch('''
         SELECT l.name, l.description, u.username AS creator, l.is_private, l.created_at,
         COUNT(sl2.usr) AS saves
         FROM SavedLists sl
@@ -100,8 +138,8 @@ async def DB_read_user_saved_lists(conn, user_id: str):
         JOIN Users u ON u.id = l.creator
         LEFT JOIN SavedLists sl2 ON sl2.list = sl.list
         WHERE sl.usr = $1
-        GROUP BY l.name, l.description, u.username, l.is_private, l.created_at
-        ORDER BY l.created_at DESC
+        GROUP BY l.name, l.description, u.username, l.is_private, l.created_at, l.updated_at
+        ORDER BY l.updated_at DESC
     ''', user_id)
 
     lists = [
@@ -132,8 +170,8 @@ async def DB_read_user_lists(conn, user_id: str):
         JOIN Users u ON u.id = l.creator
         LEFT JOIN SavedLists sl ON sl.list = l.id
         WHERE l.creator = $1
-        GROUP BY l.name, l.description, u.username, l.is_private, l.created_at
-        ORDER BY l.created_at DESC
+        GROUP BY l.name, l.description, u.username, l.is_private, l.created_at, l.updated_at
+        ORDER BY l.updated_at DESC
     ''', user_id)
 
     lists = [
@@ -157,6 +195,7 @@ async def DB_read_user_lists(conn, user_id: str):
 async def DB_read_list_full(conn, list_id: str):
     """Lê os dados completos de uma lista"""
 
+
     full_row = await conn.fetchrow('''
         SELECT l.name, l.description, u.username AS creator, l.is_private, l.created_at,
         COUNT(sl.usr) AS saves
@@ -169,8 +208,8 @@ async def DB_read_list_full(conn, list_id: str):
 
     games = await conn.fetch('''
         SELECT g.id, g.name, g.picture, g.year,
-                COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,
-                COALESCE(ROUND(AVG(r.rating_num) FILTER (WHERE r.is_private = false)::numeric, 2), -1) AS gamerboxd_rating
+            COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,
+            COALESCE(ROUND(AVG(r.rating_num) FILTER (WHERE r.is_private = false)::numeric, 2), -1) AS gamerboxd_rating
         FROM Games g
         LEFT JOIN ListContent lc ON lc.game = g.id
         LEFT JOIN Reviews r ON r.game = g.id
@@ -210,10 +249,21 @@ async def DB_update_list(conn, new_list: ListIn, old_list_name: str, user_id: st
     
     list_id = await conn.fetchval('''
         UPDATE Lists 
-        SET name = $1, description = $2, is_private = $3 
+        SET name = $1, description = $2, is_private = $3, updated_at = NOW()
         WHERE name = $4 AND creator = $5 
         RETURNING id
     ''', new_list.name, new_list.description, new_list.is_private, old_list_name, user_id)
 
     return list_id
+
+
+@db_query
+async def DB_update_list_updated_at(conn, list_id: str):
+    """Atualiza a data de última modificação de uma lista"""
+    
+    await conn.execute('''
+        UPDATE Lists
+        SET updated_at = NOW()
+        WHERE id = $1
+    ''', list_id)
 

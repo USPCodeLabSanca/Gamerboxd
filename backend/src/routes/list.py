@@ -28,6 +28,9 @@ async def new_list(new_list: ListIn, conn = Depends(get_conn), user_id = Depends
 async def delete_list(list_name: str, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Remove uma lista do usuário autenticado"""
 
+    if list_name in ("Jogos Completados", "Jogos Favoritos"):
+        raise QueryError(403, "Não é possível deletar essa lista!")
+
     await DB_delete_list(conn, list_name, user_id)
     return JSONResponse({"message":"Lista deletada com sucesso!"})
 
@@ -91,6 +94,9 @@ async def see_list(list_creator: str, list_name: str, conn = Depends(get_conn), 
 @list_router.put("/{old_list_name}")
 async def edit_list(old_list_name: str, new_list: ListIn, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Atualiza os dados de uma lista do usuário autenticado"""
+
+    if old_list_name in ("Jogos Completados", "Jogos Favoritos"):
+        raise QueryError(403, "Não é possível alterar dados dessa lista!")
 
     list_for_insertion = await is_list_valid(conn, user_id, new_list, old_list_name)
     list_id = await DB_update_list(conn, list_for_insertion, old_list_name, user_id)

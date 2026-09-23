@@ -36,7 +36,7 @@ async def first_lists(user_id, conn):
     # Cria e salva a lista de favoritos
     favorites_list = List(
         creator = user_id,
-        name = "Favoritos",
+        name = "Jogos Favoritos",
         description = "Meus games favoritos",
         is_private = True
     )
@@ -47,7 +47,7 @@ async def first_lists(user_id, conn):
     # Cria e salva a lista de completados
     finished_list = List(
         creator = user_id,
-        name = "Completados",
+        name = "Jogos Completados",
         description = "Meus games completados",
         is_private = True
     )
@@ -61,9 +61,9 @@ async def get_full(conn, user_id):
 
     out = await DB_read_user_out(conn, user_id) # Dados da conta do usuário     
     follows = await DB_read_user_follows(conn, user_id) # Dados de seguidores do usuário
-    lists = await DB_read_user_saved_lists(conn, user_id) # Dados das listas salvas pelo usuário
+    lists = await DB_read_user_basic_lists(conn, user_id) # Dados das listas básicas do usuário (completados e favoritos)
 
-    user_full = UserFull(
+    return UserFeed(
         username=out.username,
         pfp=out.pfp,
         email=out.email,
@@ -72,8 +72,6 @@ async def get_full(conn, user_id):
         lists=lists,
         follows=follows
     )
-
-    return user_full
 
 
 @user_router.get("/")

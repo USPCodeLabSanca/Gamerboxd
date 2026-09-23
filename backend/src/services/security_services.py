@@ -146,7 +146,7 @@ async def is_blocked(conn, user_id_blocker: str, username_blocked: str):
     return any([username_blocked == b.username for b in blockeds.blocks])
 
 
-async def already_follows(conn, user_id_follower:str, username_followed:str):
+async def already_follows(conn, user_id_follower:str, username_followed: str):
     """Testa se um usuário segue outro"""
 
     followings = await DB_read_user_follows(conn, user_id_follower)

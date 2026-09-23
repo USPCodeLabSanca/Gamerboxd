@@ -29,7 +29,7 @@ class ReviewOutOne(ReviewOut):
     tags: list[str] = []
     completed: bool
     time_played: float
-    last_update: str
+    updated_at: str
 
 
 class ReviewAll(ReviewOutOne):

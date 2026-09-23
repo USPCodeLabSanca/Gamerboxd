@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from .list import UserLists
+from .list import ListGames
 
 class User(BaseModel):
     """Dados básicos de um usuário"""
@@ -47,7 +47,7 @@ class UserOut(User):
     created_at: str
 
 
-class UserFull(UserOut):
+class UserFeed(UserOut):
     """Dados completos de um usuário"""
     follows: UserFollows
-    lists: UserLists
+    lists: list[ListGames]

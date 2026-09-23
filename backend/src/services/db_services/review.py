@@ -111,7 +111,7 @@ async def DB_read_review(conn, username: str, game: int):
         liked = review["liked"],
         game_name = game_name,
         created_at = fix_date(review["created_at"]),
-        last_update = fix_date(review["last_update"])
+        updated_at = fix_date(review["updated_at"])
     )
     
     return review_found
@@ -171,7 +171,7 @@ async def DB_update_review(conn, review: ReviewIn, old_review_game: int, user_id
     await conn.execute('''
         UPDATE Reviews
         SET game = $1, rating_num = $2, rating_text = $3,
-        is_private = $4, time_played = $5, liked = $6, completed = $7, last_update = $8 
+        is_private = $4, time_played = $5, liked = $6, completed = $7, updated_at = $8 
         WHERE game = $9 AND reviewer = $10
     ''', review.game, review.rating_num, review.rating_text, review.is_private, review.time_played, 
     review.liked, review.completed, time_now, old_review_game, user_id)
@@ -184,7 +184,7 @@ async def DB_update_review(conn, review: ReviewIn, old_review_game: int, user_id
         time_played = review.time_played,
         liked = review.liked,
         completed = review.completed,
-        last_update = fix_date(time_now)
+        updated_at = fix_date(time_now)
     )
 
     return updated_list

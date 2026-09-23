@@ -13,7 +13,7 @@ def db_query(func):
             return await func(*args, **kwargs)
 
         except Exception as e:
-            raise QueryError(500, str(e))
+            raise QueryError(500, f"{func.__name__}: {e}")
     
     return wrapper
 
