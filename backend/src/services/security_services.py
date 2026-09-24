@@ -178,8 +178,8 @@ async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id:
     if user_review is None:
         raise QueryError(404, "Review antiga não encontrada!")
     
-    if review.rating_text > 1000:
-        raise QueryError(400, "O texto da review não pode exceder 1000 caracteres")
+    if review.rating_text is not None and len(review.rating_text) > 300:
+        raise QueryError(400, "O texto da review não pode exceder 300 caractéres")
     
     return review
 
