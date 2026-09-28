@@ -1,4 +1,12 @@
-from . import *
+from .utils import *
+
+def base_list(num:int, **overrides):
+    """Payload padrão de uma lista"""
+
+    list_in = {"name": f"list_{num}"}
+
+    list_in.update(overrides)
+    return list_in
 
 
 new_lists = [

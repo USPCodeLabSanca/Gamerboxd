@@ -1,142 +1,119 @@
-from . import *
-from .test_follow import follow, assert_follow, assert_unfollow
+from .utils import *
 
+# users é um fixture definido em tests/conftest.py
+# block é um fixture definido em tests/conftest.py
+# unblock é um fixture definido em tests/conftest.py
+# follow é um fixture definido em tests/conftest.py
 
-def block(atv: dict, pas: dict):
-    """Roda o bloqueio no backend"""
+def test_blocking_returns_200(users, block):
+    """Alice bloqueia Bernardo"""
 
-    target, cookies = pas["username"], atv["cookies"]
-    return requests.post(f"{BASE_URL}/block/{target}", cookies=cookies)
+    user1, user2 = users["Alice"], users["Bernardo"]
 
-def unblock(atv: dict, pas: dict):
-    """Roda o desbloqueio no backend"""
-
-    target, cookies = pas["username"], atv["cookies"]
-    return requests.delete(f"{BASE_URL}/block/{target}", cookies=cookies)
-
-def view_block(atv: dict):
-    cookies = atv["cookies"]
-    response = requests.get(f"{BASE_URL}/block", cookies=cookies)
-    return response.json()
-
-def assert_block(atv: dict, pas: dict):
-    """Garante que atv bloqueou pas"""
-
-    response_json = view_block(atv)
-    assert any([f["username"] == pas["username"] for f in response_json["blocks"]])
-
-def assert_unblock(atv: dict, pas: dict):
-    """Garante que atv não bloqueou pas"""
-
-    response_json = view_block(atv) 
-    assert all([f["username"] != pas["username"] for f in response_json["blocks"]])
-
-
-# ========= Testes ===========
-
-def test_block(users):
-    """Alice bloqueia e depois desbloqueia Bernardo"""
-
-    atv, pas= users["Alice"], users["Bernardo"]
-
-    response = block(atv, pas)
+    response = block(user1, user2, True)
     assert response.status_code == 200, response.json()
     assert response.json() == SUCCESS_BLOCKING_MSG
-    assert_block(atv, pas)
+    assert_block(user1, user2)
 
-    response = unblock(atv, pas)
-    assert response.status_code == 200
+
+def test_unblocking_returns_200(users, unblock):
+    """Alice desbloqueia Bernardo"""
+
+    user1, user2 = users["Alice"], users["Bernardo"]
+
+    response = unblock(user1, user2, True)
+    assert response.status_code == 200, response.json()
     assert response.json() == SUCCESS_UNBLOCKING_MSG
-    assert_unblock(atv, pas)
+    assert_unblock(user1, user2)
 
 
-def test_block_twice(users):
-    """Bernardo bloqueia Caua 2 vezes"""
+def test_blocking_twice_returns_200_twice(users, block):
+    """Alice bloqueia Bernardo 2 vezes"""
 
-    atv, pas = users["Bernardo"], users["Caua"]
+    user1, user2 = users["Alice"], users["Bernardo"]
 
-    response = block(atv, pas)
-    assert response.status_code == 200
-    assert response.json() == SUCCESS_BLOCKING_MSG
-    assert_block(atv, pas)
+    response = block(user1, user2, False)
+    assert response.status_code == 200, response.json()
+    assert_block(user1, user2)
 
-    response = block(atv, pas)
-    assert response.status_code == 200, f"{response.json()}"
-    assert response.json() == SUCCESS_BLOCKING_MSG
-    assert_block(atv, pas)
+    response = block(user1, user2, True)
+    assert response.status_code == 200, response.json()
+    assert_block(user1, user2)
 
 
-def test_unblock_someone_not_blocked(users):
-    """Caua desbloqueia Daniela"""
+def test_unblocking_someone_not_blocked_returns_200(users, unblock):
+    """Alice desbloqueia Bernardo"""
 
-    atv, pas = users["Caua"], users["Daniela"]
+    user1, user2 = users["Alice"], users["Bernardo"]
 
-    response = unblock(atv, pas)
-    assert response.status_code == 200
-    assert response.json() == SUCCESS_UNBLOCKING_MSG
-    assert_unblock(atv, pas)
+    response = unblock(user1, user2, False)
+    assert response.status_code == 200, response.json()
+    assert_unblock(user1, user2)
 
 
-def test_block_someone_that_doenst_exist(users):
-    """Daniela bloqueia e desbloqueia inexistente"""
+def test_blocking_someone_that_doenst_exist_returns_404(users, block):
+    """Alice bloqueia inexistente"""
 
-    atv, inexistent = users["Daniela"], {"username": "inexistente"}
+    user1, inexistent = users["Alice"], {"username": "inexistente"}
 
-    response = block(atv, inexistent)
-    assert response.status_code == 404
+    response = block(user1, inexistent, False)
+    assert response.status_code == 404, response.json()
     assert response.json() == USER_NOT_FOUND_MSG
 
-    response = unblock(atv, inexistent)
-    assert response.status_code == 404
+
+def test_unblocking_someone_that_doenst_exist_returns_404(users, unblock):
+    """Alice desbloqueia inexistente"""
+
+    user1, inexistent = users["Alice"], {"username": "inexistente"}
+
+    response = unblock(user1, inexistent, False)
+    assert response.status_code == 404, response.json()
     assert response.json() == USER_NOT_FOUND_MSG
 
 
-def test_block_yourself(users):
-    """Eduarda bloqueia Eduarda"""
+def test_block_yourself_returns_403(users, block):
+    """Alice bloqueia Alice"""
 
-    atv, pas = users["Eduarda"], users["Eduarda"]
+    user1 = users["Alice"]
 
-    response = block(atv, pas)
-    assert response.status_code == 403
+    response = block(user1, user1, False)
+    assert response.status_code == 403, response.json()
     assert response.json() == {"message":"O usuário não pode bloquear a si mesmo!"}
-    assert_unblock(atv, pas)
+    assert_unblock(user1, user1)
 
 
-def test_block_stops_follow(users):
-    """Fabio bloqueia Gabriela, Gabriela segue Fabio"""
+def test_blocking_stops_follow(users, block, follow):
+    """Alice bloqueia Bernardo, Bernardo segue Alice"""
 
-    atv, pas = users["Fabio"], users["Gabriela"]
+    user1, user2 = users["Alice"], users["Bernardo"]
 
-    response = block(atv, pas)
-    assert response.status_code == 200
-    assert response.json() == SUCCESS_BLOCKING_MSG
-    assert_block(atv, pas)
+    response = block(user1, user2, True)
+    assert response.status_code == 200, response.json()
+    assert_block(user1, user2)
 
-    atv, pas = pas, atv
+    user1, user2 = user2, user1
 
-    response = follow(atv, pas)
-    assert response.status_code == 403
+    response = follow(user1, user2, False)
+    assert response.status_code == 403, response.json()
     assert response.json() == {"message":"O usuário está tentando seguir alguém que o bloqueou!"}
-    assert_unfollow(atv, pas)
+    assert_unfollow(user1, user2)
 
 
-def test_block_undoes_follow(users):
-    """Helio segue Iara, Iara bloqueia Helio"""
+def test_blocking_removes_follow(users, follow, block):
+    """Alice segue Bernardo, Bernardo bloqueia Alice"""
 
-    atv, pas = users["Helio"], users["Iara"]
+    user1, user2 = users["Alice"], users["Bernardo"]
 
-    response = follow(atv, pas)
-    assert response.status_code == 200
-    assert response.json() == SUCCESS_FOLOWING_MSG
-    assert_follow(atv, pas)
+    response = follow(user1, user2, False)
+    assert response.status_code == 200, response.json()
+    assert_follow(user1, user2)
 
-    atv, pas = pas, atv
+    user1, user2 = user2, user1
 
-    response = block(atv, pas)
-    assert response.status_code == 200
-    assert response.json() == SUCCESS_BLOCKING_MSG
-    assert_block(atv, pas)
-    assert_unfollow(pas, atv)
+    response = block(user1, user2, True)
+    assert response.status_code == 200, response.json()
+    assert_block(user1, user2)
+    assert_unfollow(user2, user1)
 
 
     

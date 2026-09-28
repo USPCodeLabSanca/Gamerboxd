@@ -1,57 +1,52 @@
-from . import *
-from .utils import create_review, delete_review
+from .utils import *
 
+# users é um fixture definido em tests/conftest.py
+# games é um fixture definido em tests/conftest.py
+# create_review é um fixture definido em tests/test_reviews/conftest.py
+# edit_review é um fixture definido em tests/test_reviews/conftest.py
 
-def edit_review(user: dict, old_game_id: int, review_in: dict):
-    return requests.put(f"{BASE_URL}/{old_game_id}", cookies=user["cookies"], json=review_in)
-
-
-# ========= Testes ===========
-
-def test_edit_review_valid_fields(users, games):
+def test_edit_review_valid_fields_returns_200(users, games, create_review, edit_review):
     """Alice cria uma review e edita a nota, se curtiu e o texto"""
 
     user = users["Alice"]
     game_id = games["mario"][0][0]
 
     review = create_review(user, game_id)
+    review_edit = review.copy()
 
-    review["rating_num"] = 10.0
-    review["liked"] = False
-    review["rating_text"] = "Novo texto"
+    review_edit["rating_num"] = 10.0
+    review_edit["liked"] = False
+    review_edit["rating_text"] = "Novo texto"
 
-    response = edit_review(user, game_id, review)
-    assert response.status_code == 200, f"{response.json()}"
+    response = edit_review(user, game_id, review_edit, review)
+    assert response.status_code == 200, response.json()
 
     updated_review = response.json()
     assert updated_review["rating_num"] == 10.0
     assert updated_review["liked"] is False
     assert updated_review["rating_text"] == review["rating_text"]
 
-    delete_review(user, game_id)
 
+def test_edit_review_change_game_returns_400(users, games, create_review, edit_review):
+    """Alice tenta trocar o jogo de uma review já existente, o que não é permitido"""
 
-def test_edit_review_change_game(users, games):
-    """Bernardo tenta trocar o jogo de uma review já existente, o que não é permitido"""
-
-    user = users["Bernardo"]
+    user = users["Alice"]
     game_id = games["mario"][0][0]
     other_game_id = games["GTA"][0][0]
 
     review = create_review(user, game_id)
-    review["game"] = other_game_id
+    review_edit = review.copy()
+    review_edit["game"] = other_game_id
 
-    response = edit_review(user, game_id, review)
-    assert response.status_code == 400
+    response = edit_review(user, game_id, review_edit)
+    assert response.status_code == 400, response.json()
     assert response.json() == {"message": "O jogo não pode ser alterado!"}
 
-    delete_review(user, game_id)
 
+def test_edit_review_not_found_returns_404(users, games, edit_review):
+    """Alice tenta editar uma review de um jogo que ele nunca avaliou"""
 
-def test_edit_review_not_found(users, games):
-    """Caua tenta editar uma review de um jogo que ele nunca avaliou"""
-
-    user = users["Caua"]
+    user = users["Alice"]
     game_id = games["roblox"][0][0]
 
     review = {
@@ -65,37 +60,35 @@ def test_edit_review_not_found(users, games):
     }
 
     response = edit_review(user, game_id, review)
-    assert response.status_code == 404
+    assert response.status_code == 404, response.json()
     assert response.json() == {"message": "Review antiga não encontrada!"}
 
 
-def test_edit_review_rating_text(users, games):
-    """Daniela edita apenas o texto da sua review"""
+def test_edit_review_rating_text_return_200(users, games, create_review, edit_review):
+    """Alice edita apenas o texto da sua review"""
 
-    user = users["Daniela"]
+    user = users["Alice"]
     game_id = games["GTA"][0][0]
 
     review = create_review(user, game_id)
-    review["rating_text"] = "Novo texto"
+    review_edit = review.copy
+    review_edit["rating_text"] = "Novo texto"
 
-    response = edit_review(user, game_id, review)
-    assert response.status_code == 200
+    response = edit_review(user, game_id, review_edit, review)
+    assert response.status_code == 200, response.json()
     assert response.json()["rating_text"] == review["rating_text"]
 
-    delete_review(user, game_id)
 
+def test_edit_review_rating_text_out_of_bounds_returns_400(users, games, create_review, edit_review):
+    """Alice tenta editar sua review com um texto maior que o permitido"""
 
-def test_edit_review_rating_text_out_of_bounds(users, games):
-    """Eduarda tenta editar sua review com um texto maior que o permitido"""
-
-    user = users["Eduarda"]
+    user = users["Alice"]
     game_id = games["roblox"][0][0]
 
     review = create_review(user, game_id)
-    review["rating_text"] = "Eduarda" * 50
+    review_edit = review.copy()
+    review_edit["rating_text"] = "Alice" * 50
 
-    response = edit_review(user, game_id, review)
-    assert response.status_code == 400
+    response = edit_review(user, game_id, review_edit)
+    assert response.status_code == 400, response.json()
     assert response.json() == {"message": "O texto da review não pode exceder 300 caractéres"}
-
-    delete_review(user, game_id)

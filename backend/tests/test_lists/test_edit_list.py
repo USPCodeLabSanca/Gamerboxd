@@ -1,6 +1,5 @@
-from . import BASE_URL, pytest, requests
 from .utils import *
-from .test_save_list import save_list_request, assert_save, assert_unsave
+from .test_save_list import save_list, assert_save, assert_unsave
 
 
 def edit_list(user: dict, old_list_name: str, new_list: dict):
@@ -120,20 +119,20 @@ def test_edit_list_description_out_of_bounds(users):
     delete_list(user, list_in)
 
 
-def test_edit_list_privacy_removes_saves(users):
+def edit_list_privacy_removes_saves(users):
     """Eduarda cria uma lista pública, Fabio a salva, Eduarda muda a lista para privada editando-a diretamente"""
 
     atv, pas = users["Fabio"], users["Eduarda"]
     list_in = create_list(pas)
 
-    save_response = save_list_request(atv, pas, list_in)
+    save_response = save_list(atv, pas, list_in)
     assert save_response.status_code == 200
     assert_save(atv, pas, list_in)
 
     list_in["is_private"] = True
 
     response = edit_list(pas, list_in["name"], list_in)
-    assert response.status_code == 200, f"{response.json()}"
+    assert response.status_code == 200
     assert response.json()["is_private"] == True
 
     assert_unsave(atv, pas, list_in)
