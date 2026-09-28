@@ -15,6 +15,20 @@
 5. Uma vez dentro do ambiente virtual, instale as bibliotecas utilizadas no projeto com `pip install -r requirements.txt`
 6. Para desativar o ambiente, use no terminal `deactivate`
 
+### Instalando o pgadmin
+1. Siga as instruções no site https://www.pgadmin.org/download/ para baixar o aplicativo do pgadmin
+2. Rode o comando `sudo apt install postgresql postgresql-contrib` para baixar as funcionalidades do postgres no seu computador
+3. Para acertar a senha do seu postgres rode o comando `sudo -i -u postgres psql`
+4. Deve aparecer uma mensagem assim `postgres=#` no inicio da linha
+5. Para colocar a senha, digite `\password postgres`
+6. Insira a senha
+7. Coloque a senha que você definiu no campo `VM_PASS` do `.env`
+8. Abra o app do pgadmin
+9. Clique em criar um novo servidor
+10. O nome do seu novo servidor não importa
+11. Abra a aba connection, o hostname é `localhost`, a port é `5432`, o username é `postgres` e a password é a que você definiu nos comandos acima.
+
+
 ### Rodando o projeto
 
 1. Na pasta `/src`, crie o arquivo `.env` e atribua as variáveis de ambiente do banco de dados conforme o arquivo `.env.example` mostra
