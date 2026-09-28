@@ -2,11 +2,12 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.user import *
+from models.schemas.pagination import *
 from services.security_services import is_user_valid, encrypt_password, encode_token, is_blocked, already_follows
 from services.db_services.user import *
 from services.db_services.list import *
-from utils.dependencies import get_conn, require_login, get_key, optional_login
-from utils.utils import QueryError
+from utils.dependencies import get_conn, require_login, get_key, optional_login, current_page
+from utils.utils import QueryError, paginate_result
 
 user_router = APIRouter(prefix="/user", tags=["user"])
 
@@ -144,10 +145,11 @@ async def unfollow(username: str, conn = Depends(get_conn), user_id = Depends(re
 
 # PAGINAÇÃO!!!
 @user_router.get("/follow")
-async def view_follows(conn = Depends(get_conn), user_id = Depends(require_login)):
+async def view_follows(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), page_result = Depends(current_page)):
     """Busca os seguidores e seguidos do usuário autenticado"""
 
-    followings = await DB_read_user_follows(conn, user_id)
+    followings = await DB_read_user_follows(conn, user_id, page_query)
+
 
     return JSONResponse(followings.model_dump())
 
