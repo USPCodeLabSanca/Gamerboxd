@@ -22,11 +22,12 @@
 4. Deve aparecer uma mensagem assim `postgres=#` no inicio da linha
 5. Para colocar a senha, digite `\password postgres`
 6. Insira a senha
-7. Coloque a senha que você definiu no campo `VM_PASS` do `.env`
-8. Abra o app do pgadmin
-9. Clique em criar um novo servidor
-10. O nome do seu novo servidor não importa
-11. Abra a aba connection, o hostname é `localhost`, a port é `5432`, o username é `postgres` e a password é a que você definiu nos comandos acima.
+7. Para sair do modo `postgres=#`, use o comando `\q`
+8. Coloque a senha que você definiu no campo `VM_PASS` do `.env`
+9. Abra o app do pgadmin
+10. Clique em criar um novo servidor
+11. O nome do seu novo servidor não importa
+12. Abra a aba connection, o hostname é `localhost`, a port é `5432`, o username é `postgres` e a password é a que você definiu nos comandos acima.
 
 
 ### Rodando o projeto
