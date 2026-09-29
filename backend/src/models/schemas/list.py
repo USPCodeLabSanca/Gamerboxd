@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from .game import Game, GameRawg
+from .game import GameRawg
 
 
 class ListIn(BaseModel):
@@ -17,13 +17,9 @@ class List(ListIn):
 
 class ListOut(List):
     """Dados das listas completos"""
-    created_at: str
-    list_saves: int
-
-
-class ListFull(ListOut):
-    """Dados das listas completos + os jogos que pertencem a lista"""
-    games: list[Game]
+    created_at: str     # Data de criação da lista
+    list_saves: int     # Quantos pessoas salvaram a lista
+    list_games: int     # Quantos games tem na lista
 
 
 class ListGames(BaseModel):

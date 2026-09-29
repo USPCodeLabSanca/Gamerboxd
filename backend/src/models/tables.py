@@ -27,13 +27,10 @@ TABLES = {
             )
         ''',
 
-        '''CREATE INDEX idx_follows_created_at_follower_desc ON Follows (created_at DESC, follower DESC)''',
+        '''CREATE INDEX IF NOT EXISTS idx_follows_followed_created ON Follows (followed, created_at DESC, follower DESC)''',
 
-        '''CREATE INDEX idx_follows_created_at_followed_desc ON Follows (created_at DESC, followed DESC)''',
+        '''CREATE INDEX IF NOT EXISTS idx_follows_follower_created ON Follows (follower, created_at DESC, followed DESC);''',
 
-        '''CREATE INDEX idx_follows_created_at_follower_asc ON Follows (created_at ASC, follower ASC)''',
-
-        '''CREATE INDEX idx_follows_created_at_followed_asc ON Follows (created_at ASC, followed ASC)''',
     ],
 
     "Blocks":[
@@ -45,7 +42,8 @@ TABLES = {
                         
                 PRIMARY KEY (blocker, blocked)
             )
-        '''
+        ''',
+        '''CREATE INDEX IF NOT EXISTS idx_blocks_blocker_created ON Follows (blocker, created_at DESC, blocked DESC)'''
     ],
 
     "Games":[
@@ -167,7 +165,8 @@ async def create_tables(conn):
     try:
         async with conn.transaction():
             for key, value in TABLES.items():
-                await conn.execute(v for v in value)
+                for statement in value:
+                    await conn.execute(statement)
 
     except PostgresError as e:
         raise RuntimeError(e)

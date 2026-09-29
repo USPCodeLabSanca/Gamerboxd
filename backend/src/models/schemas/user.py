@@ -29,15 +29,12 @@ class UserEdit(User):
 class UserFollows(BaseModel):
     """Dados sobre os seguidores e os seguidos do usuário"""
     follower_count: int
-    followers: list[User]
     following_count: int
-    followings: list[User]
 
 
 class UserBlocked(BaseModel):
     """Dados sobre os bloqueados pelo usuário"""
     blocked_count: int
-    blocks: list[User]
 
 
 class UserOut(User):

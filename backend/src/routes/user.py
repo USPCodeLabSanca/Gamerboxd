@@ -6,8 +6,8 @@ from models.schemas.pagination import *
 from services.security_services import is_user_valid, encrypt_password, encode_token, is_blocked, already_follows
 from services.db_services.user import *
 from services.db_services.list import *
-from utils.dependencies import get_conn, require_login, get_key, optional_login, current_page
-from utils.utils import QueryError, paginate_result
+from utils.dependencies import get_conn, require_login, get_key, optional_login, get_current_url
+from utils.utils import QueryError, convert_cursors_to_paths
 
 user_router = APIRouter(prefix="/user", tags=["user"])
 
@@ -56,13 +56,13 @@ async def first_lists(user_id, conn):
     finished_list_id = await DB_create_list(conn, finished_list)
     await DB_create_list_save(conn, finished_list_id, user_id)
 
-# ======================= REPENSAR OS DADOS ENVIADOS =======================
+
 async def get_full(conn, user_id): 
     """Lê os dados completos de uma conta de usuário"""
 
-    out = await DB_read_user_out(conn, user_id) # Dados da conta do usuário     
-    follows = await DB_read_user_follows(conn, user_id) # Dados de seguidores do usuário
-    lists = await DB_read_user_basic_lists(conn, user_id) # Dados das listas básicas do usuário (completados e favoritos)
+    out = await DB_read_user_out(conn, user_id)             # Dados da conta do usuário     
+    follows = await DB_read_user_follows(conn, user_id)     # Dados de seguidores do usuário
+    lists = await DB_read_user_basic_lists(conn, user_id)   # Dados das listas básicas do usuário (completados e favoritos)
 
     return UserFeed(
         username=out.username,
@@ -89,8 +89,8 @@ async def edit_user(user: UserEdit, conn = Depends(get_conn), user_id = Depends(
 
     async with conn.transaction():
         user = await is_user_valid(user, conn, user_id) # Validação do username, email e senha
-        await DB_update_user(conn, user, user_id)   # Atualiza o usuário no BD
-        user_full = await get_full(conn, user_id)   # Busca os dados atualizados do usuário
+        await DB_update_user(conn, user, user_id)       # Atualiza o usuário no BD
+        user_full = await get_full(conn, user_id)       # Busca os dados atualizados do usuário
 
     return JSONResponse(user_full.model_dump())
 
@@ -143,15 +143,24 @@ async def unfollow(username: str, conn = Depends(get_conn), user_id = Depends(re
     return JSONResponse({"message":"Conta desseguida com sucesso!"})
 
 
-# PAGINAÇÃO!!!
-@user_router.get("/follow")
-async def view_follows(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), page_result = Depends(current_page)):
-    """Busca os seguidores e seguidos do usuário autenticado"""
+@user_router.get("/follow/followers")
+async def view_followers(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), url = Depends(get_current_url)):
+    """Busca os seguidores do usuário autenticado"""
 
-    followings = await DB_read_user_follows(conn, user_id, page_query)
+    followers_page = await DB_read_user_followers(conn, user_id, page_query)
+    followers_page_with_urls = convert_cursors_to_paths(followers_page, url)
+
+    return JSONResponse(followers_page_with_urls.model_dump())
 
 
-    return JSONResponse(followings.model_dump())
+@user_router.get("/follow/followeds")
+async def view_followeds(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), url= Depends(get_current_url)):
+    """Busca os seguidos pelo usuário autenticado"""
+
+    followeds_page = await DB_read_user_followeds(conn, user_id, page_query)
+    followeds_page_with_urls = convert_cursors_to_paths(followeds_page, url)
+
+    return JSONResponse(followeds_page_with_urls.model_dump())
 
 
 @user_router.post("/block/{username}")
@@ -191,13 +200,15 @@ async def unblock_user(username: str, user_id = Depends(require_login), conn = D
     return JSONResponse({"message":"Conta desbloqueada com sucesso!"})
 
 
-# PAGINAÇÃO!!!
+
 @user_router.get("/block")
-async def view_blocks(conn = Depends(get_conn), user_id = Depends(require_login)):
+async def view_blocks(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), url= Depends(get_current_url)):
     """Busca os usuários bloqueados pelo usuário autenticado"""
 
-    blocks = await DB_read_user_blockeds(conn, user_id)
-    return JSONResponse(blocks.model_dump())
+    blockeds_page = await DB_read_user_blockeds(conn, user_id, page_query)
+    blockeds_page_with_url = convert_cursors_to_paths(blockeds_page, url)
+
+    return JSONResponse(blockeds_page_with_url.model_dump())
 
 
 @user_router.get("/{username}")

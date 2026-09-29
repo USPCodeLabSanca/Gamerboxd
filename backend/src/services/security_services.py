@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 
-from models.schemas import ListIn, List, ReviewIn
-from services.db_services import DB_read_user_column, DB_read_user_lists, DB_read_user_game_review, DB_read_user_blockeds, DB_read_user_follows
+from models.schemas import ListIn, List, ReviewIn, PageQuery, PageResult
+from services.db_services import DB_read_user_column, DB_read_user_lists, DB_read_user_game_review, DB_read_user_blockeds, DB_read_user_followeds
 from utils.utils import QueryError
 
 
@@ -142,15 +142,38 @@ async def is_list_valid(conn, user_id: str, list_in: ListIn, old_list_name: str 
 async def is_blocked(conn, user_id_blocker: str, username_blocked: str):
     """Testa se um usuário foi bloqueado por outro"""
 
-    blockeds = await DB_read_user_blockeds(conn, user_id_blocker)
-    return any([username_blocked == b.username for b in blockeds.blocks])
+    mock_page = PageQuery(page_size=100)
+    blocked_page = await DB_read_user_blockeds(conn, user_id_blocker, mock_page)
+    if any([username_blocked == b.username for b in blocked_page.content]):
+        return True
+
+    mock_page.cursor = blocked_page.next_page
+    while mock_page.cursor != None:
+        blocked_page = await DB_read_user_blockeds(conn, user_id_blocker, mock_page)
+        if any([username_blocked == b.username for b in blocked_page.content]):
+            return True
+        mock_page.cursor = blocked_page.next_page
+
+    return False
 
 
 async def already_follows(conn, user_id_follower:str, username_followed: str):
     """Testa se um usuário segue outro"""
 
-    followings = await DB_read_user_follows(conn, user_id_follower)
-    return any([username_followed == f.username for f in followings.followings])
+    mock_page = PageQuery(page_size=100)
+    followings_page = await DB_read_user_followeds(conn, user_id_follower, mock_page)
+
+    if any([username_followed == f.username for f in followings_page.content]):
+        return True
+    mock_page.cursor = followings_page.next_page
+
+    while mock_page.cursor != None:
+        followings_page = await DB_read_user_followeds(conn, user_id_follower, mock_page)
+        if any([username_followed == f.username for f in followings_page.content]):
+            return True
+        mock_page.cursor = followings_page.next_page
+
+    return False     
 
 
 async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):

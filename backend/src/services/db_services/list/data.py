@@ -19,63 +19,13 @@ async def DB_create_list(conn, new_list: List):
 
 
 @db_query
-async def DB_create_list_save(conn, list_id: str, user_id: str):
-    """Salva uma lista na "biblioteca" do usuário"""
-
-    await conn.execute('''
-        INSERT INTO SavedLists(usr, list) VALUES($1, $2)
-    ''', user_id, list_id)
-
-
-@db_query
-async def DB_create_list_game(conn, list_id, game_id):
-    """Inclui um game em uma lista"""
-
-    await conn.execute('''
-        INSERT INTO ListContent(list, game) VALUES($1, $2)
-    ''', list_id, game_id)
-
-    await DB_update_list_updated_at(conn, list_id)
-
-
-@db_query
 async def DB_delete_list(conn, list_name: str, user_id: str):
     """Deleta uma lista do BD"""
 
     await conn.execute('''
         DELETE FROM Lists WHERE name = $1 AND creator = $2
     ''', list_name, user_id)
-    
 
-@db_query
-async def DB_delete_list_save(conn, list_id: str, user_id: str):
-    """Remove uma lista na "biblioteca" do usuário"""
-
-    await conn.execute('''
-        DELETE FROM SavedLists WHERE list = $1 AND usr = $2
-    ''', list_id, user_id)
-
-
-@db_query
-async def DB_delete_list_saves_after_privacy_change(conn, list_id: str, user_id: str):
-    """Remove a lista da "biblioteca" de todos os usuários que tinham salvado ela, menos o criador"""
-
-    await conn.execute('''
-        DELETE FROM SavedLists WHERE list = $1 AND usr != $2
-    ''', list_id, user_id)
-
-    await DB_update_list_updated_at(conn, list_id)
-
-
-@db_query
-async def DB_delete_list_game(conn, list_id: str, game_id: int):
-    """Remove um game de uma lista"""
-
-    await conn.execute('''
-        DELETE FROM ListContent WHERE list = $1 AND game = $2
-    ''', list_id, game_id)
-
-    await DB_update_list_updated_at(conn, list_id)
 
 
 @db_query
@@ -126,37 +76,6 @@ async def DB_read_user_basic_lists(conn, user_id: str):
 
     return basic_lists
 
-@db_query
-async def DB_read_user_saved_lists(conn, user_id: str):
-    """Lê as listas salvas por um usuário"""
-
-    rows = await conn.fetch('''
-        SELECT l.name, l.description, u.username AS creator, l.is_private, l.created_at,
-        COUNT(sl2.usr) AS saves
-        FROM SavedLists sl
-        JOIN Lists l ON l.id = sl.list
-        JOIN Users u ON u.id = l.creator
-        LEFT JOIN SavedLists sl2 ON sl2.list = sl.list
-        WHERE sl.usr = $1
-        GROUP BY l.name, l.description, u.username, l.is_private, l.created_at, l.updated_at
-        ORDER BY l.updated_at DESC
-    ''', user_id)
-
-    lists = [
-        ListOut(
-            name=r["name"],
-            description=r["description"],
-            creator=r["creator"],
-            is_private=r["is_private"],
-            created_at=fix_date(r["created_at"]),
-            list_saves=r["saves"],
-        )
-        for r in rows
-    ]
-
-    user_lists = UserLists(count=len(lists), lists=lists)
-
-    return user_lists
 
 
 @db_query
@@ -189,12 +108,11 @@ async def DB_read_user_lists(conn, user_id: str):
     user_lists = UserLists(count=len(lists), lists=lists)
 
     return user_lists
-    
+
 
 @db_query
 async def DB_read_list_full(conn, list_id: str):
     """Lê os dados completos de uma lista"""
-
 
     full_row = await conn.fetchrow('''
         SELECT l.name, l.description, u.username AS creator, l.is_private, l.created_at,
@@ -206,41 +124,19 @@ async def DB_read_list_full(conn, list_id: str):
         GROUP BY l.name, l.description, u.username, l.is_private, l.created_at
     ''', list_id)
 
-    games = await conn.fetch('''
-        SELECT g.id, g.name, g.picture, g.year,
-            COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,
-            COALESCE(ROUND(AVG(r.rating_num) FILTER (WHERE r.is_private = false)::numeric, 2), -1) AS gamerboxd_rating
-        FROM Games g
-        LEFT JOIN ListContent lc ON lc.game = g.id
-        LEFT JOIN Reviews r ON r.game = g.id
-        WHERE lc.list = $1
-        GROUP BY g.id, g.name, g.picture, g.year
-    ''', list_id)
 
-    games_list = []
-
-    for g in games:
-        game = Game(
-            game_id=g["id"],
-            name=g["name"],
-            picture=g["picture"],
-            year=g["year"],
-            like_count=g["like_count"],
-            gamerboxd_rating=float(g["gamerboxd_rating"])
-        )
-        games_list.append(game)
-
-    user_list = ListFull(
+    user_list = ListOut(
         name=full_row["name"],
         description=full_row["description"],
         creator=full_row["creator"],
         is_private=full_row["is_private"],
         created_at=fix_date(full_row["created_at"]),
         list_saves=full_row["saves"],
-        games=games_list
     )
 
     return user_list
+
+
 
 
 @db_query

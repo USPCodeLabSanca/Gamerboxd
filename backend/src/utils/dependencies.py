@@ -1,6 +1,5 @@
 from fastapi import Request
-from .utils import QueryError
-from models.schemas.pagination import PageResult
+from .errors import QueryError
 
 async def get_conn(request: Request):
     """Empresta uma conexão com a vm da pool"""
@@ -44,15 +43,8 @@ def get_rawg(request: Request) -> str:
     return request.app.state.rawg_key 
 
 
-def current_page(request: Request) -> PageResult:
-    """Cria uma página de resultado"""
+def get_current_url(request: Request) -> str:
+    """Retorna a url do atual request"""
 
-    request_path = request.url.path
-    page_result = PageResult(current=request_path, content=[])
-
-    # Primeira busca
-    if "cursor=" not in request_path:
-        page_result.previous = None
-
-    return page_result
+    return request.url.path
 
