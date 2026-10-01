@@ -8,7 +8,7 @@ def edit_user():
 
     def _edit_user(user: dict, reset: dict = None):
         user_copy = user.copy()
-        cookies = user_copy.pop("cookies", None)
+        cookies = user_copy.pop("cookies")
         edit_resp = requests.put(f"{BASE_URL}", cookies=cookies, json=user_copy)
         response.append({"response": edit_resp, "reset": reset})
         return edit_resp
@@ -19,6 +19,6 @@ def edit_user():
 
     if (edit_resp["reset"] is not None) and (edit_resp["response"].status_code == 200):
         reset_copy = edit_resp["reset"].copy()
-        cookies = reset_copy.pop("cookies", None)
+        cookies = reset_copy.pop("cookies")
         reset_resp = requests.put(f"{BASE_URL}", cookies=cookies, json=reset_copy)
         assert reset_resp.status_code == 200

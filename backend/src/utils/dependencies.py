@@ -1,5 +1,5 @@
 from fastapi import Request
-from .errors import QueryError
+from .errors import *
 
 async def get_conn(request: Request):
     """Empresta uma conexão com a vm da pool"""
@@ -20,7 +20,7 @@ def require_login(request: Request) -> str:
 
     login = request.state.user_login
     if not login["logged_in"]:
-        raise QueryError(401, "É necessário fazer login para esta ação")
+        raise AuthError("É necessário fazer login para esta ação")
     return login["user_id"]
 
 
@@ -46,5 +46,5 @@ def get_rawg(request: Request) -> str:
 def get_current_url(request: Request) -> str:
     """Retorna a url do atual request"""
 
-    return request.url.path
+    return str(request.url)
 

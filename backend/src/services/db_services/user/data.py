@@ -1,9 +1,7 @@
 from uuid import uuid4
 
 from models.schemas.user import *
-from models.schemas.pagination import *
-from utils.utils import db_query
-from utils.helper import *
+from utils import *
 
 
 @db_query
@@ -47,7 +45,7 @@ async def DB_read_user_column(conn, column: str, user_id: str = None, email: str
 @db_query
 async def DB_read_user_out(conn, user_id: str):
     row = await conn.fetchrow('''
-        SELECT username, pfp, email, bio, created_at
+        SELECT username, pfp, bio, created_at
         FROM Users
         WHERE id = $1
     ''', user_id)
@@ -56,9 +54,9 @@ async def DB_read_user_out(conn, user_id: str):
         return None
 
     user = UserOut(
+        user_id=user_id,
         username=row["username"],
         pfp=row["pfp"],
-        email=row["email"],
         bio=row["bio"],
         created_at=fix_date(row["created_at"]),
     )

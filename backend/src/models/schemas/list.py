@@ -1,35 +1,36 @@
 from pydantic import BaseModel
 
 from .game import GameRawg
+from .user import User
 
 
 class ListIn(BaseModel):
     """Dados das listas ao criar/editar"""
-    name: str
-    description: str | None = None
-    is_private: bool = True    
+    name: str                               # Nome da lista
+    description: str | None = None          # Descrição da lista
+    is_private: bool = True                 # Privacidade da lista
 
 
-class List(ListIn):
-    """Dados das listas ao criar/editar + o criador da lista (user_id)"""
-    creator: str
+class ListOutOverview(BaseModel):
+    """Dados das listas resumidos"""
+    name: str                               # Nome da lista
+    list_id: str                            # Id da lista no DB
+    creator: User                           # Dados do criador da lista (id, username, pfp)
+    list_saves_count: int                   # Quantos pessoas salvaram a lista
 
 
-class ListOut(List):
+class ListOutComplete(ListIn):
     """Dados das listas completos"""
-    created_at: str     # Data de criação da lista
-    list_saves: int     # Quantos pessoas salvaram a lista
-    list_games: int     # Quantos games tem na lista
+    list_id: str                            # Id da lista no DB
+    created_at: str                         # Data de criação da lista
+    creator: User                           # Dados do criador da lista (id, username, pfp)
+    list_saves_count: int                   # Quantos pessoas salvaram a lista
+    list_games_count: int                   # Quantos games tem na lista
 
 
 class ListGames(BaseModel):
-    """Dados dos primeiros games que pertencem a uma lista"""
-    name: str
-    count: int
-    games: list[GameRawg]
-
-
-class UserLists(BaseModel):
-    """Listas salvas por um usuário"""
-    count: int
-    lists: list[ListOut]
+    """Dados básicos dos primeiros games que pertencem a uma lista"""
+    list_id: str                        # Id da lista no DB
+    name: str                           # Nome da lista
+    games_count: int                    # Quantos jogos que pertencem à lista vão ser enviados (<4)
+    games: list[GameRawg | None]        # Lista com até 4 jogos que pertencem à lista

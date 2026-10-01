@@ -7,6 +7,9 @@ def db_query(func):
         try:
             return await func(*args, **kwargs)
 
+        except QueryError as q:
+            raise q
+        
         except Exception as e:
             raise QueryError(500, f"{func.__name__}: {e}")
     

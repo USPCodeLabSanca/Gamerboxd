@@ -27,9 +27,9 @@ TABLES = {
             )
         ''',
 
-        '''CREATE INDEX IF NOT EXISTS idx_follows_followed_created ON Follows (followed, created_at DESC, follower DESC)''',
+        '''CREATE INDEX IF NOT EXISTS idx_followed_follower_created ON Follows (followed, follower DESC, created_at DESC)''',
 
-        '''CREATE INDEX IF NOT EXISTS idx_follows_follower_created ON Follows (follower, created_at DESC, followed DESC);''',
+        '''CREATE INDEX IF NOT EXISTS idx_follower_followed_created ON Follows (follower, followed DESC, created_at DESC);'''
 
     ],
 
@@ -43,7 +43,8 @@ TABLES = {
                 PRIMARY KEY (blocker, blocked)
             )
         ''',
-        '''CREATE INDEX IF NOT EXISTS idx_blocks_blocker_created ON Follows (blocker, created_at DESC, blocked DESC)'''
+
+        '''CREATE INDEX IF NOT EXISTS idx_blocker_blocked_created ON Blocks (blocker, blocked DESC, created_at DESC)'''
     ],
 
     "Games":[
@@ -92,7 +93,9 @@ TABLES = {
                             
                 UNIQUE (name, creator)
             )
-        '''
+        ''',
+
+        '''CREATE INDEX IF NOT EXISTS idx_creator_id_updated ON Lists (creator, id DESC, updated_at DESC)'''
     ],
 
     "ListContent":[
@@ -104,7 +107,9 @@ TABLES = {
 
                 PRIMARY KEY(list, game) 
             )
-        '''
+        ''',
+
+        '''CREATE INDEX IF NOT EXISTS idx_list_game_created ON ListContent (list, game DESC, created_at DESC)'''
     ],
 
     "SavedLists": [
@@ -112,10 +117,15 @@ TABLES = {
         CREATE TABLE IF NOT EXISTS SavedLists (
             usr VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
             list VARCHAR(36) NOT NULL REFERENCES Lists(id) ON DELETE CASCADE,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
 
             PRIMARY KEY(usr, list)
         )
-        '''
+        ''',
+
+        '''CREATE INDEX IF NOT EXISTS idx_usr_list_created ON SavedLists (usr, list DESC, created_at DESC)''',
+
+        '''CREATE INDEX IF NOT EXISTS idx_list_usr_created ON SavedLists (list, usr DESC, created_at DESC)'''
     ],
 
     "Reviews":[

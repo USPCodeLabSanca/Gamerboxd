@@ -15,7 +15,7 @@ def base_user(num:int, **overrides):
 
 new_users = [
     # Teste funcional
-    (base_user(1), 200, SUCCESS_CREATING_MSG),
+    (base_user(1), 200, SUCCESS_CREATING_STR),
 
     # Testes de erros do usuário na hora de criar conta
     (base_user(2, username = "u2"), 400, USERNAME_WRONG_LENGTH_MSG),        # username muito curto
@@ -66,11 +66,19 @@ def test_new_users(user, expected_status, expected_body):
     assert response.status_code == expected_status, response.json()
     assert response.cookies is not None
 
+    response_json = response.json()
     if expected_body is not None:
-        assert response.json() == expected_body
+        if type(expected_body) == str:
+            assert "message" in response.json().keys()
+            assert response_json["message"] == expected_body
+
+        else:
+            assert response_json == expected_body
 
     # Limpa a conta do DB caso a sua inserção tenha dado certo
     if response.status_code == 200:
+        assert "id" in response_json.keys()
+        
         for c in response.cookies:
             c.secure = False
         response_delete = requests.delete(BASE_URL, cookies=response.cookies)

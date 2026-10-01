@@ -13,7 +13,7 @@ new_lists = [
     # Testes funcionais
     (
         {"name": "list_1", "description": "list_1", "is_private": True},
-        200,  SUCCESS_CREATING_MSG 
+        200,  SUCCESS_CREATING_MSG
     ),
 
     (
@@ -74,21 +74,25 @@ def test_new_lists(users, list_in, expected_status, expected_body):
     user = users["Alice"].copy()
     cookies = user.pop("cookies")
 
-    if ("description" in list_in) and (list_in["description"] == "list_5"):
-        list1 = {"name": "list_1", "description": "list_1", "is_private": True}
+    if expected_status == 409:
+        list1 = base_list(1)
         response_duplicate = requests.post(url=BASE_URL, json=list1, cookies=cookies)
         assert response_duplicate.status_code == 200
+        duplicate_list_id = response_duplicate.json()["id"]
 
     response = requests.post(url=BASE_URL, json=list_in, cookies=cookies)
     assert response.status_code == expected_status
 
     if expected_body is not None:
-        assert response.json() == expected_body
+        assert expected_body.keys() == response.json().keys()
+        assert expected_body["message"] == response.json()["message"]
+
+        list_id = response.json()["id"] if expected_status == 200 else None
 
     if response.status_code == 200:
-        response_delete = requests.delete(url=BASE_URL + f"/{list_in["name"]}", cookies=cookies)
+        response_delete = requests.delete(url=BASE_URL + f"/{list_id}", cookies=cookies)
         assert response_delete.status_code == 200
 
-    if ("description" in list_in) and (list_in["description"] == "list_5"):
-        response_delete_duplicate = requests.delete(url=BASE_URL + f"/{list1["name"]}", cookies=cookies)
+    if expected_status == 409:
+        response_delete_duplicate = requests.delete(url=BASE_URL + f"/{duplicate_list_id}", cookies=cookies)
         assert response_delete_duplicate.status_code == 200

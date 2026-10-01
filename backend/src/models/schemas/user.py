@@ -1,8 +1,8 @@
 from pydantic import BaseModel
-from .list import ListGames
 
 class User(BaseModel):
     """Dados básicos de um usuário"""
+    user_id: str
     username: str
     pfp: str | None = None
 
@@ -39,10 +39,11 @@ class UserBlocked(BaseModel):
 
 class UserOut(User):
     """Dados básicos de saída sobre um usuário"""
-    email: str
     bio: str | None = None
     created_at: str
 
+
+from .list import ListGames
 
 class UserFeed(UserOut):
     """Dados completos de um usuário"""

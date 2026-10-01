@@ -4,22 +4,34 @@ from .test_save_list import save_list, assert_save
 
 def add_game(user: dict, list_in: dict, game_id: int):
     return requests.post(
-        url=BASE_URL + f"/game/{list_in["name"]}/{game_id}",
+        url=BASE_URL + f"/game/{list_in["list_id"]}/{game_id}",
         cookies=user["cookies"]
     )
 
 
 def rem_game(user: dict, list_in: dict, game_id: int):
     return requests.delete(
-        url=BASE_URL + f"/game/{list_in["name"]}/{game_id}",
+        url=BASE_URL + f"/game/{list_in["list_id"]}/{game_id}",
         cookies=user["cookies"]
     )
 
 
 def view_list_games(user: dict, list_in: dict):
-    response = requests.get(url=BASE_URL + f"/{list_in["name"]}", cookies=user["cookies"])
+    cookies = user["cookies"]
+    list_games = []
+
+    response = requests.get(f"{BASE_URL}/game/{list_in["list_id"]}", cookies=cookies)
     assert response.status_code == 200
-    return response.json()["games"]
+    response_json = response.json()
+    list_games += response_json["content"]
+
+    while response_json["next_page"] != None:
+        response = requests.get(response_json["next_page"], cookies=cookies)
+        assert response.status_code == 200
+        response_json = response.json()
+        list_games += response_json["content"]
+
+    return list_games
 
 
 def assert_game_in_list(user: dict, list_in: dict, game_id: int):
@@ -42,7 +54,7 @@ def test_adding_game_to_list_returns_200(users, games):
     list_in = create_list(user)
 
     add_response = add_game(user, list_in, game_id)
-    assert add_response.status_code == 200
+    assert add_response.status_code == 200, add_response.json()
     assert add_response.json() == SUCCESS_ADDING_MSG
     assert_game_in_list(user, list_in, game_id)
 
@@ -90,7 +102,7 @@ def test_adding_game_to_non_existent_list_returns_404(users, games):
 
     user = users["Alice"]
     game_id, _ = games["roblox"][0]
-    list_in = {"name": "ghost"}
+    list_in = {"list_id": "ghost"}
 
     add_response = add_game(user, list_in, game_id)
     assert add_response.status_code == 404
@@ -102,14 +114,14 @@ def test_removing_game_from_non_existent_list_returns_404(users, games):
 
     user = users["Alice"]
     game_id, _ = games["roblox"][0]
-    list_in = {"name": "ghost"}
+    list_in = {"list_id": "ghost"}
 
     rem_response = rem_game(user, list_in, game_id)
     assert rem_response.status_code == 404
     assert rem_response.json() == LIST_NOT_FOUND_MSG
 
 
-def test_adding_game_only_affects_own_list_returns_404(users, games):
+def test_adding_game_only_affects_own_list(users, games):
     """Alice e Bernardo criam suas próprias listas, Alice adiciona um jogo, isso não deve afetar a lista de Bernardo"""
 
     user1, user2 = users["Alice"], users["Bernardo"]
@@ -127,7 +139,7 @@ def test_adding_game_only_affects_own_list_returns_404(users, games):
     delete_list(user2, list_user2)
 
 
-def test_adding_games_to_list_you_dont_own_returns_404(users, games):
+def test_adding_games_to_list_you_dont_own_returns_403(users, games):
     """Alice cria uma lista, Bernardo salva a lista, Bernardo tenta adicionar um jogo a lista de Alice"""
 
     user1, user2 = users["Alice"], users["Bernardo"]
@@ -135,12 +147,12 @@ def test_adding_games_to_list_you_dont_own_returns_404(users, games):
 
     list_user1 = create_list(user1)
 
-    save_list_result = save_list(user2, user1, list_user1)
+    save_list_result = save_list(user2, list_user1)
     assert save_list_result.status_code == 200
-    assert_save(user2, user1, list_user1)
+    assert_save(user2, list_user1)
 
     add_list_result = add_game(user2, list_user1, game_id)
-    assert add_list_result.status_code == 404
-    assert add_list_result.json() == LIST_NOT_FOUND_MSG
+    assert add_list_result.status_code == 403
+    assert add_list_result.json() == LACK_OF_LIST_OWNERSHIP_MSG
     assert_game_not_in_list(user1, list_user1, game_id)
     
