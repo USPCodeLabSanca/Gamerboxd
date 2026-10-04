@@ -35,6 +35,13 @@ async def update_review(old_review_game: int, new_review: ReviewIn, conn = Depen
 async def delete_review(review_game: int, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Remove a review do usuário autenticado para um jogo"""
 
+    username = await DB_read_user_column(conn, "username", user_id)
+
+    review_id = await DB_read_review_id(conn, username, review_game)
+
+    if review_id is None:
+        raise QueryError(404, "Review não encontrada")
+
     await DB_delete_review(conn, review_game, user_id)
     return JSONResponse({"message":"Review deletada com sucesso!"})
 
@@ -103,7 +110,7 @@ async def get_all_reviews(username: str, limit: int = 10, conn = Depends(get_con
     if user_id is not None:
         username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
         if await is_blocked(conn, review_creator_id, username_reader):
-            raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
+            raise QueryError(403, "Usuário está tentando ver uma review escrita por alguém que o bloqueou!")
 
     if limit > 20:
         raise QueryError(400, "Não podem ser apresentadas mais de 20 reviews!")
