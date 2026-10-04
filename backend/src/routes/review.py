@@ -57,12 +57,17 @@ async def like_review(username: str, game: int, conn = Depends(get_conn), user_i
     if review_id is None:
         raise QueryError(404, "Review não encontrada!")
 
+    review_is_private = await DB_read_review_private(conn, username, game)
+
+    if review_is_private and username_reader != username:
+        raise QueryError(403, "Review privada!")
+
     like_validated = await DB_read_review_like(conn, review_id, user_id)
 
     if like_validated is not None:
         raise QueryError(409, "Você já deu like nessa review!")
         
-    await DB_create_like_review(conn, ReviewLike(user_id, review_id))
+    await DB_create_like_review(conn, user_id, review_id)
 
     return JSONResponse({"message": "Like adicionado com sucesso!"})
 
@@ -117,8 +122,9 @@ async def get_one_review(username: str, game: int, conn = Depends(get_conn), use
     if review_creator_id is None:
         raise QueryError(404, "Usuário não encontrado!")
     
+    username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
+    
     if user_id is not None:
-        username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
         if await is_blocked(conn, review_creator_id, username_reader):
             raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
 
@@ -126,5 +132,8 @@ async def get_one_review(username: str, game: int, conn = Depends(get_conn), use
 
     if review is None:
         raise QueryError(404, "Review não encontrada!")
+
+    if review.is_private is True and username_reader != username:
+            raise QueryError(403, "Review privada!")
     
     return JSONResponse(review.model_dump())

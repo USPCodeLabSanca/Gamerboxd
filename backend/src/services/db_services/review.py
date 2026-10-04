@@ -5,6 +5,7 @@ from utils.utils import db_query
 from utils.helper import fix_date
 from datetime import datetime
 from .game import DB_read_game_name
+from .user import DB_read_user_column
 
 
 @db_query
@@ -21,11 +22,11 @@ async def DB_create_review(conn, review: ReviewIn, user_id: str):
 
 
 @db_query
-async def DB_create_like_review(conn, like: ReviewLike):
+async def DB_create_like_review(conn, user, review):
     await conn.execute('''
         INSERT INTO ReviewLikes(usr, review)
         VALUES($1, $2)
-    ''', like.user, like.review)
+    ''', user, review)
     
     
 @db_query
@@ -78,7 +79,7 @@ async def DB_read_review(conn, username: str, game: int):
         FROM Reviews r
         JOIN Users u ON u.id = r.reviewer
         WHERE u.username = $1
-        AND r.game = $2 AND r.is_private = false
+        AND r.game = $2
     ''', username, game)
 
     if review is None:
@@ -92,7 +93,7 @@ async def DB_read_review(conn, username: str, game: int):
     ''', review["id"])
     
     likes = await DB_read_count_likes(conn, review["id"])
-    game_name = await DB_read_game_name(conn, review.game)
+    game_name = await DB_read_game_name(conn, review["game"])
 
     if game_name is None:
         return None
@@ -104,6 +105,7 @@ async def DB_read_review(conn, username: str, game: int):
         rating_num = review["rating_num"],
         rating_text = review["rating_text"],
         time_played = review["time_played"],
+        is_private = review["is_private"],
         completed = review["completed"],
         tag_count = len(tags),
         tags = tags,
@@ -116,13 +118,24 @@ async def DB_read_review(conn, username: str, game: int):
     
     return review_found
 
+@db_query
+async def DB_read_review_private(conn, username: str, game: int):
+    review_is_private = await conn.fetchval('''
+        SELECT r.is_private
+        FROM Reviews r
+        JOIN Users u on u.id = r.reviewer
+        WHERE u.username = $1
+        AND r.game = $2
+    ''', username, game)
+
+    return review_is_private
 
 @db_query
 async def DB_read_review_id(conn, username: str, game: int):
     review_id = await conn.fetchval('''
-        SELECT r.review_id
+        SELECT r.id
         FROM Reviews r
-        JOIN Users u ON u.user_id = r.reviewer
+        JOIN Users u ON u.id = r.reviewer
         WHERE u.username = $1
         AND r.game = $2
     ''', username, game)
@@ -134,7 +147,7 @@ async def DB_read_review_id(conn, username: str, game: int):
 async def DB_read_limit_reviews(conn, username: str, limit: int):
     reviews = await conn.fetch('''
         SELECT r.* FROM Reviews r 
-        JOIN Users u On u.user_id = r.reviewer 
+        JOIN Users u On u.id = r.reviewer 
         WHERE u.username = $1 AND r.is_private = false 
         LIMIT $2
     ''', username, limit)
@@ -156,6 +169,7 @@ async def DB_read_limit_reviews(conn, username: str, limit: int):
                 rating_text = r["rating_text"],
                 likes_count = likes,
                 liked = r["liked"],
+                is_private = r["is_private"],
                 game_name = game_name,
                 created_at = fix_date(r["created_at"])
             )
@@ -168,23 +182,43 @@ async def DB_read_limit_reviews(conn, username: str, limit: int):
 async def DB_update_review(conn, review: ReviewIn, old_review_game: int, user_id: str):    
     time_now = datetime.now()
 
-    await conn.execute('''
+    r = await conn.fetchrow('''
         UPDATE Reviews
         SET game = $1, rating_num = $2, rating_text = $3,
         is_private = $4, time_played = $5, liked = $6, completed = $7, last_update = $8 
-        WHERE game = $9 AND reviewer = $10
+        WHERE game = $9 AND reviewer = $10 RETURNING *
     ''', review.game, review.rating_num, review.rating_text, review.is_private, review.time_played, 
     review.liked, review.completed, time_now, old_review_game, user_id)
 
-    updated_list = ReviewOut(
-        game = review.game,
-        rating_num = review.rating_num,
-        rating_text = review.rating_text,
-        is_private = review.is_private,
-        time_played = review.time_played,
-        liked = review.liked,
-        completed = review.completed,
-        last_update = fix_date(time_now)
+    game_name = await DB_read_game_name(conn, r["game"])
+
+    likes = await DB_read_count_likes(conn, r["id"])
+
+    username = await DB_read_user_column(conn, "username", user_id)
+
+    rows = await conn.fetch('''
+            SELECT t.name
+            FROM ReviewTags rt
+            JOIN Tags t ON t.id = rt.tag
+            WHERE rt.review = $1
+        ''', r["id"])
+
+    tags = [r["tag_name"] for r in rows]
+
+    updated_list = ReviewOutOne(
+        username = username,
+        rating_num = r["rating_num"],
+        rating_text = r["rating_text"],
+        time_played = r["time_played"],
+        completed = r["completed"],
+        tag_count = len(tags),
+        tags = tags,
+        likes_count = likes,
+        liked = r["liked"],
+        is_private = r["is_private"],
+        game_name = game_name,
+        created_at = fix_date(r["created_at"]),
+        last_update = fix_date(r["last_update"])
     )
 
     return updated_list
