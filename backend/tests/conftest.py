@@ -77,7 +77,7 @@ def games():
 
 
 @pytest.fixture
-def follow():
+def follow_request():
     """Faz um usuário seguir o outro. cleanup = True significa que vai apagar do DB depois"""
 
     response = []

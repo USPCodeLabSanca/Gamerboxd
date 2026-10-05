@@ -2,9 +2,9 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.review import *
-from services.security_services import is_review_insertion_valid, is_review_update_valid, is_blocked
+from services.security_services import is_review_insertion_valid, is_review_update_valid
 from services.db_services.review import *
-from services.db_services.user import DB_read_user_column
+from services.db_services.user import DB_read_user_column, is_blocked
 from utils import *
 
 review_router = APIRouter(prefix="/review", tags=["review"])

@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.user import *
-from services.security_services import is_user_valid, encrypt_password, encode_token, is_blocked, already_follows
+from services.security_services import is_user_valid, encrypt_password, encode_token
 from services.db_services.user import *
 from services.db_services.list import *
 from utils import *

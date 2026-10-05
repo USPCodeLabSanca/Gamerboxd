@@ -4,7 +4,7 @@ from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 
 from models.schemas import ListIn, ReviewIn, UserIn
-from services.db_services import DB_read_user_column, DB_read_list_name_taken, DB_read_user_game_review, DB_read_user_blockeds, DB_read_user_followeds
+from services.db_services import DB_read_user_column, DB_read_list_name_taken, DB_read_user_game_review
 from utils import *
 
 
@@ -145,43 +145,6 @@ async def is_list_valid(conn, user_id: str, list_in: ListIn, list_id: str | None
         description=list_in.description,
         is_private=list_in.is_private
     )
-
-
-async def is_blocked(conn, user_id_blocker: str, user_id_blocked: str) -> bool:
-    """Testa se um usuário foi bloqueado por outro"""
-
-    mock_page = PageQuery(page_size=100)
-    blocked_page = await DB_read_user_blockeds(conn, user_id_blocker, mock_page)
-    if any([user_id_blocked == b.user_id for b in blocked_page.content]):
-        return True
-
-    mock_page.cursor = blocked_page.next_page
-    while mock_page.cursor != None:
-        blocked_page = await DB_read_user_blockeds(conn, user_id_blocker, mock_page)
-        if any([user_id_blocked == b.user_id for b in blocked_page.content]):
-            return True
-        mock_page.cursor = blocked_page.next_page
-
-    return False
-
-
-async def already_follows(conn, user_id_follower:str, user_id_followed: str):
-    """Testa se um usuário segue outro"""
-
-    mock_page = PageQuery(page_size=100)
-    followings_page = await DB_read_user_followeds(conn, user_id_follower, mock_page)
-
-    if any([user_id_followed == f.user_id for f in followings_page.content]):
-        return True
-    mock_page.cursor = followings_page.next_page
-
-    while mock_page.cursor != None:
-        followings_page = await DB_read_user_followeds(conn, user_id_follower, mock_page)
-        if any([user_id_followed == f.user_id for f in followings_page.content]):
-            return True
-        mock_page.cursor = followings_page.next_page
-
-    return False     
 
 
 async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):

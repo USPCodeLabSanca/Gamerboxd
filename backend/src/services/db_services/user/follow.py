@@ -124,3 +124,14 @@ async def DB_read_user_follows(conn, user_id: str):
         ''', user_id)
 
         return UserFollows(follower_count=total_followers, following_count=total_followeds)
+
+
+@db_query
+async def already_follows(conn, user_id_follower: str, user_id_followed: str):
+    follows = await conn.fetchval(f'''
+        SELECT COUNT(*)
+        FROM Follows f
+        WHERE f.follower = $1 AND f.followed = $2
+    ''', user_id_follower, user_id_followed)
+
+    return False if follows == 0 else True

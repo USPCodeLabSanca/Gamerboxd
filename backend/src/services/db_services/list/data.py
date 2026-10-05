@@ -172,17 +172,17 @@ async def DB_read_user_created_lists(conn, user_id: str, page_query: PageQuery):
         total_created_lists = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Lists l
-            RIGHT JOIN Users ON u.id = l.creator
+            JOIN Users u ON u.id = l.creator
             WHERE {where}
         ''', *params)
 
         # Pega uma página de listas criadas
         where, params = build_where(basic_condition, page_query_clauses, page_query, "<")
         rows = await conn.fetch(f'''
-            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp, l.updated_at
-            (SELECT COUNT(*) FROM SavedLists sl  WHERE sl.list  = l.id) AS saves,
+            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp, l.updated_at,
+            (SELECT COUNT(*) FROM SavedLists sl  WHERE sl.list  = l.id) AS saves
             FROM Lists l
-            JOIN Users u ON u.id = l.creator
+            RIGHT JOIN Users u ON u.id = l.creator
             WHERE {where}
             ORDER BY l.updated_at DESC, l.id DESC
             LIMIT ${len(params)}
@@ -211,7 +211,7 @@ async def DB_read_user_created_lists(conn, user_id: str, page_query: PageQuery):
         if page_query.cursor is None:
             return page_result
 
-        # Acha o cursor para a página de listas criadas anterior
+        # Acha o cursor para a página de listas criadas anterior)
         where, params = build_where(basic_condition, page_query_clauses, page_query, ">=")
         rows = await conn.fetch(f'''
             SELECT l.id AS list_id, l.updated_at

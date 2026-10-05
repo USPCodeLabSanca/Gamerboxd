@@ -49,7 +49,6 @@ async def DB_read_list_games(conn, list_id: str, page_query: PageQuery):
 
         # Pega uma página de jogo
         where, params = build_where(basic_condition, page_query_clauses, page_query, ">")
-        print("here2")
         rows = await conn.fetch(f'''
             SELECT g.id AS game_id, g.name, g.picture, g.year, lc.created_at,
                 COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,

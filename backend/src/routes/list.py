@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.list import *
-from services.security_services import is_list_valid, is_blocked
+from services.security_services import is_list_valid
 from services.db_services import *
 from utils import *
 
@@ -75,18 +75,8 @@ async def edit_list(list_id: str, new_list: ListIn, conn = Depends(get_conn), us
     return JSONResponse(list_data.model_dump())
 
 
-@list_router.get("/saved")
-async def view_saved_lists(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), path = Depends(get_current_url)):
-    """Busca as listas salvas pelo usuário"""
-
-    saved_lists_page = await DB_read_user_saved_lists(conn, user_id, page_query)
-    saved_lists_page_with_urls = convert_cursors_to_paths(saved_lists_page, path)
-
-    return JSONResponse(saved_lists_page_with_urls.model_dump())
-
-
-@list_router.get("/created")
-async def view_created_lists(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), path = Depends(get_current_url)):
+@list_router.get("/created/{user_id}")
+async def view_created_lists(user_id: str, page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id_viewer = Depends(optional_login), path = Depends(get_current_url)):
     """Busca as listas criadas pelo usuário"""
 
     created_lists_page = await DB_read_user_created_lists(conn, user_id, page_query)
@@ -96,8 +86,8 @@ async def view_created_lists(page_query: PageQuery = Depends(), conn = Depends(g
 
 
 @list_router.get("/{list_id}")
-async def see_list(list_id: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
-    """Retorna os dados completos de uma lista"""
+async def view_list_data(list_id: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
+    """Busca os dados completos de uma lista"""
 
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
@@ -166,6 +156,44 @@ async def unsave_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
     return JSONResponse({"message": "Lista dessalvada com sucesso"})
 
 
+@list_router.get("/save/lists")
+async def view_saved_lists(page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(require_login), path = Depends(get_current_url)):
+    """Busca as listas salvas pelo usuário"""
+
+    saved_lists_page = await DB_read_user_saved_lists(conn, user_id, page_query)
+    saved_lists_page_with_urls = convert_cursors_to_paths(saved_lists_page, path)
+
+    return JSONResponse(saved_lists_page_with_urls.model_dump())
+
+
+@list_router.get("/save/users/{list_id}")
+async def view_list_savers(list_id: str, page_query: PageQuery = Depends(), conn = Depends(get_conn), user_id = Depends(optional_login), path= Depends(get_current_url)):
+    """Busca os dados dos usuários que salvaram uma lista"""
+
+    list_creator_id = await DB_read_list_creator(conn, list_id)
+
+    if list_creator_id is None:
+        raise NotFoundError(LIST_NOT_FOUND_MSG)
+
+    list_is_private = await DB_read_list_privacy(conn, list_id)
+
+    if user_id is not None:
+        # Usuário está bloqueado pelo autor da lista
+        if await is_blocked(conn, list_creator_id, user_id):
+            raise ForbidenError(BLOCKED_BY_LIST_OWNER)
+
+        # Usuário está tentando ver lista privada que não o pertence
+        if (list_is_private) and (user_id != list_creator_id):
+            raise ForbidenError(PRIVATE_LIST_MSG)
+
+    elif list_is_private:
+        raise ForbidenError(PRIVATE_LIST_MSG)
+
+    list_savers_page = await DB_read_list_savers(conn, list_id, page_query)
+    list_savers_page_with_urls = convert_cursors_to_paths(list_savers_page, path)
+    return JSONResponse(list_savers_page_with_urls.model_dump())
+
+
 @list_router.post("/game/{list_id}/{game_id}")
 async def add_to_list(list_id: str, game_id: int, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Adiciona um jogo a uma lista do usuário autenticado"""
@@ -227,3 +255,5 @@ async def view_list_games(list_id: str, page_query: PageQuery = Depends(), conn 
     list_games_page_with_urls = convert_cursors_to_paths(list_games_page, path)
 
     return JSONResponse(list_games_page_with_urls.model_dump())
+
+

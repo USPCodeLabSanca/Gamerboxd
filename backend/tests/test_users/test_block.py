@@ -4,7 +4,7 @@ from .utils import *
 # users é um fixture definido em tests/conftest.py
 # block é um fixture definido em tests/conftest.py
 # unblock é um fixture definido em tests/conftest.py
-# follow é um fixture definido em tests/conftest.py
+# follow_request é um fixture definido em tests/conftest.py
 
 def test_blocking_returns_200(users, block):
     """Alice bloqueia Bernardo"""
@@ -83,7 +83,7 @@ def test_block_yourself_returns_403(users, block):
     assert_unblock(user1, user1)
 
 
-def test_blocking_stops_follow(users, block, follow):
+def test_blocking_stops_follow(users, block, follow_request):
     """Alice bloqueia Bernardo, Bernardo segue Alice"""
 
     user1, user2 = users["Alice"], users["Bernardo"]
@@ -94,18 +94,18 @@ def test_blocking_stops_follow(users, block, follow):
 
     user1, user2 = user2, user1
 
-    response = follow(user1, user2, False)
+    response = follow_request(user1, user2, False)
     assert response.status_code == 403, response.json()
     assert response.json() == {"message":"O usuário está tentando seguir alguém que o bloqueou!"}
     assert_unfollow(user1, user2)
 
 
-def test_blocking_removes_follow(users, follow, block):
+def test_blocking_removes_follow(users, follow_request, block):
     """Alice segue Bernardo, Bernardo bloqueia Alice"""
 
     user1, user2 = users["Alice"], users["Bernardo"]
 
-    response = follow(user1, user2, False)
+    response = follow_request(user1, user2, False)
     assert response.status_code == 200, response.json()
     assert_follow(user1, user2)
 
@@ -335,3 +335,5 @@ def test_blocks_backward_pagination_covers_all_data(users, insert_account, block
 
     # Garante que todos os bloqueados foram retornados
     assert len(info) == 0
+
+

@@ -92,13 +92,13 @@ async def DB_read_user_blockeds(conn, user_id: str, page_query: PageQuery):
 
 
 @db_query
-async def DB_read_user_blocks(conn, user_id: str):
-    """Conta quantos bloqueados tem o usuário"""
+async def is_blocked(conn, user_id_blocker: str, user_id_blocked: str):
+    """Lê se um usuário bloqueia o outro"""
 
-    total_blockeds = await conn.fetchval(f'''
+    blocked = await conn.fetchval(f'''
         SELECT COUNT(*)
         FROM Blocks b
-        WHERE b.blocker = $1
-    ''', user_id)
+        WHERE b.blocker = $1 AND b.blocked = $2
+    ''', user_id_blocker, user_id_blocked)
 
-    return UserBlocked(blocked_count=total_blockeds)
+    return False if blocked == 0 else True
