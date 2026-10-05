@@ -24,8 +24,10 @@ async def create_review(review: ReviewIn, conn = Depends(get_conn), user_id = De
 async def update_review(old_review_game: int, new_review: ReviewIn, conn = Depends(get_conn), user_id = Depends(require_login)):  
     """Atualiza a review do usuário autenticado para um jogo. O campo `game` não pode ser alterado"""
 
+    reviewer_username = await DB_read_user_column(conn, "username", user_id=user_id)
     validated_review_update = await is_review_update_valid(conn, new_review, old_review_game, user_id)
-    updated_review = await DB_update_review(conn, validated_review_update, old_review_game, user_id)
+    await DB_update_review(conn, validated_review_update, old_review_game, user_id)
+    updated_review = await DB_read_review(conn, reviewer_username, old_review_game)
 
     return JSONResponse(updated_review.model_dump())
 
@@ -63,7 +65,7 @@ async def like_review(username: str, game: int, conn = Depends(get_conn), user_i
     if review_id is None:
         raise QueryError(404, "Review não encontrada!")
 
-    review_is_private = await DB_read_review_private(conn, username, game)
+    review_is_private = await DB_read_review_privacy(conn, username, game)
 
     if review_is_private and username_reader != username:
         raise QueryError(403, "Review privada!")
@@ -140,6 +142,6 @@ async def get_one_review(username: str, game: int, conn = Depends(get_conn), use
         raise QueryError(404, "Review não encontrada!")
 
     if review.is_private is True and username_reader != username:
-            raise QueryError(403, "Review privada!")
+        raise QueryError(403, "Review privada!")
     
     return JSONResponse(review.model_dump())

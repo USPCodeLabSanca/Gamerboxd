@@ -24,7 +24,7 @@ def test_edit_review_valid_fields_returns_200(users, games, create_review, edit_
     updated_review = response.json()
     assert updated_review["rating_num"] == 10.0
     assert updated_review["liked"] is False
-    assert updated_review["rating_text"] == review["rating_text"]
+    assert updated_review["rating_text"] == review_edit["rating_text"]
 
 
 def test_edit_review_change_game_returns_400(users, games, create_review, edit_review):
@@ -71,12 +71,12 @@ def test_edit_review_rating_text_return_200(users, games, create_review, edit_re
     game_id = games["GTA"][0][0]
 
     review = create_review(user, game_id)
-    review_edit = review.copy
+    review_edit = review.copy()
     review_edit["rating_text"] = "Novo texto"
 
     response = edit_review(user, game_id, review_edit, review)
     assert response.status_code == 200, response.json()
-    assert response.json()["rating_text"] == review["rating_text"]
+    assert response.json()["rating_text"] == review_edit["rating_text"]
 
 
 def test_edit_review_rating_text_out_of_bounds_returns_400(users, games, create_review, edit_review):
@@ -87,7 +87,7 @@ def test_edit_review_rating_text_out_of_bounds_returns_400(users, games, create_
 
     review = create_review(user, game_id)
     review_edit = review.copy()
-    review_edit["rating_text"] = "Alice" * 50
+    review_edit["rating_text"] = "Alice" * 61
 
     response = edit_review(user, game_id, review_edit)
     assert response.status_code == 400, response.json()

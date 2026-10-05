@@ -4,7 +4,7 @@ from fastapi import Query
 import json
 from pydantic import BaseModel
 
-from .errors import *
+from .errors import QueryError
 
 class PageResult(BaseModel):
     """Dados de uma página"""
@@ -49,7 +49,7 @@ def decode_cursor_to_tuple(cursor: str) -> tuple[datetime, str | int]:
             raise TypeError()
 
     except (ValueError, TypeError):
-        raise RequestError("Cursor inválido!")
+        raise QueryError(406, "Cursor inválido!")
 
     if date.tzinfo is None:
         date = date.replace(tzinfo=timezone.utc)

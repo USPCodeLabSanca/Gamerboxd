@@ -8,7 +8,7 @@ def create_review():
     def _review(user: dict, game_id: int):
         review = {
             "game": game_id,
-            "rating_num": 8.5,
+            "rating_num": 3.5,
             "rating_text": "Muito bom, recomendo!",
             "liked": True,
             "is_private": False,
@@ -28,14 +28,15 @@ def create_review():
 
     yield _review
 
-    insert_resp = responses[0]
+    
+    for insert_resp in responses:
 
-    # Remove a review do DB
-    del_resp = requests.delete(url=BASE_URL + f"/{insert_resp["game_id"]}", cookies=insert_resp["cookies"])
+        # Remove a review do DB
+        del_resp = requests.delete(url=BASE_URL + f"/{insert_resp["game_id"]}", cookies=insert_resp["cookies"])
 
-    # Verifica se deu certo remover
-    assert del_resp.status_code == 200
-    assert del_resp.json() == SUCCESS_DELETING_MSG
+        # Verifica se deu certo remover
+        assert del_resp.status_code == 200
+        assert del_resp.json() == SUCCESS_DELETING_MSG
 
 
 @pytest.fixture
@@ -52,10 +53,11 @@ def edit_review():
 
     yield _edit_review
 
-    edit_resp = response[0]
 
-    # Reverte a review depois de editar
-    if (edit_resp["reset"] is not None) and (edit_resp["response"].status_code == 200):
-        old_game_id, cookies, reset = edit_resp["old_game_id"], edit_resp["cookies"], edit_resp["reset"]
-        reset_resp = requests.put(f"{BASE_URL}/{old_game_id}", cookies=cookies, json=reset)
-        assert reset_resp.status_code == 200
+    for edit_resp in response:
+
+        # Reverte a review depois de editar
+        if (edit_resp["reset"] is not None) and (edit_resp["response"].status_code == 200):
+            old_game_id, cookies, reset = edit_resp["old_game_id"], edit_resp["cookies"], edit_resp["reset"]
+            reset_resp = requests.put(f"{BASE_URL}/{old_game_id}", cookies=cookies, json=reset)
+            assert reset_resp.status_code == 200

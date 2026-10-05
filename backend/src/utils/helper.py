@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import base64
 import json
 
-from .errors import *
+from .errors import QueryError
 
 def fix_date(date: datetime):
     """Padroniza datas que estão no DB para uma human readable string"""
@@ -32,7 +32,7 @@ def decode_cursor_to_tuple(cursor: str) -> tuple[datetime, str | int]:
             raise TypeError()
 
     except (ValueError, TypeError):
-        raise RequestError("Cursor inválido!")
+        raise QueryError(406, "Cursor inválido!")
 
     if date.tzinfo is None:
         date = date.replace(tzinfo=timezone.utc)

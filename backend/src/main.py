@@ -20,7 +20,7 @@ app.add_middleware(
 
 @app.exception_handler(QueryError)
 async def query_error_handler(request: Request, exc: QueryError):
-    if exc.status_code == 500:
+    if exc.status_code in (500, 422):
         print(exc.message)
     return JSONResponse({"message": exc.message}, exc.status_code)
 

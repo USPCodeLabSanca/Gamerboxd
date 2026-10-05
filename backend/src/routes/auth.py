@@ -17,12 +17,12 @@ async def login(user: UserAuth, conn = Depends(get_conn), key = Depends(get_key)
     user_id = await DB_read_user_column(conn, "id", username=user.email_or_username, email=user.email_or_username)
 
     if user_id is None:
-        raise UserError("Usuário ou senha incorretos")
+        raise QueryError(400, "Usuário ou senha incorretos")
 
     stored_password = await DB_read_user_column(conn, "password", user_id=user_id)
 
     if not passwords_match(stored_password, user.password):
-        raise UserError("Usuário ou senha incorretos")
+        raise QueryError(400, "Usuário ou senha incorretos")
 
     new_access_token = encode_token(user_id, 10, key)
     new_refresh_token = encode_token(user_id, 1440, key)

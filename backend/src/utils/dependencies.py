@@ -20,7 +20,7 @@ def require_login(request: Request) -> str:
 
     login = request.state.user_login
     if not login["logged_in"]:
-        raise AuthError("É necessário fazer login para esta ação")
+        raise QueryError(401, "É necessário fazer login para esta ação")
     return login["user_id"]
 
 

@@ -1,15 +1,17 @@
+from datetime import datetime
 from uuid import uuid4
 
 from models.schemas.review import *
-from utils.utils import db_query
-from utils.helper import fix_date
-from datetime import datetime
-from .game import DB_read_game_name
-from .user import DB_read_user_column
+from utils import *
+from .like import DB_read_count_likes
+from ..game import DB_read_game_name
+from ..user import DB_read_user_column
 
 
 @db_query
-async def DB_create_review(conn, review: ReviewIn, user_id: str):    
+async def DB_create_review(conn, review: ReviewIn, user_id: str):   
+    """Insere uma review no DB"""
+
     review_id = str(uuid4())
 
     await conn.execute('''
@@ -22,58 +24,26 @@ async def DB_create_review(conn, review: ReviewIn, user_id: str):
 
 
 @db_query
-async def DB_create_like_review(conn, user, review):
-    await conn.execute('''
-        INSERT INTO ReviewLikes(usr, review)
-        VALUES($1, $2)
-    ''', user, review)
-    
-    
-@db_query
 async def DB_delete_review(conn, review_game: int, user_id: str):
+    """Deleta uma review do DB"""
+
     await conn.execute('''
         DELETE FROM Reviews 
         WHERE game = $1 AND reviewer = $2
     ''', review_game, user_id)
-    
-
-@db_query
-async def DB_delete_like_review(conn, like: ReviewLike):
-    await conn.execute('''
-        DELETE FROM ReviewLikes 
-        WHERE usr = $1 AND review = $2
-    ''', like.user, like.review)
 
 
 @db_query
 async def DB_read_user_game_review(conn, game: int, user_id: str):
-    review = await conn.fetchrow('''
-        SELECT * FROM Reviews WHERE game = $1 AND reviewer = $2 
+    return await conn.fetchrow('''
+        SELECT * FROM Reviews WHERE game = $1 AND reviewer = $2
     ''', game, user_id)
-
-    return review
-    
-
-@db_query
-async def DB_read_review_like(conn, review_id: str, user_id: str):
-    review_like = await conn.fetchrow('''
-        SELECT * FROM ReviewLikes WHERE usr = $1 AND review = $2 
-    ''', user_id, review_id)
-
-    return review_like
-    
-    
-@db_query
-async def DB_read_count_likes(conn, review_id: str):
-    likes = await conn.fetchval('''
-        SELECT COUNT(*) FROM ReviewLikes WHERE review = $1 
-    ''', review_id)
-
-    return likes
 
 
 @db_query
 async def DB_read_review(conn, username: str, game: int):
+    """Lê os dados completos de uma review"""
+
     review = await conn.fetchrow('''
         SELECT r.*
         FROM Reviews r
@@ -119,7 +89,7 @@ async def DB_read_review(conn, username: str, game: int):
     return review_found
 
 @db_query
-async def DB_read_review_private(conn, username: str, game: int):
+async def DB_read_review_privacy(conn, username: str, game: int):
     review_is_private = await conn.fetchval('''
         SELECT r.is_private
         FROM Reviews r
@@ -182,44 +152,10 @@ async def DB_read_limit_reviews(conn, username: str, limit: int):
 async def DB_update_review(conn, review: ReviewIn, old_review_game: int, user_id: str):    
     time_now = datetime.now()
 
-    r = await conn.fetchrow('''
+    await conn.execute('''
         UPDATE Reviews
         SET game = $1, rating_num = $2, rating_text = $3,
-        is_private = $4, time_played = $5, liked = $6, completed = $7, last_update = $8 
-        WHERE game = $9 AND reviewer = $10 RETURNING *
+        is_private = $4, time_played = $5, liked = $6, completed = $7, updated_at = $8 
+        WHERE game = $9 AND reviewer = $10
     ''', review.game, review.rating_num, review.rating_text, review.is_private, review.time_played, 
     review.liked, review.completed, time_now, old_review_game, user_id)
-
-    game_name = await DB_read_game_name(conn, r["game"])
-
-    likes = await DB_read_count_likes(conn, r["id"])
-
-    username = await DB_read_user_column(conn, "username", user_id)
-
-    rows = await conn.fetch('''
-            SELECT t.name
-            FROM ReviewTags rt
-            JOIN Tags t ON t.id = rt.tag
-            WHERE rt.review = $1
-        ''', r["id"])
-
-    tags = [r["tag_name"] for r in rows]
-
-    updated_list = ReviewOutOne(
-        username = username,
-        rating_num = r["rating_num"],
-        rating_text = r["rating_text"],
-        time_played = r["time_played"],
-        completed = r["completed"],
-        tag_count = len(tags),
-        tags = tags,
-        likes_count = likes,
-        liked = r["liked"],
-        is_private = r["is_private"],
-        game_name = game_name,
-        created_at = fix_date(r["created_at"]),
-        last_update = fix_date(r["last_update"])
-    )
-
-    return updated_list
-    

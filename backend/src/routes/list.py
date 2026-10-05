@@ -30,16 +30,16 @@ async def delete_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     # Usuário não é o dono da lista
     if list_creator_id != user_id:
-        raise ForbidenError(LACK_OF_LIST_OWNERSHIP_MSG)
+        raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
     list_name = await DB_read_list_name(conn, list_id)
 
     if list_name in ("Jogos Completados", "Jogos Favoritos"):
-        raise ForbidenError("Não é possível deletar essa lista!")
+        raise QueryError(403, "Não é possível deletar essa lista!")
 
     await DB_delete_list(conn, list_id)
 
@@ -53,14 +53,14 @@ async def edit_list(list_id: str, new_list: ListIn, conn = Depends(get_conn), us
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     if list_creator_id != user_id:
-        raise ForbidenError(LACK_OF_LIST_OWNERSHIP_MSG)
+        raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
     current_list_name = await DB_read_list_name(conn, list_id)
     if current_list_name in ("Jogos Completados", "Jogos Favoritos") and new_list.name != current_list_name:
-        raise ForbidenError("Não é possível alterar o nome dessa lista!")
+        raise QueryError(403, "Não é possível alterar o nome dessa lista!")
 
     list_for_insertion = await is_list_valid(conn, user_id, new_list, list_id)
 
@@ -92,21 +92,21 @@ async def view_list_data(list_id: str, conn = Depends(get_conn), user_id = Depen
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     list_is_private = await DB_read_list_privacy(conn, list_id)
 
     if user_id is not None:
         # Usuário está bloqueado pelo autor da lista
         if await is_blocked(conn, list_creator_id, user_id):
-            raise ForbidenError(BLOCKED_BY_LIST_OWNER)
+            raise QueryError(403, BLOCKED_BY_LIST_OWNER)
 
         # Usuário está tentando ver lista privada que não o pertence
         if (list_is_private) and (user_id != list_creator_id):
-            raise ForbidenError(PRIVATE_LIST_MSG)
+            raise QueryError(403, PRIVATE_LIST_MSG)
 
     elif list_is_private:
-        raise ForbidenError(PRIVATE_LIST_MSG)
+        raise QueryError(403, PRIVATE_LIST_MSG)
 
     list_data = await DB_read_list_data(conn, list_id)
 
@@ -120,19 +120,19 @@ async def save_list(list_id: str, conn = Depends(get_conn), user_id = Depends(re
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     # Usuário tentando salvar sua própria lista
     if list_creator_id == user_id:
-        raise ForbidenError("Usuário está tentando salvar sua própria lista!")
+        raise QueryError(403, "Usuário está tentando salvar sua própria lista!")
     
     # Usuário está bloqueado pelo criador da lista
     if await is_blocked(conn, list_creator_id, user_id):
-        raise ForbidenError(BLOCKED_BY_LIST_OWNER)
+        raise QueryError(403, BLOCKED_BY_LIST_OWNER)
 
     # Usuário está tentando salvar lista privada
     if await DB_read_list_privacy(conn, list_id):
-        raise ForbidenError(PRIVATE_LIST_MSG)
+        raise QueryError(403, PRIVATE_LIST_MSG)
         
     await DB_create_list_save(conn, list_id, user_id)
     
@@ -146,10 +146,10 @@ async def unsave_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     if list_creator_id == user_id:
-        raise ForbidenError("Não é possível dessalvar sua própria lista, apenas deletá-la!")
+        raise QueryError(403, "Não é possível dessalvar sua própria lista, apenas deletá-la!")
     
     await DB_delete_list_save(conn, list_id, user_id)
     
@@ -173,21 +173,21 @@ async def view_list_savers(list_id: str, page_query: PageQuery = Depends(), conn
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     list_is_private = await DB_read_list_privacy(conn, list_id)
 
     if user_id is not None:
         # Usuário está bloqueado pelo autor da lista
         if await is_blocked(conn, list_creator_id, user_id):
-            raise ForbidenError(BLOCKED_BY_LIST_OWNER)
+            raise QueryError(403, BLOCKED_BY_LIST_OWNER)
 
         # Usuário está tentando ver lista privada que não o pertence
         if (list_is_private) and (user_id != list_creator_id):
-            raise ForbidenError(PRIVATE_LIST_MSG)
+            raise QueryError(403, PRIVATE_LIST_MSG)
 
     elif list_is_private:
-        raise ForbidenError(PRIVATE_LIST_MSG)
+        raise QueryError(403, PRIVATE_LIST_MSG)
 
     list_savers_page = await DB_read_list_savers(conn, list_id, page_query)
     list_savers_page_with_urls = convert_cursors_to_paths(list_savers_page, path)
@@ -201,10 +201,10 @@ async def add_to_list(list_id: str, game_id: int, conn = Depends(get_conn), user
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     if list_creator_id != user_id:
-        raise ForbidenError(LACK_OF_LIST_OWNERSHIP_MSG)
+        raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
     await DB_create_list_game(conn, list_id, game_id)
 
@@ -218,10 +218,10 @@ async def rem_from_list(list_id: str, game_id: int, conn = Depends(get_conn), us
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     if user_id != list_creator_id:
-        raise ForbidenError(LACK_OF_LIST_OWNERSHIP_MSG)
+        raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
     await DB_delete_list_game(conn, list_id, game_id)
 
@@ -235,21 +235,21 @@ async def view_list_games(list_id: str, page_query: PageQuery = Depends(), conn 
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
-        raise NotFoundError(LIST_NOT_FOUND_MSG)
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     list_is_private = await DB_read_list_privacy(conn, list_id)
 
     if user_id is not None:
         # Usuário está bloqueado pelo autor da lista
         if await is_blocked(conn, list_creator_id, user_id):
-            raise ForbidenError(BLOCKED_BY_LIST_OWNER)
+            raise QueryError(403, BLOCKED_BY_LIST_OWNER)
 
         # Usuário está tentando ver lista privada que não o pertence
         if (list_is_private) and (user_id != list_creator_id):
-            raise ForbidenError(PRIVATE_LIST_MSG)
+            raise QueryError(403, PRIVATE_LIST_MSG)
 
     elif list_is_private:
-        raise ForbidenError(PRIVATE_LIST_MSG)
+        raise QueryError(403, PRIVATE_LIST_MSG)
 
     list_games_page = await DB_read_list_games(conn, list_id, page_query)
     list_games_page_with_urls = convert_cursors_to_paths(list_games_page, path)

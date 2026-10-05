@@ -105,15 +105,15 @@ async def follow_user(user_id: str, conn = Depends(get_conn), user_id_follower =
 
     # O user_id providenciado está errado
     if await DB_read_user_column(conn, "username", user_id=user_id) is None:
-        raise NotFoundError("Usuário não encontrado!") 
+        raise QueryError(404, "Usuário não encontrado!") 
 
     # O usuário estaá tentando seguir a si mesmo
     if user_id == user_id_follower:
-        raise ForbidenError("O usuário não pode seguir a si mesmo!")
+        raise QueryError(403, "O usuário não pode seguir a si mesmo!")
 
     # O usuário está bloqueado por quem ele está tentando seguir
     if await is_blocked(conn, user_id, user_id_follower):
-        raise ForbidenError("O usuário está tentando seguir alguém que o bloqueou!")
+        raise QueryError(403, "O usuário está tentando seguir alguém que o bloqueou!")
 
     # O usuário já segue o outro
     if await already_follows(conn, user_id_follower, user_id):
@@ -131,7 +131,7 @@ async def unfollow_user(user_id: str, conn = Depends(get_conn), user_id_follower
 
     # O user_id providenciado está errado
     if await DB_read_user_column(conn, "username", user_id=user_id) is None:
-        raise NotFoundError("Usuário não encontrado!") 
+        raise QueryError(404, "Usuário não encontrado!") 
         
     await DB_delete_follow(conn, user_id_follower, user_id)
 
@@ -164,14 +164,14 @@ async def block_user(user_id: str, conn = Depends(get_conn), user_id_blocker = D
 
     # O user_id providenciado está errado
     if await DB_read_user_column(conn, "username", user_id=user_id) is None:
-        raise NotFoundError("Usuário não encontrado!") 
+        raise QueryError(404, "Usuário não encontrado!") 
 
     if await is_blocked(conn, user_id_blocker, user_id):
         # POR WARNING AQ
         return JSONResponse({"message":"Conta bloqueada com sucesso!"})
 
     if user_id == user_id_blocker:
-        raise ForbidenError("O usuário não pode bloquear a si mesmo!")
+        raise QueryError(403, "O usuário não pode bloquear a si mesmo!")
 
     async with conn.transaction():
         await DB_create_block(conn, user_id_blocker, user_id)
@@ -187,7 +187,7 @@ async def unblock_user(user_id: str, conn = Depends(get_conn), user_id_blocker =
 
     # O user_id providenciado está errado
     if await DB_read_user_column(conn, "username", user_id=user_id) is None:
-        raise NotFoundError("Usuário não encontrado!") 
+        raise QueryError(404, "Usuário não encontrado!") 
 
     await DB_delete_block(conn, user_id_blocker, user_id)
     return JSONResponse({"message":"Conta desbloqueada com sucesso!"})
@@ -209,10 +209,10 @@ async def see_account(user_id: str, conn = Depends(get_conn), user_id_viewer = D
 
     # O user_id providenciado está errado
     if await DB_read_user_column(conn, "username", user_id=user_id) is None:
-        raise NotFoundError("Usuário não encontrado!") 
+        raise QueryError(404, "Usuário não encontrado!") 
 
     if (user_id_viewer is not None) and (await is_blocked(conn, user_id, user_id_viewer)):
-        raise ForbidenError("Usuário está tentando ver a conta que alguém que o bloqueou!")
+        raise QueryError(403, "Usuário está tentando ver a conta que alguém que o bloqueou!")
         
     user_feed = await get_user_account_basics(conn, user_id)
 
