@@ -85,7 +85,7 @@ Mesmo formato do [POST `/review/`](#post-review---criar-review). O campo `game` 
   "time_played": 0.0,
   "liked": true,
   "completed": true,
-  "last_update": "string"
+  "updated_at": "string"
 }
 ```
 
@@ -197,7 +197,7 @@ Retorna os detalhes completos da review pública de um usuário para um jogo esp
   "liked": true,
   "game_name": "string",
   "created_at": "string",
-  "last_update": "string"
+  "updated_at": "string"
 }
 ```
 

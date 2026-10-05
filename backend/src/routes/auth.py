@@ -4,8 +4,7 @@ from fastapi.responses import JSONResponse
 from models.schemas import UserAuth
 from services.security_services import passwords_match, encode_token
 from services.db_services import DB_read_user_column
-from utils.dependencies import get_conn, get_key, require_login
-from utils.utils import QueryError
+from utils import *
 
 
 auth_router = APIRouter(tags=["auth"])
@@ -36,7 +35,7 @@ async def login(user: UserAuth, conn = Depends(get_conn), key = Depends(get_key)
 
 
 @auth_router.delete("/login")
-async def logout( user_id = Depends(require_login)):
+async def logout(user_id = Depends(require_login)):
     """Encerra a sessão do usuário removendo os cookies de autenticação"""
 
     response = JSONResponse({"message": "Logout feito com sucesso!"})

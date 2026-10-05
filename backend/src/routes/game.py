@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from services.rawg_services import search_rawg_games
-from utils.dependencies import get_conn, get_rawg, get_exconn
+from utils import *
 
 game_router = APIRouter(prefix="/game", tags=["game"])
 

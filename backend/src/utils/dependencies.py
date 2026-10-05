@@ -1,5 +1,5 @@
 from fastapi import Request
-from .utils import QueryError
+from .errors import *
 
 async def get_conn(request: Request):
     """Empresta uma conexão com a vm da pool"""
@@ -41,3 +41,10 @@ def get_rawg(request: Request) -> str:
     """Retorna a url já com a chave rawg para o acesso da API de jogos"""
     
     return request.app.state.rawg_key 
+
+
+def get_current_url(request: Request) -> str:
+    """Retorna a url do atual request"""
+
+    return str(request.url)
+
