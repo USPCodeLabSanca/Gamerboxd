@@ -5,12 +5,12 @@ class Review(BaseModel):
     rating_num: float
     rating_text: str | None = None
     liked: bool
+    is_private: bool
 
 
 class ReviewIn(Review):
     """Dados de entrada sobre uma review"""
     game: int
-    is_private: bool
     time_played: float
     completed: bool
 
