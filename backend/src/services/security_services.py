@@ -3,9 +3,9 @@ from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 
-from models.schemas import ListIn, List, ReviewIn
-from services.db_services import DB_read_user_column, DB_read_user_lists, DB_read_user_game_review, DB_read_user_blockeds, DB_read_user_follows
-from utils.utils import QueryError
+from models.schemas import ListIn, ReviewIn, UserIn
+from .db_services import DB_read_user_column, DB_read_list_name_taken, DB_read_user_game_review
+from utils import *
 
 
 def passwords_match(stored_password, tested_password):
@@ -43,7 +43,7 @@ def decode_token(cookies, token_name, key):
     return jwt.decode(cookies[token_name], key, algorithms=["HS256"], options={"verify_exp": False})
 
 
-async def is_user_valid(user, conn, user_id):
+async def is_user_valid(conn, user: UserIn, user_id: str = None):
     """Testa se uma conta de usuário ao criar ou editar é válida para entrar no BD"""
 
     username = user.username.strip()
@@ -51,10 +51,12 @@ async def is_user_valid(user, conn, user_id):
     if (len(username) < 4) or (len(username) > 24):
         raise QueryError(400, "O username deve ter entre 4 e 24 caracteres!")
         
-    username_exists = await DB_read_user_column(conn=conn, column="id", username=username)
+    
+    user_id_exists = await DB_read_user_column(conn=conn, column="id", username=user.username)
 
-    if (username_exists is not None) and (username_exists != user_id):
-        raise QueryError(409, f'O username "{username}" já está sendo utilizado!')
+    if user_id_exists is not None:
+        if ((user_id is not None) and (user_id_exists != user_id)) or (user_id is None):
+            raise QueryError(409, f'O username "{username}" já está sendo utilizado!')
 
     user.username = username
     
@@ -103,14 +105,21 @@ async def is_user_valid(user, conn, user_id):
     return user
 
 
-async def is_list_valid(conn, user_id: str, list_in: ListIn, old_list_name: str = None):
+async def is_list_valid(conn, user_id: str, list_in: ListIn, list_id: str | None = None):
     """Testa se uma lista ao criar ou editar é válida para entrar no BD"""
 
     name = list_in.name.strip()
-    user_lists = await DB_read_user_lists(conn, user_id)
+    list_id_exists = await DB_read_list_name_taken(conn, list_in.name, user_id)
 
-    if any([ul.name == name for ul in user_lists.lists]) and (name !=  old_list_name):
-        raise QueryError(409, f'O usuário já possui uma lista com o nome "{name}"!')
+    if list_id_exists is not None:
+        # Usuário está tentando criar uma lista nova com um nome que já está em uso
+        if list_id is None:
+            raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
+
+        # Usuário está tentando editar uma lista e trocando o nome para um nome já em uso
+        # sem ser o antigo da lista a ser editada
+        if (list_id is not None) and (list_id_exists != list_id): 
+            raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
 
     if len(name) > 45:
         raise QueryError(400, "O nome da lista não pode exceder 45 caractéres!")
@@ -131,26 +140,11 @@ async def is_list_valid(conn, user_id: str, list_in: ListIn, old_list_name: str 
 
         list_in.description = description
         
-    return List(
+    return ListIn(
         name=list_in.name,
         description=list_in.description,
-        is_private=list_in.is_private,
-        creator=user_id
+        is_private=list_in.is_private
     )
-
-
-async def is_blocked(conn, user_id_blocker: str, username_blocked: str):
-    """Testa se um usuário foi bloqueado por outro"""
-
-    blockeds = await DB_read_user_blockeds(conn, user_id_blocker)
-    return any([username_blocked == b.username for b in blockeds.blocks])
-
-
-async def already_follows(conn, user_id_follower:str, username_followed:str):
-    """Testa se um usuário segue outro"""
-
-    followings = await DB_read_user_follows(conn, user_id_follower)
-    return any([username_followed == f.username for f in followings.followings])
 
 
 async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
@@ -172,6 +166,7 @@ async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id:
 
     if review.game != old_game:
         raise QueryError(400, "O jogo não pode ser alterado!")
+
 
     user_review = await DB_read_user_game_review(conn, review.game, user_id)
 

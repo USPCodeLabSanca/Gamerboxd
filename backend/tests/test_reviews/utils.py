@@ -1,24 +1,11 @@
-from . import *
+import pytest
+import requests
 
-def create_review(user, game_id):
-    review = {
-        "game": game_id,
-        "rating_num": 8.5,
-        "rating_text": "Muito bom, recomendo!",
-        "liked": True,
-        "is_private": False,
-        "time_played": 15.5,
-        "completed": True,
-    }
-    response = requests.post(url=BASE_URL, json=review, cookies=user["cookies"])
+BASE_URL = "http://127.0.0.1:8000/review"
 
-    assert response.status_code == 200
-    assert response.json() == SUCCESS_CREATING_MSG
-
-    return review
-
-
-def delete_review(user, game_id):
-    response = requests.delete(url=BASE_URL + f"/{game_id}", cookies=user["cookies"])
-    assert response.status_code == 200
-    assert response.json() == SUCCESS_DELETING_MSG
+SUCCESS_CREATING_MSG = {"message":"Review criada com sucesso!"}
+SUCCESS_DELETING_MSG = {"message":"Review deletada com sucesso!"}
+SUCCESS_LIKING_MSG = {"message": "Like adicionado com sucesso!"}
+SUCCEESS_UNLIKING_MSG = {"message": "Like removido com sucesso!"}
+REVIEW_NOT_FOUND_MSG = {"message": "Review não encontrada!"}
+USER_NOT_FOUND_MSG = {"message":"Usuário não encontrado!"}

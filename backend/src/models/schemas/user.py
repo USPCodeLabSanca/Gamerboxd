@@ -1,8 +1,8 @@
 from pydantic import BaseModel
-from .list import UserLists
 
 class User(BaseModel):
     """Dados básicos de um usuário"""
+    user_id: str
     username: str
     pfp: str | None = None
 
@@ -29,25 +29,23 @@ class UserEdit(User):
 class UserFollows(BaseModel):
     """Dados sobre os seguidores e os seguidos do usuário"""
     follower_count: int
-    followers: list[User]
     following_count: int
-    followings: list[User]
 
 
 class UserBlocked(BaseModel):
     """Dados sobre os bloqueados pelo usuário"""
     blocked_count: int
-    blocks: list[User]
 
 
 class UserOut(User):
     """Dados básicos de saída sobre um usuário"""
-    email: str
     bio: str | None = None
     created_at: str
 
 
-class UserFull(UserOut):
+from .list import ListGames
+
+class UserFeed(UserOut):
     """Dados completos de um usuário"""
     follows: UserFollows
-    lists: UserLists
+    lists: list[ListGames]

@@ -11,6 +11,8 @@ class GameRawg(BaseModel):
 class Game(GameRawg):
     """Dados completos dos games"""
     like_count: int
+    completed_count: int
+    review_count: int
     gamerboxd_rating: float | None
 
 

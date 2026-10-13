@@ -1,4 +1,4 @@
-from . import *
+from .utils import *
 
 def base_review(**overrides):
     """Payload padrão de uma review válida. O campo 'game' é preenchido em runtime
@@ -49,7 +49,7 @@ new_reviews = [
     (base_review(time_played="muito"), 422, None),
     (base_review(completed={}), 422, None),
  
-    # Corpo vazio
+    # Vazio
     ({}, 422, None),
 ]
  
@@ -62,10 +62,10 @@ def test_new_review(users, games, review_in, expected_status, expected_body):
     cookies = user.pop("cookies")
     game_id = games["mario"][0][0]
  
-    if review_in.get("game") == -1:
+    if "game" in review_in.keys() and review_in["game"] == -1:
         review_in["game"] = game_id
  
-    # Cenário de duplicidade: cria uma review antes para forçar o conflito
+    # Força a duplicidade para testes de conflito
     if expected_status == 409:
         setup_response = requests.post(url=BASE_URL, json=base_review(game=game_id), cookies=cookies)
         assert setup_response.status_code == 200
@@ -75,11 +75,13 @@ def test_new_review(users, games, review_in, expected_status, expected_body):
  
     if expected_body is not None:
         assert response.json() == expected_body
- 
+
+    # Limpa a review do DB caso a sua inserção tenha dado certo
     if response.status_code == 200:
         response_delete = requests.delete(url=BASE_URL + f"/{review_in['game']}", cookies=cookies)
         assert response_delete.status_code == 200
- 
+
+    # Se era teste de conflito, remove o duplicado do DB
     if expected_status == 409:
         response_delete_setup = requests.delete(url=BASE_URL + f"/{game_id}", cookies=cookies)
         assert response_delete_setup.status_code == 200

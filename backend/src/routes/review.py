@@ -2,11 +2,10 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.review import *
-from services.security_services import is_review_insertion_valid, is_review_update_valid, is_blocked
+from services.security_services import is_review_insertion_valid, is_review_update_valid
 from services.db_services.review import *
-from services.db_services.user import DB_read_user_column
-from utils.dependencies import get_conn, require_login, optional_login
-from utils.utils import QueryError
+from services.db_services.user import DB_read_user_column, is_blocked
+from utils import *
 
 review_router = APIRouter(prefix="/review", tags=["review"])
 
@@ -25,8 +24,10 @@ async def create_review(review: ReviewIn, conn = Depends(get_conn), user_id = De
 async def update_review(old_review_game: int, new_review: ReviewIn, conn = Depends(get_conn), user_id = Depends(require_login)):  
     """Atualiza a review do usuário autenticado para um jogo. O campo `game` não pode ser alterado"""
 
+    reviewer_username = await DB_read_user_column(conn, "username", user_id=user_id)
     validated_review_update = await is_review_update_valid(conn, new_review, old_review_game, user_id)
-    updated_review = await DB_update_review(conn, validated_review_update, old_review_game, user_id)
+    await DB_update_review(conn, validated_review_update, old_review_game, user_id)
+    updated_review = await DB_read_review(conn, reviewer_username, old_review_game)
 
     return JSONResponse(updated_review.model_dump())
 
@@ -34,6 +35,13 @@ async def update_review(old_review_game: int, new_review: ReviewIn, conn = Depen
 @review_router.delete("/{review_game}")
 async def delete_review(review_game: int, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Remove a review do usuário autenticado para um jogo"""
+
+    username = await DB_read_user_column(conn, "username", user_id)
+
+    review_id = await DB_read_review_id(conn, username, review_game)
+
+    if review_id is None:
+        raise QueryError(404, "Review não encontrada")
 
     await DB_delete_review(conn, review_game, user_id)
     return JSONResponse({"message":"Review deletada com sucesso!"})
@@ -57,12 +65,17 @@ async def like_review(username: str, game: int, conn = Depends(get_conn), user_i
     if review_id is None:
         raise QueryError(404, "Review não encontrada!")
 
+    review_is_private = await DB_read_review_privacy(conn, username, game)
+
+    if review_is_private and username_reader != username:
+        raise QueryError(403, "Review privada!")
+
     like_validated = await DB_read_review_like(conn, review_id, user_id)
 
     if like_validated is not None:
         raise QueryError(409, "Você já deu like nessa review!")
         
-    await DB_create_like_review(conn, ReviewLike(user_id, review_id))
+    await DB_create_like_review(conn, user_id, review_id)
 
     return JSONResponse({"message": "Like adicionado com sucesso!"})
 
@@ -98,7 +111,7 @@ async def get_all_reviews(username: str, limit: int = 10, conn = Depends(get_con
     if user_id is not None:
         username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
         if await is_blocked(conn, review_creator_id, username_reader):
-            raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
+            raise QueryError(403, "Usuário está tentando ver uma review escrita por alguém que o bloqueou!")
 
     if limit > 20:
         raise QueryError(400, "Não podem ser apresentadas mais de 20 reviews!")
@@ -117,8 +130,9 @@ async def get_one_review(username: str, game: int, conn = Depends(get_conn), use
     if review_creator_id is None:
         raise QueryError(404, "Usuário não encontrado!")
     
+    username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
+    
     if user_id is not None:
-        username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
         if await is_blocked(conn, review_creator_id, username_reader):
             raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
 
@@ -126,5 +140,8 @@ async def get_one_review(username: str, game: int, conn = Depends(get_conn), use
 
     if review is None:
         raise QueryError(404, "Review não encontrada!")
+
+    if review.is_private is True and username_reader != username:
+        raise QueryError(403, "Review privada!")
     
     return JSONResponse(review.model_dump())
