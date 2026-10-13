@@ -182,7 +182,7 @@ Retorna os dados completos atualizados do usuário
  
 ## GET `/user/{username}` — Ver conta de outro usuário
  
-Retorna os dados públicos de qualquer usuário pelo username. **Não requer login**.
+Retorna os dados públicos de qualquer usuário pelo username. **Login opcional**.
  
 ### Path Parameter
  
@@ -346,8 +346,8 @@ Faz o usuário autenticado bloquear outro usuário. **Requer login**.
 
 ### Path Parameter
 
-| Parâmetro  | Tipo   | Descrição                          |
-|------------|--------|------------------------------------|
+| Parâmetro  | Tipo   | Descrição                           |
+|------------|--------|-------------------------------------|
 | `username` | string | Username do usuário a ser bloqueado |
 
 ### Resposta de Sucesso — `200`
@@ -375,8 +375,8 @@ Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requ
 
 ### Path Parameter
 
-| Parâmetro  | Tipo   | Descrição                             |
-|------------|--------|---------------------------------------|
+| Parâmetro  | Tipo   | Descrição                              |
+|------------|--------|----------------------------------------|
 | `username` | string | Username do usuário a ser desbloqueado |
 
 ### Resposta de Sucesso — `200`
