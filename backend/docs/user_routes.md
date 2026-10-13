@@ -54,11 +54,11 @@ Dois cookies `httponly` são definidos automaticamente na resposta:
  
 ### Erros possíveis
  
-| Status | Causa                                                                 |
-|--------|-----------------------------------------------------------------------|
-| `400`  | Username muito curto/longo, e-mail inválido uso, senha fora do padrão |
-| `409`  | Username já em uso, e-mail já em uso                                  |
-| `500`  | Erro interno ao salvar no banco                                       |
+| Status | Causa                                                             |
+|--------|-------------------------------------------------------------------|
+| `400`  | Username muito curto/longo, e-mail inválido, senha fora do padrão |
+| `409`  | Username já em uso, e-mail já em uso                              |
+| `500`  | Erro interno ao salvar no banco                                   |
 
 ---
  
@@ -173,9 +173,9 @@ Retorna os dados completos atualizados do usuário
  
 | Status | Causa                                          |
 |--------|------------------------------------------------|
-| `400`  | Username inválido, e-mail inválido             |
+| `400`  | Username muito curto/longo, e-mail inválido    |
 | `401`  | Usuário não autenticado                        |
-| `409`  | Username já está em uso, e-mail já está em uso |
+| `409`  | Username já em uso, e-mail já em uso           |
 | `500`  | Erro interno ao atualizar os dados             |
  
 ---
