@@ -11,6 +11,7 @@ TABLES = {
                 bio VARCHAR(290) DEFAULT NULL,
                 is_verified BOOL NOT NULL DEFAULT false,
                 pfp TEXT DEFAULT NULL,
+                banner_pic TEXT DEFAULT NULL,
                 created_at TIMESTAMPTZ DEFAULT NOW()
             )   
         '''
@@ -51,7 +52,7 @@ TABLES = {
         ''' 
             CREATE TABLE IF NOT EXISTS Games (
                 id INTEGER PRIMARY KEY,
-                name VARCHAR(50) NOT NULL,
+                title VARCHAR(50) NOT NULL,
                 picture TEXT,
                 year INTEGER
             )
@@ -87,7 +88,7 @@ TABLES = {
                 name VARCHAR(50) NOT NULL,
                 description VARCHAR(310) DEFAULT NULL,
                 creator VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
-                is_private BOOL NOT NULL,
+                privacy INTEGER NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 updated_at TIMESTAMPTZ DEFAULT NOW(),
                             
@@ -136,16 +137,18 @@ TABLES = {
                 game INTEGER NOT NULL REFERENCES Games(id) ON DELETE NO ACTION,
                 rating_num FLOAT NOT NULL,
                 rating_text VARCHAR(301) DEFAULT NULL,
-                is_private BOOL DEFAULT false,
+                privacy INTEGER NOT NULL,
                 time_played FLOAT DEFAULT NULL,
-                liked BOOL DEFAULT NULL,
+                liked BOOL NOT NULL,
                 completed BOOL NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 updated_at TIMESTAMPTZ DEFAULT NOW(),
                             
                 UNIQUE (reviewer, game)
             )
-        '''
+        ''',
+
+        '''CREATE INDEX IF NOT EXISTS idx_reviews_game ON Reviews (game)'''
     ],
 
     "ReviewTags":[
@@ -164,6 +167,7 @@ TABLES = {
             CREATE TABLE IF NOT EXISTS ReviewLikes (
                 usr VARCHAR(36) NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
                 review VARCHAR(36) NOT NULL REFERENCES Reviews(id) ON DELETE CASCADE,
+                created_at TIMESTAMPTZ DEFAULT NOW(),
 
                 PRIMARY KEY(usr, review)
             )

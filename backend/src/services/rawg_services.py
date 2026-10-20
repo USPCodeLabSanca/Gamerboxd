@@ -1,21 +1,29 @@
 from models.schemas.game import *
 from services.db_services.game import *
+from aiohttp.client_exceptions import ContentTypeError
+
+from utils.errors import *
 
 
-async def search_rawg_games(conn, exconn, url, page_size):
-    """Busca games na API Rawg"""
+async def search_rawg_games_complete(conn, exconn, url):
+    """Busca games na API Rawg e retorna infos completas sobre eles"""
 
     async with exconn.get(url) as response:
-        json = await response.json()
+        try:
+            json = await response.json()
+
+        except ContentTypeError:
+            text = await response.text()
+            raise QueryError(502, f"API RAWG falhou. Retorno: {text}")
 
     games_list = []
-    for i in range(page_size):
+    for i in range(len(json["results"])):
 
         result = json["results"][i]
 
-        game = GameRawg(
+        game = GameOverview(
             game_id = result["id"],
-            name = result["name"],
+            title = result["name"],
             picture = result["background_image"],
             year = int(result["released"][0:4]) if result["released"] is not None else None
         )
@@ -23,31 +31,55 @@ async def search_rawg_games(conn, exconn, url, page_size):
         async with conn.transaction():
             game_is_already_in_DB = await DB_create_game(conn, game)
 
-        if not game_is_already_in_DB:
-            like_count = await DB_read_game_count_likes(conn, game.game_id)
-            review_count = await DB_read_game_count_reviews(conn, game.game_id)
-            completed_count = await DB_read_game_count_completed(conn, game.game_id)
-            avg_review = await DB_read_game_avg_rating(conn, game.game_id)
+        if game_is_already_in_DB:
+            full_game = await DB_read_game_full(conn, result["id"])
 
         else:
-            like_count = 0
-            review_count = 0
-            completed_count = 0
-            avg_review = None
-
-
-        full_game = Game(
-            **game.model_dump(),
-            like_count=like_count,
-            review_count=review_count,
-            completed_count=completed_count,
-            gamerboxd_rating=avg_review
-        )
+            full_game = GameComplete(
+                **game.model_dump(),
+                like_count=0,
+                review_count=0,
+                completed_count=0,
+                gamerboxd_rating=0
+            )
         
         games_list.append(full_game)
 
     games = GamesOut(
-        count = page_size,
+        total = json["count"],
+        count = len(json["results"]),
+        games = games_list
+    )
+
+    return games
+
+
+async def search_rawg_games_overview(conn, exconn, url):
+    """Busca games na API Rawg e retorna infos básicas sobre eles"""
+    
+    async with exconn.get(url) as response:
+        json = await response.json()
+
+    games_list = []
+    for i in range(len(json["results"])):
+
+        result = json["results"][i]
+
+        game = GameOverview(
+            game_id = result["id"],
+            title = result["name"],
+            picture = result["background_image"],
+            year = int(result["released"][:4]) if result["released"] is not None else None
+        )
+
+        async with conn.transaction():
+            await DB_create_game(conn, game)
+        
+        games_list.append(game)
+
+    games = GamesOut(
+        total = json["count"],
+        count = len(json["results"]),
         games = games_list
     )
 

@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 
-class GameRawg(BaseModel):
+class GameOverview(BaseModel):
     """Dados dos games que vem da API RAWG"""
     game_id: int
-    name: str
+    title: str
     picture: str | None = None
     year: int | None
 
 
-class Game(GameRawg):
+class GameComplete(GameOverview):
     """Dados completos dos games"""
     like_count: int
     completed_count: int
@@ -19,4 +19,4 @@ class Game(GameRawg):
 class GamesOut(BaseModel):
     """Lista de games"""
     count: int
-    games: list[Game]
+    games: list[GameComplete | GameOverview]

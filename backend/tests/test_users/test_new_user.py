@@ -1,6 +1,7 @@
 from .utils import *
 
-def base_user(num:int, **overrides):
+
+def base_user(num: int, **overrides):
     """Payload padrão de um usuário"""
 
     user = {
@@ -15,7 +16,7 @@ def base_user(num:int, **overrides):
 
 new_users = [
     # Teste funcional
-    (base_user(1), 200, SUCCESS_CREATING_STR),
+    (base_user(1), 200, SUCCESS_CREATING_MSG),
 
     # Testes de erros do usuário na hora de criar conta
     (base_user(2, username = "u2"), 400, USERNAME_WRONG_LENGTH_MSG),        # username muito curto
@@ -55,25 +56,21 @@ def test_new_users(user, expected_status, expected_body):
 
     # Força a duplicidade para testes de conflito
     if expected_status == 409:
-        response_duplicate = requests.post(url=BASE_URL, json=base_user(1))
-        assert response_duplicate.status_code == 200
-        assert response_duplicate.cookies is not None
-        for c in response_duplicate.cookies:
+        resp_duplicate = requests.post(url=BASE_URL_USERS, json=base_user(1))
+        assert resp_duplicate.status_code == 200, resp_duplicate.json()
+        assert resp_duplicate.cookies is not None, resp_duplicate.json()
+        for c in resp_duplicate.cookies:
             c.secure = False
 
-    response = requests.post(url=BASE_URL, json=user)
+    response = requests.post(url=BASE_URL_USERS, json=user)
 
     assert response.status_code == expected_status, response.json()
     assert response.cookies is not None
 
     response_json = response.json()
     if expected_body is not None:
-        if type(expected_body) == str:
-            assert "message" in response.json().keys()
-            assert response_json["message"] == expected_body
-
-        else:
-            assert response_json == expected_body
+        assert expected_body.keys() == response.json().keys()
+        assert response_json["message"] == expected_body["message"]
 
     # Limpa a conta do DB caso a sua inserção tenha dado certo
     if response.status_code == 200:
@@ -81,11 +78,11 @@ def test_new_users(user, expected_status, expected_body):
         
         for c in response.cookies:
             c.secure = False
-        response_delete = requests.delete(BASE_URL, cookies=response.cookies)
-        assert response_delete.status_code == 200
+        resp_delete = requests.delete(BASE_URL_USERS, cookies=response.cookies)
+        assert resp_delete.status_code == 200, resp_delete.json()
 
     # Se era teste de conflito, remove o duplicado do DB
     if expected_status == 409:
-        response_delete_duplicate = requests.delete(BASE_URL, cookies=response_duplicate.cookies)
-        assert response_delete_duplicate.status_code == 200
+        resp_delete_duplicate = requests.delete(BASE_URL_USERS, cookies=resp_duplicate.cookies)
+        assert resp_delete_duplicate.status_code == 200, resp_delete_duplicate.json()
 

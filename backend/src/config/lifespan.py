@@ -21,6 +21,7 @@ class LifespanConfig():
             port=self.db_port
         )
 
+
     def read_env(self):
         """Carrega constantes do .env"""
 
@@ -38,7 +39,8 @@ class LifespanConfig():
         for key, value in self.env.items():
             val = int(value) if value.isdigit() else value
             setattr(self, key.lower(), val)
-        
+
+
     async def create_database(self, conn): 
         """Cria o usuário que realiza as operações na vm e o bd, caso eles já não existirem"""
        
@@ -80,7 +82,6 @@ class LifespanConfig():
             await conn.execute(query)
 
 
-
     async def create_internal_pool(self):
         """Cria o pool de conexões com o banco de dados"""
 
@@ -104,7 +105,8 @@ class LifespanConfig():
         conn = None
 
         try:          
-            self.read_env()                     # Lê o .env
+            # Lê o .env
+            self.read_env()
 
             # Cria o BD
             conn = await self.conn()  

@@ -41,11 +41,13 @@ class UserOut(User):
     """Dados básicos de saída sobre um usuário"""
     bio: str | None = None
     created_at: str
+    banner: str | None 
 
 
 from .list import ListGames
 
-class UserFeed(UserOut):
-    """Dados completos de um usuário"""
+class UserDetails(UserOut):
+    """Dados completos para preencher a conta do usuário"""
     follows: UserFollows
     lists: list[ListGames]
+    rel: int

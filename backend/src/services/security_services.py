@@ -3,8 +3,19 @@ from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 
-from models.schemas import ListIn, ReviewIn, UserIn
-from .db_services import DB_read_user_column, DB_read_list_name_taken, DB_read_user_game_review
+from models.schemas import ListNew, ListEdit, ReviewIn, UserIn
+from .db_services import (
+    DB_read_user_column, 
+    DB_read_list_id, 
+    DB_read_review_game, 
+    DB_read_review_creator, 
+    DB_read_review_id, 
+    DB_read_is_blocked,
+    DB_read_already_follows,
+    DB_read_list_name,
+    DB_read_list_desc
+)
+
 from utils import *
 
 
@@ -105,21 +116,14 @@ async def is_user_valid(conn, user: UserIn, user_id: str = None):
     return user
 
 
-async def is_list_valid(conn, user_id: str, list_in: ListIn, list_id: str | None = None):
-    """Testa se uma lista ao criar ou editar é válida para entrar no BD"""
+async def is_list_insertion_valid(conn, user_id: str, list_in: ListNew):
+    """Testa se uma lista ao criar é válida para entrar no DB"""
 
     name = list_in.name.strip()
-    list_id_exists = await DB_read_list_name_taken(conn, list_in.name, user_id)
 
-    if list_id_exists is not None:
-        # Usuário está tentando criar uma lista nova com um nome que já está em uso
-        if list_id is None:
-            raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
-
-        # Usuário está tentando editar uma lista e trocando o nome para um nome já em uso
-        # sem ser o antigo da lista a ser editada
-        if (list_id is not None) and (list_id_exists != list_id): 
-            raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
+    # Usuário está tentando criar uma lista nova com um nome que já está em uso
+    if await DB_read_list_id(conn, name, user_id) is not None:
+        raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
 
     if len(name) > 45:
         raise QueryError(400, "O nome da lista não pode exceder 45 caractéres!")
@@ -140,41 +144,146 @@ async def is_list_valid(conn, user_id: str, list_in: ListIn, list_id: str | None
 
         list_in.description = description
         
-    return ListIn(
-        name=list_in.name,
-        description=list_in.description,
-        is_private=list_in.is_private
-    )
+    return list_in
+
+
+async def is_list_update_valid(conn, user_id: str, list_in: ListEdit):
+    """Testa se uma lista ao editar é válida para entrar no DB"""
+
+    name = list_in.name.strip()
+    desc = list_in.description.strip() if list_in.description is not None else None
+
+    current_list_name = await DB_read_list_name(conn, list_in.list_id)
+    current_list_desc = await DB_read_list_desc(conn, list_in.list_id)
+
+    if current_list_name in ("Jogos Completados", "Jogos Favoritos"): 
+        if (name != current_list_name) or (desc != current_list_desc):
+            raise QueryError(403, "Não é possível alterar esses detalhes dessa lista!")
+
+    list_id_exists = await DB_read_list_id(conn, list_in.name, user_id)
+
+    # Usuário está tentando editar uma lista e trocando o nome para um nome já em uso
+    if list_id_exists is not None and (list_id_exists != list_in.list_id):
+        raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
+
+    if len(name) > 45:
+        raise QueryError(400, "O nome da lista não pode exceder 45 caractéres!")
+
+    if len(name) == 0:
+        raise QueryError(400, "O nome da lista não pode ser apenas espaço vazio!")
+
+    if desc is not None:
+        if len(desc) > 300:
+            raise QueryError(400, "A descrição da lista não pode exceder 300 caractéres!")
+
+        if len(desc) == 0:
+            raise QueryError(400, "A descrição da lista não pode ser apenas espaço vazio!")
+
+    list_in.name = name
+    list_in.description = desc        
+    return list_in
 
 
 async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
     """Testa se uma review ao criar é válida para entrar no BD"""
 
-    user_review = await DB_read_user_game_review(conn, review.game, user_id)
-
-    if user_review is not None:
+    if await DB_read_review_id(conn, user_id, review.game_id) is not None:
         raise QueryError(409, "Você já possui uma review desse jogo!")
 
     if review.rating_text is not None and len(review.rating_text) > 300:
-        raise QueryError(400, "O texto da review não pode exceder 300 caracteres")
+        raise QueryError(400, "O texto da review não pode exceder 300 caractéres")
     
     return review
 
 
-async def is_review_update_valid(conn, review: ReviewIn, old_game: int, user_id: str):
+async def is_review_update_valid(conn, review: ReviewIn, review_id: str, user_id: str):
     """Testa se uma review ao editar é válida para entrar no BD"""
 
-    if review.game != old_game:
+    old_game_id = await DB_read_review_game(conn, review_id)
+
+    if old_game_id is None:
+        raise QueryError(404, "Review não encontrada!")
+
+    if review.game_id != old_game_id:
         raise QueryError(400, "O jogo não pode ser alterado!")
 
+    reviewer_id = await DB_read_review_creator(conn, review_id)
 
-    user_review = await DB_read_user_game_review(conn, review.game, user_id)
-
-    if user_review is None:
-        raise QueryError(404, "Review antiga não encontrada!")
+    if reviewer_id != user_id:
+        raise QueryError(403, "O usuário está tentando editar uma review que não é dele")
     
     if review.rating_text is not None and len(review.rating_text) > 300:
         raise QueryError(400, "O texto da review não pode exceder 300 caractéres")
     
     return review
+
+
+async def classify_relationship(conn, atv: str | None, pas: str):
+    """Classifica o relacionamente de 2 usuários"""
+
+    if atv is None:
+        return RelationshipStatus.ANY
+
+    if atv == pas:
+        return RelationshipStatus.OWNER
+    
+    atv_blocked_pas, pas_blocked_atv = await DB_read_is_blocked(conn, atv, pas), await DB_read_is_blocked(conn, pas, atv)
+
+    block_relationship = atv_blocked_pas + 2*pas_blocked_atv
+
+    if block_relationship > 0:
+        return RelationshipStatus(-10*block_relationship)
+
+    atv_follows_pas, pas_follows_atv = await DB_read_already_follows(conn, atv, pas), await DB_read_already_follows(conn, pas, atv)
+
+    follow_relationship = atv_follows_pas + 2*pas_follows_atv
+
+    if follow_relationship > 0:
+        return RelationshipStatus(10*follow_relationship)
+
+    else:
+        return RelationshipStatus.ANY
+
+
+def resolve_user_clearence(rel: int, clearence: dict):
+    """Verifica se a relação entre 2 usuários é motivo para levantar erro"""
+
+    if rel in clearence.keys():
+        raise QueryError(*clearence[rel])
+
+
+
+def resolve_list_clearence(rel: int, list_privacy: int | None, uncleared_rels: dict = {}):
+    """Verifica se a relação entre 2 usuários ou se a camada de privacidade de uma lista é motivo para levantar erro"""
+
+    if (list_privacy is not None) and (0 <= rel < list_privacy):
+        raise QueryError(403, PRIVATE_LIST_MSG)
+
+    basic_uncleared_relationships = {
+        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_LIST_OWNER_MSG),
+        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_LIST_OWNER_MSG)
+    } 
+
+    total_uncleared_rels = uncleared_rels | basic_uncleared_relationships
+
+    if rel in total_uncleared_rels.keys():
+        raise QueryError(*total_uncleared_rels[rel])
+
+
+def resolve_review_clearence(rel: int, review_privacy: int | None, uncleared_rels: dict = {}):
+    """Verifica se a relação entre 2 usuários ou se a camada de privacidade de uma review é motivo para levantar erro"""
+
+    if (review_privacy is not None) and (0 <= rel < review_privacy):
+        raise QueryError(403, PRIVATE_REVIEW_MSG)
+
+    basic_uncleared_relationships = {
+        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_REVIEW_OWNER_MSG),
+        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_REVIEW_OWNER_MSG)
+    }
+
+    total_uncleared_rels = uncleared_rels | basic_uncleared_relationships
+
+    if rel in total_uncleared_rels.keys():
+        raise QueryError(*total_uncleared_rels[rel])
+
 

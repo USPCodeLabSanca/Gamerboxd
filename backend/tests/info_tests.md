@@ -39,7 +39,7 @@ Você passa o retorno real do código sendo testado e o retorno desejado, unindo
         assert c < 3        # Isso diz: "me garanta que o valor de c é menor que 3". Esse assert não passa!
 ```
 
-**Importante:** É necessário que TODOS os asserts numa função de teste sejam satisfeitos para que a gente diga que "o teste passou" (o teste acima, por exemplo, não passou pois 2 asserts falham). Ná hora de mostrar quantos testes passaram, o pytest não conta quantos asserts passaram, mas sim quantas funções de teste tiveram todos os seus asserts satisfeitos. Quando um assert falha, o pytest já encerra a execução daquela função e pula pra próxima, se houver.
+**Importante:** É necessário que TODOS os asserts numa função de teste sejam satisfeitos para que a gente diga que "o teste passou" (o teste acima, por exemplo, não passou pois 2 asserts falham). Ná hora de mostrar quantos testes passaram, o pytest não conta quantos asserts passaram, mas sim quantas funções de teste tiveram todos os seus asserts satisfeitos. Quando um assert falha, o pytest já encerra a execução daquela função de teste e pula para a próxima, se houver.
 
 Nem sempre queremos que o código testado "funcione". Podemos verificar se o tratamento de erros de uma função vai interromper a execução antes que erros se propaguem para camadas mais profundas do código:
 
@@ -65,7 +65,7 @@ Nem sempre queremos que o código testado "funcione". Podemos verificar se o tra
 ```
 
 **Importante:** Note que nos 2 exemplos o nome da função de teste começa com test_\*. Isso é necessário para o pytest saber quais são as funções com testes que precisam ser rodadas, fazendo com que, no exemplo acima, o pytest verifique apenas a test_sum_function_passing_string_returns_None e não a my_int_sum_function.
-Os nomes dos arquivos onde essas funções estão definidas também precisam seguir o padrão de test_\*.py (*\_test.py também funciona!) para que o pytest identifique que existem testes dentro deles para rodar. E o mesmo segue para pastas de arquivos, todas devem começar com /test_ .
+Os nomes dos arquivos onde essas funções estão definidas também precisam seguir o padrão de test_\*.py (*\_test.py também funciona!) para que o pytest identifique que existem testes dentro deles para rodar. Para pastas de arquivos, já não é necessário que elas comecem com /test_ .
 Por causa disso, daqui em diante:
 - "função de teste" será abreviada para "test_"
 - "arquivo com funções de teste" será abreviado para "test_.py"
@@ -97,7 +97,7 @@ def test_create_user_with_fixture(simple_user): # Passe o fixture como parâmetr
     assert response.status_code == 200  # Verifica se deu certo criar a conta (status_code 200 é sucesso)
 ```
 
-Se o código do backend para inserir contas estiver certo e o simple_user não violar nenhuma regra de negócio, o teste vai passar. Caso contrário, ele irá falhar.
+Se o código do backend que insere contas estiver certo e o simple_user não violar nenhuma regra de negócio, o teste vai passar. Caso contrário, ele irá falhar.
 
 Em muitas situações, é necessário que o fixture não só prepare os dados para serem utilizados pelos tests_, como também trate esses dados após os tests_ rodarem. No exemplo abaixo, temos 2 tests_ que usam o fixture simple_user, o qual não faz nada depois que cada test_ chama ele:
 

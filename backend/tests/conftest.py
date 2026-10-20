@@ -1,14 +1,13 @@
-from . import BASE_URL
-import pytest, requests
+from .utils import *
 
 
-def create_account(username: str):
-    """Insere uma conta no DB"""
+def _create_account_by_username(username: str):
+    """Insere uma conta no DB pelo username"""
 
     payload = {"username": username, "password": f"{username}{username}1!", "email": f"{username}@gmail.com"}
 
     session = requests.Session()
-    response = session.post(BASE_URL + "/user", json=payload)
+    response = session.post(BASE_URL_USERS, json=payload)
 
     for c in session.cookies:
         c.secure = False
@@ -20,30 +19,22 @@ def create_account(username: str):
     assert response_json["message"] == "Conta criada com sucesso!"
     assert "id" in response_json.keys()
 
-    return {**payload, "cookies": session.cookies, "user_id": response_json["id"]}
+    return BaseUser(
+        user_id = response_json["id"],
+        username=payload["username"],
+        pwd=payload["password"],
+        email=payload["email"],
+        cookies=session.cookies
+    )
 
 
-def delete_account(user: dict):
+def _delete_account(user: BaseUser):
     """Deleta uma conta do DB"""
 
-    response = requests.delete(BASE_URL + "/user", cookies=user["cookies"])
+    response = requests.delete(BASE_URL_USERS, cookies=user.cookies)
 
     assert response.status_code == 200
     assert response.json() == {"message":"Conta deletada com sucesso!"}
-
-
-def get_games(game_name: str):
-    """Pega 10 jogos relacionados a um nome na API rawg"""
-
-    payload = {"page": 1, "page_size": 10}
-
-    response = requests.get(BASE_URL + f"/game/{game_name}", json=payload)
-    assert response.status_code == 200
-
-    games_list = response.json()["games"]
-    game_ids_list = [(g["game_id"], g["name"]) for g in games_list]
-
-    return game_ids_list
 
 
 @pytest.fixture(scope='module')
@@ -51,26 +42,39 @@ def users():
     """Conjunto de usuários para testes"""
 
     users = {
-        "Alice": create_account("Alice"),
-        "Bernardo": create_account("Bernardo"),
-        "Caua": create_account("Caua"),
-        "Daniela" :create_account("Daniela"),
+        "Alice": _create_account_by_username("Alice"),
+        "Bernardo": _create_account_by_username("Bernardo"),
+        "Caua": _create_account_by_username("Caua"),
+        "Daniela" :_create_account_by_username("Daniela"),
     }
 
     yield users
 
     for user in users.values():
-        delete_account(user) 
+        _delete_account(user) 
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def games():
     """Conjunto de games para testes"""
 
+    def _get_games(game_name: str):
+        """Pega 10 jogos relacionados a um nome na API rawg"""
+
+        url = BASE_URL_GAMES + f"/{game_name}" + "?detail=false&page=1&page_size=10"
+
+        response = requests.get(url)
+        assert response.status_code == 200, response.json()
+
+        games_list = response.json()["games"]
+        game_ids_list = [g["game_id"] for g in games_list]
+
+        return game_ids_list
+
     games = {
-        "mario": get_games("mario"),
-        "GTA": get_games("GTA"),
-        "roblox": get_games("roblox"),
+        "mario": _get_games("mario"),
+        "GTA": _get_games("GTA"),
+        "roblox": _get_games("roblox"),
     }
 
     return games
@@ -78,88 +82,97 @@ def games():
 
 @pytest.fixture
 def follow_request():
-    """Faz um usuário seguir o outro. cleanup = True significa que vai apagar do DB depois"""
+    """Faz o request para seguir um usuário
+    cleanup = True significa que vai apagar do DB depois"""
 
-    response = []
+    responses = []
 
-    def _follow(atv: dict, pas: dict, cleanup: bool):
-        target, cookies = pas["user_id"], atv["cookies"]
-        post_resp = requests.post(f"{BASE_URL}/user/follow/{target}", cookies=cookies)
-        response.append({"cleanup": cleanup, "response": post_resp, "user_id": target, "cookies": cookies})
+    # Tenta inserir o block no DB
+    def _follow(atv: BaseUser, pas: BaseUser, cleanup: bool = True):
+        target, cookies = pas.user_id, atv.cookies
+        post_resp = requests.post(BASE_URL_USERS + f"/follow/{target}", cookies=cookies)
+        if cleanup:
+            assert post_resp.status_code == 200, post_resp.json()
+            responses.append({"target": target, "cookies": cookies})
         return post_resp
 
     yield _follow
 
-    for post_resp in response:
-
-        if (post_resp["cleanup"] == True) and (post_resp["response"].status_code == 200):
-            target, cookies = post_resp["user_id"], post_resp["cookies"]
-            del_resp = requests.delete(f"{BASE_URL}/user/follow/{target}", cookies=cookies)
-            assert del_resp.status_code == 200
-
-
-@pytest.fixture
-def unfollow():
-    """Faz um usuário desseguir o outro. setup = True significa que vai inserir no DB antes"""
-
-    def _unfollow(atv: dict, pas: dict, setup: bool):
-        target, cookies = pas["user_id"], atv["cookies"]
-        if setup == True:
-            post_resp = requests.post(f"{BASE_URL}/user/follow/{target}", cookies=cookies)
-            assert post_resp.status_code == 200
-
-        return requests.delete(f"{BASE_URL}/user/follow/{target}", cookies=cookies)
-
-    return _unfollow
+    # Faz o cleanup
+    for r in responses:
+        target, cookies = r["target"], r["cookies"]
+        del_resp = requests.delete(BASE_URL_USERS + f"/follow/{target}", cookies=cookies)
+        assert del_resp.status_code == 200, del_resp.json()
 
 
 @pytest.fixture
-def block():
-    """Faz um usuário bloquear o outro. cleanup = True significa que vai apagar do DB depois"""
+def unfollow_request():
+    """Faz o request para desseguir um usuário"""
 
-    response = []
+    # Tenta deletar o block do DB
+    def _unfollow_request(atv: BaseUser, pas: BaseUser):
+        target, cookies = pas.user_id, atv.cookies
+        return requests.delete(BASE_URL_USERS + f"/follow/{target}", cookies=cookies)
 
-    def _block(atv: dict, pas: dict, cleanup: bool):
-        target, cookies = pas["user_id"], atv["cookies"]
-        post_resp = requests.post(f"{BASE_URL}/user/block/{target}", cookies=cookies)
-        response.append({"cleanup": cleanup, "response": post_resp, "user_id": target, "cookies": cookies})
-        return post_resp
-
-    yield _block
-
-    for post_resp in response:
-        if (post_resp["cleanup"] == True) and (post_resp["response"].status_code == 200):
-            target, cookies = post_resp["user_id"], post_resp["cookies"]
-            del_resp = requests.delete(f"{BASE_URL}/user/block/{target}", cookies=cookies)
-            assert del_resp.status_code == 200
+    return _unfollow_request
 
 
 @pytest.fixture
-def unblock():
-    """Faz um usuário desbloquear o outro. setup = True significa que vai inserir no DB antes"""
+def block_request():
+    """Faz o request para bloquear um usuário. 
+    cleanup = True significa que vai apagar do DB depois"""
 
-    def _unblock(atv: dict, pas: dict, setup: bool):
-        target, cookies = pas["user_id"], atv["cookies"]
-        if setup == True:
-            post_resp = requests.post(f"{BASE_URL}/user/block/{target}", cookies=cookies)
-            assert post_resp.status_code == 200
+    responses = []
 
-        return requests.delete(f"{BASE_URL}/user/block/{target}", cookies=cookies)
+    # Tenta inserir o block no DB
+    def _block_request(atv: BaseUser, pas: BaseUser, cleanup: bool = True):
+        target, cookies = pas.user_id, atv.cookies
+        block_resp = requests.post(BASE_URL_USERS + f"/block/{target}", cookies=cookies)
 
-    return _unblock
+        if cleanup:
+            assert block_resp.status_code == 200, block_resp.json()
+            responses.append({"target": target, "cookies": cookies})
+
+        return block_resp
+
+    yield _block_request
+
+    # Faz o cleanup
+    for r in responses:
+        target, cookies = r["target"], r["cookies"]
+        del_resp = requests.delete(BASE_URL_USERS + f"/block/{target}", cookies=cookies)
+        assert del_resp.status_code == 200
 
 
 @pytest.fixture
-def insert_account():
+def unblock_request():
+    """Faz o request para desbloquear um usuário"""
 
-    response = []
+    # Tenta deletar o block do DB
+    def _unblock_request(atv: BaseUser, pas: BaseUser):
+        target, cookies = pas.user_id, atv.cookies
+        return requests.delete(BASE_URL_USERS + f"/block/{target}", cookies=cookies)
 
-    def _insert_account(username: str):
-        account = create_account(username)
-        response.append(account)
+    return _unblock_request
+
+
+@pytest.fixture
+def create_account():
+    """Cria uma conta no DB
+    cleanup = True significa que vai apagar do DB depois"""
+
+    responses = []
+
+    def _create_account(username: str, cleanup: bool):
+        account = _create_account_by_username(username)
+        if cleanup:
+            responses.append(account)
         return account
 
-    yield _insert_account
+    yield _create_account
 
-    for resp in response:
-        delete_account(resp)
+    for resp in responses:
+        _delete_account(resp)
+
+
+

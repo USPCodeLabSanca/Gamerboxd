@@ -5,15 +5,15 @@ from utils import *
 
 
 @db_query
-async def DB_create_list(conn, new_list: ListIn, user_id: str):
+async def DB_create_list(conn, new_list: ListNew, user_id: str):
     """Adiciona uma lista nova ao BD"""
 
     list_id = str(uuid4())
 
     await conn.execute('''
-        INSERT INTO Lists(id, name, description, creator, is_private)
+        INSERT INTO Lists(id, name, description, creator, privacy)
         VALUES($1, $2, $3, $4, $5)
-    ''', list_id, new_list.name, new_list.description, user_id, new_list.is_private)
+    ''', list_id, new_list.name, new_list.description, user_id, new_list.privacy)
 
     return list_id
 
@@ -28,7 +28,7 @@ async def DB_delete_list(conn, list_id: str):
 
 
 @db_query
-async def DB_read_list_creator(conn, list_id: str) -> str:
+async def DB_read_list_creator(conn, list_id: str):
     """Lê o id do usuário que criou uma lista"""
 
     return await conn.fetchval('''
@@ -37,16 +37,16 @@ async def DB_read_list_creator(conn, list_id: str) -> str:
 
 
 @db_query
-async def DB_read_list_privacy(conn, list_id: str) -> bool:
+async def DB_read_list_privacy(conn, list_id: str):
     """Lê a privacidade de uma lista a partir do list.id"""
 
     return await conn.fetchval('''
-        SELECT is_private FROM Lists WHERE id = $1
+        SELECT privacy FROM Lists WHERE id = $1
     ''', list_id)
 
 
 @db_query
-async def DB_read_list_name(conn, list_id: str) -> str:
+async def DB_read_list_name(conn, list_id: str):
     """Lê o nome de uma lista a partir do list_id"""
 
     return await conn.fetchval('''
@@ -55,7 +55,16 @@ async def DB_read_list_name(conn, list_id: str) -> str:
 
 
 @db_query
-async def DB_read_list_name_taken(conn, list_name: str, user_id: str) -> str | None:
+async def DB_read_list_desc(conn, list_id: str):
+    """Retorna a descrição de uma lista do DB"""
+
+    return await conn.fetchval('''
+        SELECT description FROM Lists WHERE id = $1
+    ''', list_id)
+
+
+@db_query
+async def DB_read_list_id(conn, list_name: str, user_id: str):
     """Retorna se o usuário já tem uma lista com esse nome, se sim, retorna o id dela, caso não, retorna None"""
 
     return await conn.fetchval('''
@@ -71,10 +80,10 @@ async def DB_read_user_basic_lists(conn, user_id: str):
     basic_lists = []
 
     for bl in basic_lists_names:
-        list_id = await DB_read_list_name_taken(conn, bl, user_id)
+        list_id = await DB_read_list_id(conn, bl, user_id)
 
         games = await conn.fetch('''
-            SELECT g.id AS game_id, g.name, g.picture, g.year
+            SELECT g.id AS game_id, g.title, g.picture, g.year
             FROM Games g
             JOIN ListContent lc ON lc.game = g.id
             JOIN Lists l ON lc.list = l.id
@@ -84,9 +93,9 @@ async def DB_read_user_basic_lists(conn, user_id: str):
         ''', user_id, bl)
 
         games_schema = [
-            GameRawg(
+            GameOverview(
                 game_id=g["game_id"],
-                name=g["name"],
+                title=g["title"],
                 picture=g["picture"],
                 year=g["year"]
             ) for g in games
@@ -100,14 +109,14 @@ async def DB_read_user_basic_lists(conn, user_id: str):
 
 
 @db_query
-async def DB_update_list(conn, list_id: str, new_list: ListIn):
+async def DB_update_list(conn, new_list: ListEdit):
     """Atualiza os dados de uma lista"""
     
     await conn.execute('''
         UPDATE Lists 
-        SET name = $1, description = $2, is_private = $3, updated_at = NOW()
+        SET name = $1, description = $2, privacy = $3, updated_at = NOW()
         WHERE id = $4
-    ''', new_list.name, new_list.description, new_list.is_private, list_id)
+    ''', new_list.name, new_list.description, new_list.privacy, new_list.list_id)
 
 
 @db_query
@@ -126,11 +135,14 @@ async def DB_read_list_data(conn, list_id: str):
     """Lê os dados completos de uma lista"""
 
     row = await conn.fetchrow('''
-        SELECT
-            l.name, l.description, l.is_private, l.created_at,
+        SELECT l.name, l.description, l.privacy, l.created_at,
             u.id AS creator_id, u.username, u.pfp,
             (SELECT COUNT(*) FROM SavedLists sl WHERE sl.list = l.id) AS saves,
-            (SELECT COUNT(*) FROM ListContent lc WHERE lc.list = l.id) AS games
+            (SELECT COUNT(*) FROM ListContent lc WHERE lc.list = l.id) AS games,
+            (SELECT g.picture FROM Games g 
+            LEFT JOIN ListContent lc ON lc.game = g.id 
+            WHERE lc.list = l.id ORDER BY lc.created_at ASC 
+            LIMIT 1) AS cover
         FROM Lists l
         JOIN Users u ON u.id = l.creator
         WHERE l.id = $1
@@ -139,36 +151,36 @@ async def DB_read_list_data(conn, list_id: str):
     if row is None:
         return None
 
-    user = User(user_id=row["creator_id"], username=row["username"], pfp=row["pfp"])
-
     user_list = ListOutComplete(
         name=row["name"],
         list_id=list_id,
         description=row["description"],
-        creator=user,
-        is_private=row["is_private"],
+        creator=User(user_id=row["creator_id"], username=row["username"], pfp=row["pfp"]),
+        privacy=row["privacy"],
         created_at=fix_date(row["created_at"]),
         list_saves_count=row["saves"],
-        list_games_count=row["games"]
+        list_games_count=row["games"],
+        cover_picture=row["cover"]
     )
 
     return user_list
 
 
 @db_query
-async def DB_read_user_created_lists(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_query: PageQuery):
     """Busca uma página de listas criadas por um usuário"""
 
     async with conn.transaction():
 
-        basic_condition = ("l.creator = $1", user_id)
-        page_query_clauses =  PageQuery(
-            cursor="(l.updated_at, l.id)",
-            search="l.name"
+        clauses = PageClauses(
+            basic_conditions=[("l.creator = $1", user_id), ("l.privacy <= $2", clearence)],
+            table_alias="l",
+            col2="id",
+            search_col="l.name"
         )
 
         # Conta quantas listas criadas pelo usuário correspondem a busca
-        where, params = build_where(basic_condition, page_query_clauses, page_query, None, True)
+        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
         total_created_lists = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Lists l
@@ -177,14 +189,19 @@ async def DB_read_user_created_lists(conn, user_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de listas criadas
-        where, params = build_where(basic_condition, page_query_clauses, page_query, "<")
+        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
-            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp, l.updated_at,
-            (SELECT COUNT(*) FROM SavedLists sl  WHERE sl.list  = l.id) AS saves
+            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp,
+            (SELECT COUNT(*) FROM SavedLists sl WHERE sl.list = l.id) AS saves,
+            (SELECT g.picture FROM Games g 
+            LEFT JOIN ListContent lc ON lc.game = g.id 
+            WHERE lc.list = l.id ORDER BY lc.created_at ASC 
+            LIMIT 1) AS cover,
+            {cursor_cols}
             FROM Lists l
             RIGHT JOIN Users u ON u.id = l.creator
             WHERE {where}
-            ORDER BY l.updated_at DESC, l.id DESC
+            ORDER BY {order_by}
             LIMIT ${len(params)}
         ''', *params)
 
@@ -196,37 +213,14 @@ async def DB_read_user_created_lists(conn, user_id: str, page_query: PageQuery):
             list_id=r["list_id"],
             creator=User(user_id=r["user_id"], username=r["username"], pfp=r["pfp"]),
             list_saves_count=r["saves"],
+            cover_picture=r["cover"]
         ) for r in rows]
 
-        page_result = PageResult(
+        return PageResult(
             total=total_created_lists,
             page_size=len(rows),
-            content=created_lists
+            content=created_lists,
+            current_page=page_query.cursor,
+            next_page = encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
         )
-
-        # Monta o cursor para a próxima página de listas criadas
-        page_result.next_page = encode_tuple_to_cursor(rows[-1]["updated_at"], rows[-1]["list_id"]) if has_more else None
-
-        # Se o cursor é None, estamos na busca pela primeira página, então com certeza não existe página anterior
-        if page_query.cursor is None:
-            return page_result
-
-        # Acha o cursor para a página de listas criadas anterior)
-        where, params = build_where(basic_condition, page_query_clauses, page_query, ">=")
-        rows = await conn.fetch(f'''
-            SELECT l.id AS list_id, l.updated_at
-            FROM Lists l
-            JOIN Users u ON u.id = l.creator
-            WHERE {where}
-            ORDER BY l.updated_at ASC, l.id ASC
-            LIMIT ${len(params)}
-        ''', *params)
-
-        has_more = len(rows) > page_query.page_size
-        rows = list(rows[:page_query.page_size])
-        
-        page_result.current_page = page_query.cursor
-        page_result.previous_page = encode_tuple_to_cursor(rows[-1]["updated_at"], rows[-1]["list_id"]) if has_more else None
-
-        return page_result
 

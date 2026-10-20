@@ -2,9 +2,9 @@ from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from models.schemas.review import *
-from services.security_services import is_review_insertion_valid, is_review_update_valid
+from services.security_services import is_review_insertion_valid, is_review_update_valid, classify_relationship, resolve_review_clearence  
+from services.db_services.list import DB_create_list_game, DB_read_list_id, DB_delete_list_game
 from services.db_services.review import *
-from services.db_services.user import DB_read_user_column, is_blocked
 from utils import *
 
 review_router = APIRouter(prefix="/review", tags=["review"])
@@ -15,133 +15,194 @@ async def create_review(review: ReviewIn, conn = Depends(get_conn), user_id = De
     """Cria uma review para um jogo. Cada usuário pode ter apenas uma review por jogo"""
 
     validated_review = await is_review_insertion_valid(conn, review, user_id)
-    await DB_create_review(conn, validated_review, user_id)
+    review_id = await DB_create_review(conn, validated_review, user_id)
+
+    # Se o usuário marcou que completou o game, ele é inserido na lista de games completados dele
+    if review.completed:
+        completed_games_list_id = await DB_read_list_id(conn, "Jogos Completados", user_id)
+        await DB_create_list_game(conn, completed_games_list_id, review.game_id)
+
+    # Se o usuário marcou que gostou do game, ele é inserido na lista de games favoritos dele
+    if review.liked:
+        favorite_games_list_id = await DB_read_list_id(conn, "Jogos Favoritos", user_id)
+        await DB_create_list_game(conn, favorite_games_list_id, review.game_id)
     
-    return JSONResponse({"message":"Review criada com sucesso!"})
+    return JSONResponse({"message":"Review criada com sucesso!", "id": review_id})
     
-                        
-@review_router.put("/{old_review_game}")
-async def update_review(old_review_game: int, new_review: ReviewIn, conn = Depends(get_conn), user_id = Depends(require_login)):  
+                    
+@review_router.put("/{review_id}")
+async def update_review(review_id: str, review: ReviewIn, conn = Depends(get_conn), user_id = Depends(require_login)):  
     """Atualiza a review do usuário autenticado para um jogo. O campo `game` não pode ser alterado"""
 
-    reviewer_username = await DB_read_user_column(conn, "username", user_id=user_id)
-    validated_review_update = await is_review_update_valid(conn, new_review, old_review_game, user_id)
-    await DB_update_review(conn, validated_review_update, old_review_game, user_id)
-    updated_review = await DB_read_review(conn, reviewer_username, old_review_game)
+    reviewer_id = await DB_read_review_creator(conn, review_id)
+
+    if reviewer_id is None:
+        raise QueryError(404, REVIEW_NOT_FOUND_MSG)
+
+    if user_id != reviewer_id:
+        raise QueryError(403, LACK_OF_REVIEW_OWNERSHIP_MSG)
+
+    validated_review_update = await is_review_update_valid(conn, review, review_id, user_id)
+
+    old_review_liked, old_review_completed = await DB_read_liked_and_completed(conn, review_id)
+
+    if review.liked != old_review_liked:
+        args = (conn, await DB_read_list_id(conn, "Jogos Favoritos", user_id), review.game_id)
+        await DB_create_list_game(*args) if review.liked else await DB_delete_list_game(*args)
+
+    if review.completed != old_review_completed:
+        args = (conn, await DB_read_list_id(conn, "Jogos Completados", user_id), review.game_id)
+        await DB_create_list_game(*args) if review.completed else await DB_delete_list_game(*args)
+        
+    await DB_update_review(conn, review_id, validated_review_update)
+    updated_review = await DB_read_review(conn, review_id)
+    updated_review.rel = RelationshipStatus.OWNER
 
     return JSONResponse(updated_review.model_dump())
 
                                                     
-@review_router.delete("/{review_game}")
-async def delete_review(review_game: int, conn = Depends(get_conn), user_id = Depends(require_login)):
+@review_router.delete("/{review_id}")
+async def delete_review(review_id: str, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Remove a review do usuário autenticado para um jogo"""
 
-    username = await DB_read_user_column(conn, "username", user_id)
+    reviewer_id = await DB_read_review_creator(conn, review_id)
 
-    review_id = await DB_read_review_id(conn, username, review_game)
+    if reviewer_id is None:
+        raise QueryError(404, REVIEW_NOT_FOUND_MSG)
 
-    if review_id is None:
-        raise QueryError(404, "Review não encontrada")
+    if user_id != reviewer_id:
+        raise QueryError(403, LACK_OF_REVIEW_OWNERSHIP_MSG)
 
-    await DB_delete_review(conn, review_game, user_id)
+    old_review_liked, old_review_completed = await DB_read_liked_and_completed(conn, review_id)
+    review_game_id = await DB_read_review_game(conn, review_id)
+
+    if old_review_liked:
+        args = (conn, await DB_read_list_id(conn, "Jogos Favoritos", user_id), review_game_id)
+        await DB_delete_list_game(*args)
+
+    if old_review_completed:
+        args = (conn, await DB_read_list_id(conn, "Jogos Completados", user_id), review_game_id)
+        await DB_delete_list_game(*args)
+
+    await DB_delete_review(conn, review_id)
+
     return JSONResponse({"message":"Review deletada com sucesso!"})
 
 
-@review_router.post("/like/{username}/{game}")
-async def like_review(username: str, game: int, conn = Depends(get_conn), user_id = Depends(require_login)):
-    """Dá like na review pública de outro usuário para um jogo"""
+@review_router.get("/created/{user_id}")
+async def get_reviews(user_id: str, page_query = Depends(validate_queries(["title", "created_at", "updated_at"], "created_at")), 
+    conn = Depends(get_conn), user_id_viewer = Depends(optional_login), path = Depends(get_current_url)):
+    """Retorna uma página com as mais recente reviews públicas de um usuário"""
 
-    review_creator_id = await DB_read_user_column(conn, "id", username=username)
+    # Verifica qual a relação do usuário visualizador com o usuário criador das reviews
+    prev_relationship = await classify_relationship(conn, user_id_viewer, user_id)
+    resolve_review_clearence(prev_relationship, None)
+
+    created_reviews_page = await DB_read_user_created_reviews(conn, user_id, prev_relationship, page_query)
+
+    # Verifica qual o relacionamento do usuário que está vendo com cada review
+    for cr in created_reviews_page.content:
+        if cr.creator.user_id == user_id_viewer:
+            cr.rel = RelationshipStatus.OWNER
+        else:
+            has_liked = await DB_read_review_like(conn, cr.review_id, user_id_viewer)
+            cr.rel = RelationshipStatus.LIKED if has_liked else RelationshipStatus.ANY
+
+    created_reviews_page_with_urls = convert_cursors_to_paths(created_reviews_page, path)
+
+    return JSONResponse(created_reviews_page_with_urls.model_dump())
+    
+
+@review_router.get("/{review_id}")
+async def get_one_review(review_id: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
+    """Retorna os detalhes completos da review pública de um usuário para um jogo específico"""
+
+    review_creator_id = await DB_read_review_creator(conn, review_id)
 
     if review_creator_id is None:
-       raise QueryError(404, "Usuário não encontrado!")
+        raise QueryError(404, REVIEW_NOT_FOUND_MSG)
 
-    username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
-    if await is_blocked(conn, review_creator_id, username_reader):
-        raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
+    # Verifica qual a relação do usuário visualizador com o usuário criador das reviews
+    prev_relationship = await classify_relationship(conn, user_id, review_creator_id)
+    review_privacy = await DB_read_review_privacy(conn, review_id)
+    resolve_review_clearence(prev_relationship, review_privacy)
+    
+    review = await DB_read_review(conn, review_id)
 
-    review_id = await DB_read_review_id(conn, username, game)
+    if review is None:
+        raise QueryError(404, REVIEW_NOT_FOUND_MSG)
+    
+    return JSONResponse(review.model_dump())
 
-    if review_id is None:
-        raise QueryError(404, "Review não encontrada!")
 
-    review_is_private = await DB_read_review_privacy(conn, username, game)
+@review_router.post("/like/{review_id}")
+async def like_review(review_id: str, conn = Depends(get_conn), user_id = Depends(require_login)):
+    """Dá like na review pública de outro usuário para um jogo"""
 
-    if review_is_private and username_reader != username:
-        raise QueryError(403, "Review privada!")
+    review_creator_id = await DB_read_review_creator(conn, review_id)
 
-    like_validated = await DB_read_review_like(conn, review_id, user_id)
+    if review_creator_id is None:
+       raise QueryError(404, REVIEW_NOT_FOUND_MSG)
 
-    if like_validated is not None:
-        raise QueryError(409, "Você já deu like nessa review!")
+    # Verifica qual a relação do usuário visualizador com o usuário criador das reviews
+    prev_relationship = await classify_relationship(conn, user_id, review_creator_id)
+    review_privacy = await DB_read_review_privacy(conn, review_id)
+    resolve_review_clearence(prev_relationship, review_privacy)
+    
+    # Usuário já deu like na review (idempotência)
+    if await DB_read_review_like(conn, review_id, user_id) is not None:
+        return JSONResponse({"message": "Like adicionado com sucesso!"})
         
-    await DB_create_like_review(conn, user_id, review_id)
+    await DB_create_like_review(conn, review_id, user_id)
 
     return JSONResponse({"message": "Like adicionado com sucesso!"})
 
 
-@review_router.delete("/like/{username}/{game}")
-async def unlike_review(username: str, game: int, conn = Depends(get_conn), user_id = Depends(require_login)):
+@review_router.delete("/like/{review_id}")
+async def unlike_review(review_id: str, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Remove o like do usuário autenticado de uma review"""
     
-    review_id = await DB_read_review_id(conn, username, game)
+    reviewer_id = await DB_read_review_creator(conn, review_id)
 
-    if review_id is None:
-        raise QueryError(404, "Review não encontrada!")
+    if reviewer_id is None:
+       raise QueryError(404, REVIEW_NOT_FOUND_MSG)
 
-    like = await DB_read_review_like(conn, review_id, user_id)
-
-    if like is None:
-        raise QueryError(409, "Você não deu like nessa review!")
+    # Usuário não deu like na review (idempotência)
+    if await DB_read_review_like(conn, review_id, user_id) is None:
+        return JSONResponse({"message": "Like removido com sucesso!"})
         
-    await DB_delete_like_review(conn, ReviewLike(user_id, review_id))
+    await DB_delete_like_review(conn, review_id, user_id)
 
     return JSONResponse({"message": "Like removido com sucesso!"})
 
 
-@review_router.get("/{username}")
-async def get_all_reviews(username: str, limit: int = 10, conn = Depends(get_conn), user_id = Depends(optional_login)):
-    """Retorna uma lista das reviews públicas mais recentes de um usuário"""
+@review_router.get("/like/users/{review_id}")
+async def get_review_likes(review_id: str, page_query = Depends(validate_queries(["username", "created_at"], "created_at")),
+    conn = Depends(get_conn), user_id = Depends(optional_login),  path = Depends(get_current_url)):
+    """Retorna quem tem dado like na review"""
 
-    review_creator_id = await DB_read_user_column(conn, "id", username=username)
-
-    if review_creator_id is None:
-        raise QueryError(404, "Usuário não encontrado!")
-    
-    if user_id is not None:
-        username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
-        if await is_blocked(conn, review_creator_id, username_reader):
-            raise QueryError(403, "Usuário está tentando ver uma review escrita por alguém que o bloqueou!")
-
-    if limit > 20:
-        raise QueryError(400, "Não podem ser apresentadas mais de 20 reviews!")
-    
-    reviews = await DB_read_limit_reviews(conn, username, limit)
-
-    return JSONResponse([review.model_dump() for review in reviews])
-    
-
-@review_router.get("/{username}/{game}")
-async def get_one_review(username: str, game: int, conn = Depends(get_conn), user_id = Depends(optional_login)):
-    """Retorna os detalhes completos da review pública de um usuário para um jogo específico"""
-
-    review_creator_id = await DB_read_user_column(conn, "id", username=username)
+    review_creator_id = await DB_read_review_creator(conn, review_id)
 
     if review_creator_id is None:
-        raise QueryError(404, "Usuário não encontrado!")
-    
-    username_reader = await DB_read_user_column(conn, "username", user_id=user_id)
-    
-    if user_id is not None:
-        if await is_blocked(conn, review_creator_id, username_reader):
-            raise QueryError(403, "Usuário está tentando dar like em uma review escrita por alguém que o bloqueou!")
+        raise QueryError(404, REVIEW_NOT_FOUND_MSG)
 
-    review = await DB_read_review(conn, username, game)
+    # Verifica qual a relação do usuário visualizador com o usuário criador das reviews
+    prev_relationship = await classify_relationship(conn, user_id, review_creator_id)
+    review_privacy = await DB_read_review_privacy(conn, review_id)
+    resolve_review_clearence(prev_relationship, review_privacy)
 
-    if review is None:
-        raise QueryError(404, "Review não encontrada!")
-
-    if review.is_private is True and username_reader != username:
-        raise QueryError(403, "Review privada!")
+    review_likes_page = await DB_read_review_likers(conn, review_id, page_query)
+    review_likes_page_with_urls = convert_cursors_to_paths(review_likes_page, path)
     
-    return JSONResponse(review.model_dump())
+    return JSONResponse(review_likes_page_with_urls.model_dump())
+
+
+@review_router.get("/like/reviews")
+async def get_review_likes(page_query = Depends(validate_queries(["title", "created_at", "updated_at"], "created_at")),
+    conn = Depends(get_conn), user_id = Depends(require_login),  path = Depends(get_current_url)):
+    """Retorna as reviews para qual o usuário já deu like"""
+
+    user_review_likes_page = await DB_read_user_likes(conn, user_id, page_query)
+    user_review_likes_page_with_urls = convert_cursors_to_paths(user_review_likes_page, path)
+    
+    return JSONResponse(user_review_likes_page_with_urls.model_dump())
