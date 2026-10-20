@@ -191,7 +191,7 @@ Retorna os dados públicos de qualquer usuário pelo user_id. **Não requer logi
  
 | Parâmetro  | Tipo   | Descrição                        |
 |------------|--------|----------------------------------|
-| `user_id` | string | Username do usuário a ser buscado |
+| `user_id` | string | ID único do usuário a ser buscado |
  
 ### Resposta de Sucesso — `200`
  
@@ -247,7 +247,7 @@ Faz o usuário autenticado seguir outro usuário. **Requer login**.
  
 | Parâmetro  | Tipo   | Descrição                         |
 |------------|--------|-----------------------------------|
-| `user_id` | string | Username do usuário a ser seguido |
+| `user_id` | string | ID único do usuário a ser seguido |
  
 ### Resposta de Sucesso — `200`
  
@@ -276,7 +276,7 @@ Faz o usuário autenticado deixar de seguir outro usuário. **Requer login**.
  
 | Parâmetro  | Tipo   | Descrição                                    |
 |------------|--------|----------------------------------------------|
-| `user_id` | string | Username do usuário a ser deixado de seguir  |
+| `user_id` | string | ID único do usuário a ser deixado de seguir  |
  
 ### Resposta de Sucesso — `200`
  
@@ -404,7 +404,7 @@ Faz o usuário autenticado bloquear outro usuário. **Requer login**.
 
 | Parâmetro  | Tipo   | Descrição                          |
 |------------|--------|------------------------------------|
-| `user_id` | string | Username do usuário a ser bloqueado |
+| `user_id` | string | ID único do usuário a ser bloqueado |
 
 ### Resposta de Sucesso — `200`
 
@@ -433,7 +433,7 @@ Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requ
 
 | Parâmetro  | Tipo   | Descrição                             |
 |------------|--------|---------------------------------------|
-| `user_id` | string | Username do usuário a ser desbloqueado |
+| `user_id` | string | ID único do usuário a ser desbloqueado |
 
 ### Resposta de Sucesso — `200`
 
