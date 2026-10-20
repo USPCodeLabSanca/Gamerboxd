@@ -4,15 +4,16 @@
 ## Sumário
  
 - [POST `/user`](#post-user---criar-conta)
-- [GET `/user`](#get-user---ver-minha-conta)
+- [GET `/user/`](#get-user---ver-minha-conta)
 - [PUT `/user`](#put-user---editar-conta)
-- [GET `/user/{username}`](#get-user-username---ver-conta-de-outro-usuário)
-- [POST `/user/follow/{username}`](#post-userfollow-username---seguir-usuário)
-- [DELETE `/user/follow/{username}`](#delete-userfollow-username---deixar-de-seguir-usuário)
-- [GET `/user/follow`](#get-user-follow---ver-os-seguidores-e-os-seguidos-do-usuário)
-- [DELETE `/user`](#delete-user---deletar-conta)
-- [POST `/user/block/{username}`](#post-userblockusername---bloquear-usuário)
-- [DELETE `/user/block/{username}`](#delete-userblockusername---desbloquear-usuário)
+- [GET `/user/{user_id}`](#get-useruser_id---ver-conta-de-outro-usuário)
+- [POST `/user/follow/{user_id}`](#post-userfollowuser_id---seguir-usuário)
+- [DELETE `/user/follow/{user_id}`](#delete-userfollowuser_id---deixar-de-seguir-usuário)
+- [GET `/user/follow/followers`](#get-userfollowfollowers---ver-os-seguidores-do-usuário)
+- [GET `/user/follow/followeds`](#get-userfollowfolloweds---ver-os-seguidos-do-usuário)
+- [DELETE `/user/`](#delete-user---deletar-conta)
+- [POST `/user/block/{user_id}`](#post-userblockuser_id---bloquear-usuário)
+- [DELETE `/user/block/{user_id}`](#delete-userblockuser_id---desbloquear-usuário)
 - [GET `/user/block`](#get-userblock---ver-os-bloqueados-pelo-usuário)
 
 ---
@@ -41,7 +42,8 @@ Cria uma nova conta de usuário. Ao criar a conta, duas listas padrão são gera
  
 ```json
 {
-  "message": "string"
+  "message": "string",
+  "id": "string"
 }
 ```
  
@@ -54,11 +56,11 @@ Dois cookies `httponly` são definidos automaticamente na resposta:
  
 ### Erros possíveis
  
-| Status | Causa                                                                 |
-|--------|-----------------------------------------------------------------------|
-| `400`  | Username muito curto/longo, e-mail inválido uso, senha fora do padrão |
-| `409`  | Username já em uso, e-mail já em uso                                  |
-| `500`  | Erro interno ao salvar no banco                                       |
+| Status | Causa                                                             |
+|--------|-------------------------------------------------------------------|
+| `400`  | Username muito curto/longo, e-mail inválido, senha fora do padrão |
+| `409`  | Username já em uso, e-mail já em uso                              |
+| `500`  | Erro interno ao salvar no banco                                   |
 
 ---
  
@@ -70,6 +72,7 @@ Retorna os dados completos do usuário autenticado. **Requer login**.
  
 ```json
 {
+  "user_id": "string",
   "username": "string",
   "pfp": "string | null",
   "email": "string",
@@ -119,9 +122,9 @@ Atualiza os dados do usuário autenticado. **Requer login**.
 ```json
 {
   "username": "string",
+  "pfp": "string | null",
   "email": "string",
-  "bio": "string",
-  "pfp": "string | null"
+  "bio": "string | null"
 }
 ```
  
@@ -173,22 +176,22 @@ Retorna os dados completos atualizados do usuário
  
 | Status | Causa                                          |
 |--------|------------------------------------------------|
-| `400`  | Username inválido, e-mail inválido             |
+| `400`  | Username muito curto/longo, e-mail inválido    |
 | `401`  | Usuário não autenticado                        |
-| `409`  | Username já está em uso, e-mail já está em uso |
+| `409`  | Username já em uso, e-mail já em uso           |
 | `500`  | Erro interno ao atualizar os dados             |
  
 ---
  
-## GET `/user/{username}` — Ver conta de outro usuário
+## GET `/user/{user_id}` — Ver conta de outro usuário
  
-Retorna os dados públicos de qualquer usuário pelo username. **Não requer login**.
+Retorna os dados públicos de qualquer usuário pelo user_id. **Não requer login**.
  
 ### Path Parameter
  
 | Parâmetro  | Tipo   | Descrição                        |
 |------------|--------|----------------------------------|
-| `username` | string | Username do usuário a ser buscado |
+| `user_id` | string | ID único do usuário a ser buscado |
  
 ### Resposta de Sucesso — `200`
  
@@ -198,7 +201,6 @@ Retorna os dados completos atualizados do usuário
 {
   "username": "string",
   "pfp": "string | null",
-  "email": "string",
   "bio": "string | null",
   "created_at": "string",
   "follows": {
@@ -237,7 +239,7 @@ Retorna os dados completos atualizados do usuário
  
 ---
  
-## POST `/user/follow/{username}` — Seguir usuário
+## POST `/user/follow/{user_id}` — Seguir usuário
  
 Faz o usuário autenticado seguir outro usuário. **Requer login**.
  
@@ -245,7 +247,7 @@ Faz o usuário autenticado seguir outro usuário. **Requer login**.
  
 | Parâmetro  | Tipo   | Descrição                         |
 |------------|--------|-----------------------------------|
-| `username` | string | Username do usuário a ser seguido |
+| `user_id` | string | ID único do usuário a ser seguido |
  
 ### Resposta de Sucesso — `200`
  
@@ -266,7 +268,7 @@ Faz o usuário autenticado seguir outro usuário. **Requer login**.
  
 ---
  
-## DELETE `/user/follow/{username}` — Deixar de seguir usuário
+## DELETE `/user/follow/{user_id}` — Deixar de seguir usuário
  
 Faz o usuário autenticado deixar de seguir outro usuário. **Requer login**.
  
@@ -274,7 +276,7 @@ Faz o usuário autenticado deixar de seguir outro usuário. **Requer login**.
  
 | Parâmetro  | Tipo   | Descrição                                    |
 |------------|--------|----------------------------------------------|
-| `username` | string | Username do usuário a ser deixado de seguir  |
+| `user_id` | string | ID único do usuário a ser deixado de seguir  |
  
 ### Resposta de Sucesso — `200`
  
@@ -293,20 +295,74 @@ Faz o usuário autenticado deixar de seguir outro usuário. **Requer login**.
 | `500`  | Erro interno ao buscar os dados                |
 
 
-## GET `/user/follow` — Ver os seguidores e os seguidos do usuário
+## GET `/user/follow/followers` — Ver os seguidores do usuário
 
-Retorna os seguidores e os seguidos pelo usuário. **Requer login**.
+Retorna os seguidores do usuário. **Requer login**.
 
+### Query Parameters
+
+| Parâmetro   | Tipo           | Obrigatório | Padrão | Descrição|
+|-------------|----------------|-------------|--------|----------|
+| `page_size` | inteiro        | ❌          | 10     | Número de itens por página|
+| `cursor`    | string ou null | ❌          | null   | Cursor para buscar a próxima página|
+| `search`    | string ou null | ❌          | null   | Parâmetro de busca por um termo específico|
+
+### Resposta de Sucesso — `200`
+ 
 ```json
-{    
-  "follower_count": 0,
-  "followers": [
-      { "username": "string", "pfp": "string | null" }
-    ],
-  "following_count": 0,
-  "followings": [
-      { "username": "string", "pfp": "string | null" }
-    ]
+{
+  "total": 0,
+  "page_size": 0,
+  "content": [
+    {
+      "user_id": "string",
+      "username": "string",
+      "pfp": "string | null"
+    }
+  ],
+  "current_page": "string | null",
+  "next_page": "string | null",
+  "previous_page": "string | null"
+}
+```
+ 
+### Erros possíveis
+ 
+| Status | Causa                            |
+|--------|----------------------------------|
+| `401`  | Usuário não autenticado          |
+| `500`  | Erro interno ao buscar os dados  |  
+
+---
+
+## GET `/user/follow/followeds` — Ver os seguidos do usuário
+
+Retorna os seguidos do usuário. **Requer login**.
+
+### Query Parameters
+
+| Parâmetro   | Tipo           | Obrigatório | Padrão | Descrição|
+|-------------|----------------|-------------|--------|----------|
+| `page_size` | inteiro        | ❌          | 10     | Número de itens por página|
+| `cursor`    | string ou null | ❌          | null   | Cursor para buscar a próxima página|
+| `search`    | string ou null | ❌          | null   | Parâmetro de busca por um termo específico|
+
+### Resposta de Sucesso — `200`
+ 
+```json
+{
+  "total": 0,
+  "page_size": 0,
+  "content": [
+    {
+      "user_id": "string",
+      "username": "string",
+      "pfp": "string | null"
+    }
+  ],
+  "current_page": "string | null",
+  "next_page": "string | null",
+  "previous_page": "string | null"
 }
 ```
  
@@ -340,7 +396,7 @@ Remove permanentemente a conta do usuário autenticado. **Requer login**.
 
 ---
 
-## POST `/user/block/{username}` — Bloquear usuário
+## POST `/user/block/{user_id}` — Bloquear usuário
 
 Faz o usuário autenticado bloquear outro usuário. **Requer login**.
 
@@ -348,7 +404,7 @@ Faz o usuário autenticado bloquear outro usuário. **Requer login**.
 
 | Parâmetro  | Tipo   | Descrição                          |
 |------------|--------|------------------------------------|
-| `username` | string | Username do usuário a ser bloqueado |
+| `user_id` | string | ID único do usuário a ser bloqueado |
 
 ### Resposta de Sucesso — `200`
 
@@ -369,7 +425,7 @@ Faz o usuário autenticado bloquear outro usuário. **Requer login**.
 
 ---
 
-## DELETE `/user/block/{username}` — Desbloquear usuário
+## DELETE `/user/block/{user_id}` — Desbloquear usuário
 
 Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requer login**.
 
@@ -377,7 +433,7 @@ Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requ
 
 | Parâmetro  | Tipo   | Descrição                             |
 |------------|--------|---------------------------------------|
-| `username` | string | Username do usuário a ser desbloqueado |
+| `user_id` | string | ID único do usuário a ser desbloqueado |
 
 ### Resposta de Sucesso — `200`
 
@@ -401,12 +457,30 @@ Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requ
 
 Retorna os bloqueados pelo usuário. **Requer login**.
 
+### Query Parameters
+
+| Parâmetro   | Tipo           | Obrigatório | Padrão | Descrição|
+|-------------|----------------|-------------|--------|----------|
+| `page_size` | inteiro        | ❌          | 10     | Número de itens por página|
+| `cursor`    | string ou null | ❌          | null   | Cursor para buscar a próxima página|
+| `search`    | string ou null | ❌          | null   | Parâmetro de busca por um termo específico|
+
+### Resposta de Sucesso - `200`
+
 ```json
-{    
-  "blocked_count": 0,
-  "blocks": [
-      { "username": "string", "pfp": "string | null" }
-    ],
+{
+  "total": 0,
+  "page_size": 0,
+  "content": [
+    {
+      "username": "string",
+      "pfp": "string | null",
+      "user_id": "string"
+    }
+  ],
+  "current_page": "string | null",
+  "next_page": "string | null",
+  "previous_page": "string | null"
 }
 ```
  
