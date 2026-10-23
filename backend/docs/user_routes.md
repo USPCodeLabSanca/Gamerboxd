@@ -3,24 +3,28 @@
  
 ## Sumário
  
-- [POST `/user`](#post-user---criar-conta)
-- [GET `/user/`](#get-user---ver-minha-conta)
-- [PUT `/user`](#put-user---editar-conta)
-- [GET `/user/{user_id}`](#get-useruser_id---ver-conta-de-outro-usuário)
-- [POST `/user/follow/{user_id}`](#post-userfollowuser_id---seguir-usuário)
-- [DELETE `/user/follow/{user_id}`](#delete-userfollowuser_id---deixar-de-seguir-usuário)
-- [GET `/user/follow/followers`](#get-userfollowfollowers---ver-os-seguidores-do-usuário)
-- [GET `/user/follow/followeds`](#get-userfollowfolloweds---ver-os-seguidos-do-usuário)
-- [DELETE `/user/`](#delete-user---deletar-conta)
-- [POST `/user/block/{user_id}`](#post-userblockuser_id---bloquear-usuário)
-- [DELETE `/user/block/{user_id}`](#delete-userblockuser_id---desbloquear-usuário)
-- [GET `/user/block`](#get-userblock---ver-os-bloqueados-pelo-usuário)
+- [POST `/users` — Criar conta](#post-users--criar-conta)
+- [GET `/users/{user_id}` — Ver conta de um usuário](#get-usersuser_id--ver-conta-de-um-usuário)
+- [PUT `/users` — Editar conta](#put-users--editar-conta)
+- [DELETE `/users` — Deletar conta](#delete-users--deletar-conta)
+- [POST `/users/follow/{user_id}` — Seguir usuário](#post-usersfollowuser_id--seguir-usuário)
+- [DELETE `/users/follow/{user_id}` — Deixar de seguir usuário](#delete-usersfollowuser_id--deixar-de-seguir-usuário)
+- [GET `/users/follow/followers/{user_id}` — Ver os seguidores do usuário](#get-usersfollowfollowersuser_id--ver-os-seguidores-do-usuário)
+- [GET `/users/follow/followings/{user_id}` — Ver os seguidos do usuário](#get-usersfollowfollowingsuser_id--ver-os-seguidos-do-usuário)
+- [POST `/users/block/{user_id}` — Bloquear usuário](#post-usersblockuser_id--bloquear-usuário)
+- [DELETE `/users/block/{user_id}` — Desbloquear usuário](#delete-usersblockuser_id--desbloquear-usuário)
+- [GET `/users/block` — Ver os bloqueados pelo usuário](#get-usersblock--ver-os-bloqueados-pelo-usuário)
 
 ---
  
-## POST `/user` — Criar conta
+## POST `/users` — Criar conta
  
-Cria uma nova conta de usuário. Ao criar a conta, duas listas padrão são geradas automaticamente: **Favoritos** e **Completados**.
+Cria uma nova conta de usuário.
+
+**Regras e comportamentos:**
+- **Não requer login**.
+- Ao criar a conta, duas listas padrão são geradas automaticamente: **Jogos Favoritos** e **Jogos Completados**. 
+- Na resposta, são definidos automaticamente os dois cookies padrão de autenticação.
  
 ### Request Body
  
@@ -34,461 +38,354 @@ Cria uma nova conta de usuário. Ao criar a conta, duas listas padrão são gera
  
 | Campo      | Tipo   | Obrigatório | Regras                                                                                 |
 |------------|--------|-------------|----------------------------------------------------------------------------------------|
-| `username` | string | ✅          | Entre 4 e 24 caractéres, não pode estar em uso                                         |
+| `username` | string | ✅          | Entre 4 e 24 caracteres, não pode estar em uso                                         |
 | `email`    | string | ✅          | Formato de e-mail válido, não pode estar em uso                                        |
 | `password` | string | ✅          | Entre 8 e 64 caracteres, com ao menos: 1 maiúscula, 1 minúscula, 1 número e 1 símbolo  |
 
 ### Resposta de Sucesso — `200`
  
 ```json
-{
-  "message": "string",
-  "id": "string"
-}
+{"message":"Conta criada com sucesso!", "user_id": "string"}
 ```
- 
-Dois cookies `httponly` são definidos automaticamente na resposta:
- 
-| Cookie          | Descrição                          |
-|-----------------|------------------------------------|
-| `access-token`  | JWT de curta duração (10 minutos)  |
-| `refresh-token` | JWT de longa duração (24 horas)    |
  
 ### Erros possíveis
  
-| Status | Causa                                                             |
-|--------|-------------------------------------------------------------------|
-| `400`  | Username muito curto/longo, e-mail inválido, senha fora do padrão |
-| `409`  | Username já em uso, e-mail já em uso                              |
-| `500`  | Erro interno ao salvar no banco                                   |
+| Status | HR     | Causa                                                             |
+|--------|--------|-------------------------------------------------------------------|
+| `400`  | ✅     | Username muito curto/longo, e-mail inválido, senha fora do padrão |
+| `409`  | ✅     | Username já em uso, e-mail já em uso                              |
+| `500`  | ❌     | Erro interno                                                      |
 
----
+--- 
+
+## GET `/users/{user_id}` — Ver conta de um usuário
  
-## GET `/user/` — Ver minha conta
+Retorna os dados de um usuário pelo user_id.
+
+**Regras e comportamentos:**
+- **Requer login**.
  
-Retorna os dados completos do usuário autenticado. **Requer login**.
+### Path Parameter
+ 
+| Parâmetro  | Tipo   | Descrição                         |
+|------------|--------|-----------------------------------|
+| `user_id`  | string | ID único do usuário a ser buscado |
  
 ### Resposta de Sucesso — `200`
  
-```json
-{
-  "user_id": "string",
-  "username": "string",
-  "pfp": "string | null",
-  "email": "string",
-  "bio": "string | null",
-  "created_at": "string",
-  "follows": {
-    "follower_count": 0,
-    "followers": [
-      { "username": "string", "pfp": "string | null" }
-    ],
-    "following_count": 0,
-    "followings": [
-      { "username": "string", "pfp": "string | null" }
-    ]
-  },
-  "lists": {
-    "count": 0,
-    "lists": [
-      {
-        "name": "string",
-        "description": "string",
-        "is_private": true,
-        "creator": "string",
-        "created_at": "string",
-        "list_saves": 0
-      }
-    ]
-  }
-}
-```
+Retorna schema **\_\_USER_FULL\_\_**
  
 ### Erros possíveis
  
-| Status | Causa                              |
-|--------|------------------------------------|
-| `401`  | Usuário não autenticado            |
-| `500`  | Erro interno ao buscar os dados    |
+| Status | HR     | Causa                                                        |
+|--------|--------|--------------------------------------------------------------|
+| `400`  | ✅     | Usuário está tentando ver a conta de alguém que ele bloqueou |
+| `401`  | ✅     | Usuário não autenticado                                      |
+| `403`  | ❌     | Usuário está tentando ver a conta de alguém que o bloqueou   |
+| `404`  | ✅     | Usuário alvo não encontrado                                  |
+| `500`  | ❌     | Erro interno                                                 |
  
 ---
+
+## PUT `/users` — Editar conta
  
-## PUT `/user` — Editar conta
- 
-Atualiza os dados do usuário autenticado. **Requer login**.
+Atualiza os dados do usuário autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Até os campos inalterados precisam ser enviados.
  
 ### Request Body
  
 ```json
 {
   "username": "string",
-  "pfp": "string | null",
   "email": "string",
-  "bio": "string | null"
+  "pfp": "string" | null,
+  "banner": "string" | null,
+  "bio": "string" | null
 }
 ```
  
-| Campo      | Tipo           | Obrigatório  | Padrão | Regras                                            |
-|------------|----------------|--------------|--------|---------------------------------------------------|
-| `username` | string         | ✅           | -      | Entre 4 e 24 caracteres, não pode estar em uso    |
-| `email`    | string         | ✅           | -      | Formato de e-mail válido, não pode estar em uso   |
-| `bio`      | string ou null | ❌           | null   | Até 280 caractéres, não pode ser só espaço vazios |
-| `pfp`      | string ou null | ❌           | null   | URL/caminho da foto de perfil                     |
+| Campo      | Tipo                   | Obrigatório  | Regras                                            |
+|------------|------------------------|--------------|---------------------------------------------------|
+| `username` | string,                | ✅           | Entre 4 e 24 caracteres, não pode estar em uso    |
+| `email`    | string,                | ✅           | Formato de e-mail válido, não pode estar em uso   |
+| `bio`      | string, null           | ✅           | Até 280 caracteres, não pode ser só espaço vazios |
+| `pfp`      | string, null           | ✅           | Caminho da foto de perfil                         |
+| `banner`   | string, null           | ✅           | Caminho do banner do perfil                       |
  
+
 ### Resposta de Sucesso — `200`
  
-Retorna os dados completos atualizados do usuário
-
-```json
-{
-  "username": "string",
-  "pfp": "string | null",
-  "email": "string",
-  "bio": "string | null",
-  "created_at": "string",
-  "follows": {
-    "follower_count": 0,
-    "followers": [
-      { "username": "string", "pfp": "string | null" }
-    ],
-    "following_count": 0,
-    "followings": [
-      { "username": "string", "pfp": "string | null" }
-    ]
-  },
-  "lists": {
-    "count": 0,
-    "lists": [
-      {
-        "name": "string",
-        "description": "string",
-        "is_private": true,
-        "creator": "string",
-        "created_at": "string",
-        "list_saves": 0
-      }
-    ]
-  }
-}
-```
+Retorna schema **\_\_USER_FULL\_\_**
  
 ### Erros possíveis
  
-| Status | Causa                                          |
-|--------|------------------------------------------------|
-| `400`  | Username muito curto/longo, e-mail inválido    |
-| `401`  | Usuário não autenticado                        |
-| `409`  | Username já em uso, e-mail já em uso           |
-| `500`  | Erro interno ao atualizar os dados             |
+| Status | HR     | Causa                                 |
+|--------|--------|---------------------------------------|
+| `400`  | ✅     | Username muito curto/longo, e-mail inválido, descrição muito longa ou apenas espaço vazio |
+| `401`  | ✅     | Usuário não autenticado               |
+| `409`  | ✅     | Username já em uso, e-mail já em uso  |
+| `500`  | ❌     | Erro interno                          |
  
 ---
  
-## GET `/user/{user_id}` — Ver conta de outro usuário
- 
-Retorna os dados públicos de qualquer usuário pelo user_id. **Não requer login**.
- 
-### Path Parameter
- 
-| Parâmetro  | Tipo   | Descrição                        |
-|------------|--------|----------------------------------|
-| `user_id` | string | ID único do usuário a ser buscado |
- 
+## DELETE `/users` — Deletar conta
+
+Remove permanentemente a conta do usuário autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- As listas criadas pelo autenticado são deletadas, logo removidas de todas as bibliotecas de usuários que as salvaram.
+- As reviews escritas pelo autenticado são deletadas, logo os likes de outros usuários são removidos também.
+- Os saves que o autenticado deu em listas criadas por outros usuários são deletados.
+- Os likes que o autenticado deu em reviews criadas por outros usuários são deletados.
+- Todos os relacionamentos do autenticado (seguidos, seguidores, bloqueios) são deletados.
+- Os cookies padrão de autenticação são deletados automaticamente na resposta.
+
 ### Resposta de Sucesso — `200`
- 
-Retorna os dados completos atualizados do usuário
 
 ```json
-{
-  "username": "string",
-  "pfp": "string | null",
-  "bio": "string | null",
-  "created_at": "string",
-  "follows": {
-    "follower_count": 0,
-    "followers": [
-      { "username": "string", "pfp": "string | null" }
-    ],
-    "following_count": 0,
-    "followings": [
-      { "username": "string", "pfp": "string | null" }
-    ]
-  },
-  "lists": {
-    "count": 0,
-    "lists": [
-      {
-        "name": "string",
-        "description": "string",
-        "is_private": true,
-        "creator": "string",
-        "created_at": "string",
-        "list_saves": 0
-      }
-    ]
-  }
-}
+{"message" : "Conta deletada com sucesso!"}
 ```
- 
+
 ### Erros possíveis
- 
-| Status | Causa                                                      |
-|--------|------------------------------------------------------------|
-| `403`  | Usuário está tentando ver a conta de alguém que o bloqueou |
-| `404`  | Usuário alvo não encontrado                                |
-| `500`  | Erro interno ao buscar os dados                            |
- 
+
+| Status | HR     | Causa                           |
+|--------|--------|---------------------------------|
+| `401`  | ✅     | Usuário não autenticado         |
+| `500`  | ❌     | Erro interno                    | 
+
 ---
  
-## POST `/user/follow/{user_id}` — Seguir usuário
+## POST `/users/follow/{user_id}` — Seguir usuário
  
-Faz o usuário autenticado seguir outro usuário. **Requer login**.
- 
+Faz o usuário autenticado seguir outro usuário. 
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o usuário autenticado já seguir usuário alvo, a rota não irá levantar erro (idempotência).
+
+
 ### Path Parameter
  
 | Parâmetro  | Tipo   | Descrição                         |
 |------------|--------|-----------------------------------|
-| `user_id` | string | ID único do usuário a ser seguido |
+| `user_id`  | string | ID único do usuário a ser seguido |
  
 ### Resposta de Sucesso — `200`
  
 ```json
-{
-  "message": "string"
-}
+{"message": "Conta seguida com sucesso!"}
 ```
  
 ### Erros possíveis
  
-| Status | Causa                                                            |
-|--------|------------------------------------------------------------------|
-| `401`  | Usuário não autenticado                                          |
-| `403`  | Usuário está tentando seguir a si mesmo ou alguém que o bloqueou |
-| `404`  | Usuário a ser seguido não encontrado                             |
-| `500`  | Erro interno ao buscar os dados                                  |   
+| Status | HR     | Causa                                                            |
+|--------|--------|------------------------------------------------------------------|
+| `400`  | ✅     | Usuário está tentando seguir alguém que ele bloqueou             |
+| `401`  | ✅     | Usuário não autenticado                                          |
+| `403`  | ❌     | Usuário está tentando seguir a si mesmo ou alguém que o bloqueou |
+| `404`  | ✅     | Usuário a ser seguido não encontrado                             |
+| `500`  | ❌     | Erro interno                                                     |   
  
 ---
  
-## DELETE `/user/follow/{user_id}` — Deixar de seguir usuário
+## DELETE `/users/follow/{user_id}` — Deixar de seguir usuário
  
-Faz o usuário autenticado deixar de seguir outro usuário. **Requer login**.
+Faz o usuário autenticado deixar de seguir outro usuário. 
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o usuário autenticado não seguir o usuário alvo, a rota não irá levantar erro (idempotência).
  
 ### Path Parameter
  
-| Parâmetro  | Tipo   | Descrição                                    |
-|------------|--------|----------------------------------------------|
-| `user_id` | string | ID único do usuário a ser deixado de seguir  |
+| Parâmetro  | Tipo   | Descrição                             |
+|------------|--------|---------------------------------------|
+| `user_id`  | string | ID único do usuário a ser desseguido  |
  
 ### Resposta de Sucesso — `200`
  
 ```json
-{
-  "message": "string"
-}
+{"message":"Conta desseguida com sucesso!"}
 ```
  
 ### Erros possíveis
  
-| Status | Causa                                          |
-|--------|------------------------------------------------|
-| `401`  | Usuário não autenticado                        |
-| `404`  | Usuário a deixar de ser seguido não encontrado |
-| `500`  | Erro interno ao buscar os dados                |
-
-
-## GET `/user/follow/followers` — Ver os seguidores do usuário
-
-Retorna os seguidores do usuário. **Requer login**.
-
-### Query Parameters
-
-| Parâmetro   | Tipo           | Obrigatório | Padrão | Descrição|
-|-------------|----------------|-------------|--------|----------|
-| `page_size` | inteiro        | ❌          | 10     | Número de itens por página|
-| `cursor`    | string ou null | ❌          | null   | Cursor para buscar a próxima página|
-| `search`    | string ou null | ❌          | null   | Parâmetro de busca por um termo específico|
-
-### Resposta de Sucesso — `200`
- 
-```json
-{
-  "total": 0,
-  "page_size": 0,
-  "content": [
-    {
-      "user_id": "string",
-      "username": "string",
-      "pfp": "string | null"
-    }
-  ],
-  "current_page": "string | null",
-  "next_page": "string | null",
-  "previous_page": "string | null"
-}
-```
- 
-### Erros possíveis
- 
-| Status | Causa                            |
-|--------|----------------------------------|
-| `401`  | Usuário não autenticado          |
-| `500`  | Erro interno ao buscar os dados  |  
+| Status | HR     | Causa                                     |
+|--------|--------|-------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                   |
+| `404`  | ✅     | Usuário a ser desseguido não encontrado   |
+| `500`  | ❌     | Erro interno                              | 
 
 ---
 
-## GET `/user/follow/followeds` — Ver os seguidos do usuário
+## GET `/users/follow/followers/{user_id}` — Ver os seguidores do usuário
 
-Retorna os seguidos do usuário. **Requer login**.
+Retorna os seguidores do usuário.
 
-### Query Parameters
-
-| Parâmetro   | Tipo           | Obrigatório | Padrão | Descrição|
-|-------------|----------------|-------------|--------|----------|
-| `page_size` | inteiro        | ❌          | 10     | Número de itens por página|
-| `cursor`    | string ou null | ❌          | null   | Cursor para buscar a próxima página|
-| `search`    | string ou null | ❌          | null   | Parâmetro de busca por um termo específico|
-
-### Resposta de Sucesso — `200`
+**Regras e comportamentos:**
+- **Requer login**.
+- Apenas o próprio dono da conta ou alguém que o dono da conta siga tem permissão para ver esses dados.
  
-```json
-{
-  "total": 0,
-  "page_size": 0,
-  "content": [
-    {
-      "user_id": "string",
-      "username": "string",
-      "pfp": "string | null"
-    }
-  ],
-  "current_page": "string | null",
-  "next_page": "string | null",
-  "previous_page": "string | null"
-}
-```
- 
-### Erros possíveis
- 
-| Status | Causa                            |
-|--------|----------------------------------|
-| `401`  | Usuário não autenticado          |
-| `500`  | Erro interno ao buscar os dados  |  
-
----
- 
-## DELETE `/user/` — Deletar conta
-
-Remove permanentemente a conta do usuário autenticado. **Requer login**.
-
-### Resposta de Sucesso — `200`
-
-```json
-{
-  "message": "string"
-}
-```
-
-### Erros possíveis
-
-| Status | Causa                              |
-|--------|------------------------------------|
-| `401`  | Usuário não autenticado            |
-| `500`  | Erro interno ao deletar a conta    |
-
----
-
-## POST `/user/block/{user_id}` — Bloquear usuário
-
-Faz o usuário autenticado bloquear outro usuário. **Requer login**.
 
 ### Path Parameter
 
-| Parâmetro  | Tipo   | Descrição                          |
-|------------|--------|------------------------------------|
-| `user_id` | string | ID único do usuário a ser bloqueado |
+| Parâmetro  | Tipo   | Descrição                                                         |
+|------------|--------|-------------------------------------------------------------------|
+| `user_id`  | string | ID único do usuário sobre o qual se quer visualizar os seguidores |
+
+### Query Parameters
+
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis usernames dos seguidores do usuário.
+- order padrão é `-created_at`, que mostra os mais recentes seguidores do usuário. Os orders possíveis são: `["created_at", "-created_at", "username", "-username"]`.
+
+### Resposta de Sucesso — `200`
+ 
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
+ 
+### Erros possíveis
+ 
+| Status | HR     | Causa                                                       |
+|--------|--------|-------------------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                                     |
+| `403`  | ❌     | Usuário não é o dono da conta ou seguido pelo dono da conta |
+| `404`  | ✅     | Usuário dono da conta não encontrado                        |
+| `406`  | ❌     | Query parameters presentes, porém inválidos                                  |
+| `500`  | ❌     | Erro interno                                                |  
+
+---
+
+## GET `/users/follow/followings/{user_id}` — Ver os seguidos do usuário
+
+Retorna os seguidos pelo usuário.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Apenas o próprio dono da conta ou alguém que o dono da conta siga tem permissão para ver esses dados.
+
+### Path Parameter
+
+| Parâmetro  | Tipo   | Descrição                                            |
+|------------|--------|------------------------------------------------------|
+| `user_id`  | string | ID único sobre o qual se quer visualizar os seguidos |
+
+### Query Parameters
+
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis usernames dos seguidos pelo usuário.
+- order padrão é `-created_at`, que mostra os mais recentes seguidos pelo usuário. Os orders possíveis são: `["created_at", "-created_at", "username", "-username"]`.
+
+### Resposta de Sucesso — `200`
+ 
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
+ 
+### Erros possíveis
+ 
+| Status | HR     | Causa                                                       |
+|--------|--------|-------------------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                                     |
+| `403`  | ❌     | Usuário não é o dono da conta ou seguido pelo dono da conta |
+| `404`  | ✅     | Usuário dono da conta não encontrado                        |
+| `406`  | ❌     | Query parameters presentes, porém inválidos                                  |
+| `500`  | ❌     | Erro interno                                                |
+
+---
+
+## POST `/users/block/{user_id}` — Bloquear usuário
+
+Faz o usuário autenticado bloquear outro usuário.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o usuário autenticado já tiver bloqueado o usuário alvo, a rota não irá levantar erro (idempotência).
+- Se o autenticado seguia o usuário alvo, ele irá deixar de seguir.
+- Se o usuário alvo seguia o autenticado, ele irá deixar de seguir.
+- Se o autenticado tiver salvado alguma lista do usuário alvo, ele irá deixar de salvar.
+- Se o usuário alvo tiver salvado alguma lista do autenticado, ele irá deixar de salvar.
+- Se o autenticado tiver dado like em alguma review do usuário alvo, o like será removido.
+- Se o usuário alvo tiver dado like em alguma review do autenticado, o like será removido.
+
+### Path Parameter
+
+| Parâmetro  | Tipo   | Descrição                           |
+|------------|--------|-------------------------------------|
+| `user_id`  | string | ID único do usuário a ser bloqueado |
 
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "string"
-}
+{"message":"Conta bloqueada com sucesso!"}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                                       |
-|--------|---------------------------------------------|
-| `401`  | Usuário não autenticado                     |
-| `403`  | Usuário está tentando bloquear a si mesmo   |
-| `404`  | Usuário a ser bloqueado não encontrado      |
-| `500`  | Usuário alvo não encontrado ou erro interno |
+| Status | HR     | Causa                                       |
+|--------|--------|---------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                     |
+| `403`  | ❌     | Usuário está tentando bloquear a si mesmo   |
+| `404`  | ✅     | Usuário a ser bloqueado não encontrado      |
+| `500`  | ❌     | Erro interno                                |
 
 ---
 
-## DELETE `/user/block/{user_id}` — Desbloquear usuário
+## DELETE `/users/block/{user_id}` — Desbloquear usuário
 
-Faz o usuário autenticado desbloquear um usuário previamente bloqueado. **Requer login**.
+Faz o usuário autenticado desbloquear um usuário.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o usuário autenticado não tiver bloqueado o usuário alvo, a rota não irá levantar erro (idempotência).
+
 
 ### Path Parameter
 
 | Parâmetro  | Tipo   | Descrição                             |
 |------------|--------|---------------------------------------|
-| `user_id` | string | ID único do usuário a ser desbloqueado |
+| `user_id`  | string | ID único do usuário a ser desbloqueado|
 
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "string"
-}
+{"message":"Conta desbloqueada com sucesso!"}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                                       |
-|--------|---------------------------------------------|
-| `401`  | Usuário não autenticado                     |
-| `404`  | Usuário a ser desbloqueado não encontrado   |
-| `500`  | Erro interno ao buscar os dados             |
+| Status | HR     | Causa                                       |
+|--------|--------|---------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                     |
+| `404`  | ✅     | Usuário a ser desbloqueado não encontrado   |
+| `500`  | ❌     | Erro interno                                |
 
 ---
 
-## GET `/user/block` — Ver os bloqueados pelo usuário
+## GET `/users/block` — Ver os bloqueados pelo usuário
 
-Retorna os bloqueados pelo usuário. **Requer login**.
+Retorna os bloqueados pelo usuário autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
 
 ### Query Parameters
 
-| Parâmetro   | Tipo           | Obrigatório | Padrão | Descrição|
-|-------------|----------------|-------------|--------|----------|
-| `page_size` | inteiro        | ❌          | 10     | Número de itens por página|
-| `cursor`    | string ou null | ❌          | null   | Cursor para buscar a próxima página|
-| `search`    | string ou null | ❌          | null   | Parâmetro de busca por um termo específico|
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis usernames dos bloqueados pelo usuário.
+- order padrão é `-created_at`, que mostra os mais recentes bloqueados pelo usuário. Os orders possíveis são: `["created_at", "-created_at", "username", "-username"]`.
 
-### Resposta de Sucesso - `200`
-
-```json
-{
-  "total": 0,
-  "page_size": 0,
-  "content": [
-    {
-      "username": "string",
-      "pfp": "string | null",
-      "user_id": "string"
-    }
-  ],
-  "current_page": "string | null",
-  "next_page": "string | null",
-  "previous_page": "string | null"
-}
-```
+### Resposta de Sucesso — `200`
+ 
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
  
 ### Erros possíveis
  
-| Status | Causa                            |
-|--------|----------------------------------|
-| `401`  | Usuário não autenticado          |
-| `500`  | Erro interno ao buscar os dados  |  
+| Status | HR     | Causa                           |
+|--------|--------|---------------------------------|
+| `401`  | ✅     | Usuário não autenticado         |
+| `406`  | ❌     | Query parameters presentes, porém inválidos      |
+| `500`  | ❌     | Erro interno                    |
 
 ---

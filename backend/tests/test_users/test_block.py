@@ -2,6 +2,13 @@ from math import ceil
 from .utils import *
 
 
+SUCCESS_BLOCKING_MSG = {"message":"Conta bloqueada com sucesso!"}
+SUCCESS_UNBLOCKING_MSG = {"message":"Conta desbloqueada com sucesso!"}
+CANT_BLOCK_YOURSELF_MSG = {"message":"O usuário não pode bloquear a si mesmo!"}
+FOLLOW_SOMEONE_WHO_BLOCKED_YOU_MSG = {"message":"O usuário está tentando seguir alguém que o bloqueou!"}
+FOLLOW_SOMEONE_WHO_YOUVE_BLOCKED_MSG = {"message": "Não é possível ver detalhes de um usuário antes de desbloqueá-lo!"}
+
+
 def test_blocking_returns_200(users, block_request):
     """Alice bloqueia Bernardo"""
 

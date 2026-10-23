@@ -3,61 +3,71 @@
 
 ## Sumário
 
-- [POST `/list/`](#post-list---criar-lista)
-- [GET `/list/{list_name}`](#get-listlist_name---ver-minha-lista)
-- [GET `/list/{list_creator}/{list_name}`](#get-listlist_creatorlist_name---ver-lista-de-outro-usuário)
-- [PUT `/list/{old_list_name}`](#put-listold_list_name---editar-lista)
-- [DELETE `/list/{list_name}`](#delete-listlist_name---deletar-lista)
-- [POST `/list/save/{list_creator}/{list_name}`](#post-listsavelist_creatorlist_name---salvar-lista)
-- [DELETE `/list/save/{list_creator}/{list_name}`](#delete-listsavelist_creatorlist_name---remover-lista-salva)
-- [POST `/list/game/{list_name}/{game_id}`](#post-listgamelist_namegame_id---adicionar-jogo-à-lista)
-- [DELETE `/list/game/{list_name}/{game_id}`](#delete-listgamelist_namegame_id---remover-jogo-da-lista)
+- [POST `/lists` — Criar lista](#post-lists--criar-lista)
+- [GET `/lists/{list_id}` — Ver lista](#get-listslist_id--ver-lista)
+- [PUT `/lists/{list_id}` — Editar lista](#put-listslist_id--editar-lista)
+- [DELETE `/lists/{list_id}` — Deletar lista](#delete-listslist_id--deletar-lista)
+- [GET `/lists/created/{user_id}` — Busca as listas criadas pelo usuário](#get-listscreateduser_id--busca-as-listas-criadas-pelo-usuário)
+- [POST `/lists/save/{list_id}` — Salvar lista](#post-listssavelist_id--salvar-lista)
+- [DELETE `/lists/save/{list_id}` — Remover lista salva](#delete-listssavelist_id--remover-lista-salva)
+- [GET `/lists/save` — Buscar listas salvas](#get-listssave--buscar-listas-salvas)
+- [POST `/lists/game/{list_id}/{game_id}` — Adicionar jogo à lista](#post-listsgamelist_idgame_id--adicionar-jogo-à-lista)
+- [DELETE `/lists/game/{list_id}/{game_id}` — Remover jogo da lista](#delete-listsgamelist_idgame_id--remover-jogo-da-lista)
+- [GET `/lists/game/{list_id}` — Busca os games que pertencem a uma lista](#get-listsgamelist_id--busca-os-games-que-pertencem-a-uma-lista)
 
 ---
 
-## POST `/list/` — Criar lista
+## POST `/lists` — Criar lista
 
-Cria uma nova lista para o usuário autenticado. Ao ser criada, a lista é automaticamente salva para o criador. **Requer login**.
+Cria uma nova lista para o usuário autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
+-  Ao ser criada, a lista é automaticamente salva para o autor, e os games passados são automaticamente inclusos na lista.
+-  Se um game_id não for válido, a rota não irá retornar erro: a lista ainda será criada mas esse game não será incluso nela, e o game_id será retornado no array `not_included` no response body de sucesso. Game_ids repetidos serão apenas ignorados. 
 
 ### Request Body
 
 ```json
 {
   "name": "string",
-  "description": "string",
-  "is_private": true
+  "description": "string" | null,
+  "privacy": 0,
+  "first_games": [0]  
 }
 ```
 
-| Campo         | Tipo    | Obrigatório | Padrão | Regras                                        |
-|---------------|---------|-------------|--------|-----------------------------------------------|
-| `name`        | string  | ✅          | —      | Máximo de 60 caracteres, único por usuário    |
-| `description` | string  | ❌          | `null` | Máximo de 300 caracteres                      |
-| `is_private`  | boolean | ❌          | `true` | Se `true`, a lista só é visível ao criador    |
+| Campo         | Tipo      | Obrigatório | Padrão | Regras                                                    |
+|---------------|-----------|-------------|--------|-----------------------------------------------------------|
+| `name`        | string    | ✅          | —      | Máximo de 45 caracteres, único por usuário                |
+| `description` | string    | ❌          | `null` | Máximo de 300 caracteres                                  |
+| `privacy`     | int       | ✅          | —      | Deve ser um dos valores dispostos na seção de privacidade |
+| `first_games` | list[int] | ❌          | `[]`   | Os itens devem ser game_id válidos e distintos            |
 
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "Lista criada com sucesso!",
-  "id": 1
-}
+{"message":"Lista criada com sucesso!", "list_id": "string", "not_included": [0]}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                                               |
-|--------|-----------------------------------------------------|
-| `400`  | Nome ou descrição acima do limite de caractéres     |
-| `401`  | Usuário não autenticado                             |
-| `409`  | Usuário já possui uma lista com esse nome           |
-| `500`  | Erro interno ao salvar no banco                     |      
+| Status | HR (human readable)    | Causa                                               |
+|--------|------------------------|-----------------------------------------------------|
+| `400`  | ✅                     | Nome ou descrição acima do limite de caracteres     |
+| `401`  | ✅                     | Usuário não autenticado                             |
+| `406`  | ❌                     | A privacidade não é um dos valores válidos          |
+| `409`  | ✅                     | Usuário já possui uma lista com esse nome           |
+| `500`  | ❌                     | Erro interno                                        |      
 
 ---
 
-## GET `/list/{list_id}` — Ver minha lista
+## GET `/lists/{list_id}` — Ver lista
 
-Retorna os dados completos de uma lista feita pelo usuário autenticado, incluindo suas listas privadas. **Login opcional**.
+Retorna os dados completos de uma lista.
+
+**Regras e comportamentos:**
+- **Não requer login**.
 
 ### Path Parameter
 
@@ -67,65 +77,28 @@ Retorna os dados completos de uma lista feita pelo usuário autenticado, incluin
 
 ### Resposta de Sucesso — `200`
 
-```json
-{
-  "name": "string",
-  "description": "string",
-  "is_private": true,
-  "creator": "string",
-  "created_at": "string",
-  "list_saves": 0,
-  "games": [
-    {
-      "game_id": 0,
-      "name": "string",
-      "picture": "string | null",
-      "year": 0,
-      "like_count": 0,
-      "gamerboxd_rating": 0.0
-    }
-  ]
-}
-```
+Retorna schema **\_\_LIST_FULL\_\_**
 
 ### Erros possíveis
 
-| Status | Causa                              |
-|--------|------------------------------------|
-| `401`  | Usuário não autenticado            |
-| `404`  | Lista não encontrada               |
-| `500`  | Erro interno ao buscar os dados    |
+| Status | HR     | Causa                                                                                  |
+|--------|--------|----------------------------------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da lista                                                      |
+| `403`  | ❌     | Usuário está bloqueado pelo autor da lista, a lista é "privada demais" para o usuário  |
+| `404`  | ✅     | Lista não encontrada                                                                   |
+| `500`  | ❌     | Erro interno                                                                           |  
 
 ---
 
-## GET `/list/{list_creator}/{list_name}` — Ver lista de outro usuário
+## PUT `/lists/{list_id}` — Editar lista
 
-Retorna os dados completos de uma lista pública de qualquer usuário. **Não requer login**.
+Atualiza os dados de uma lista do usuário autenticado.
 
-### Path Parameters
-
-| Parâmetro      | Tipo   | Descrição                        |
-|----------------|--------|----------------------------------|
-| `list_creator` | string | Username do dono da lista        |
-| `list_name`    | string | Nome da lista a ser buscada      |
-
-### Resposta de Sucesso — `200`
-
-Mesmo formato do [GET `/list/{list_name}`](#get-listlist_name---ver-minha-lista).
-
-### Erros possíveis
-
-| Status | Causa                                                        |
-|--------|--------------------------------------------------------------|
-| `403`  | Usuário está tentando ver uma lista de alguém que o bloqueou |
-| `404`  | Usuário não encontrado, lista não encontrada ou privada      |
-| `500`  | Erro interno ao buscar os dados                              |
-
----
-
-## PUT `/list/{list_id}` — Editar lista
-
-Atualiza os dados de uma lista do usuário autenticado. **Requer login**.
+**Regras e comportamentos:**
+- **Requer login**.
+- Se a privacidade da lista subir, todos os usuários que salvaram a lista e estiverem abaixo dessa nova privacidade terão a lista removida da sua biblioteca.
+- Até os campos inalterados precisam ser enviados.
+- As listas **Jogos Favoritos** e **Jogos Completados** são imutáveis em nome e descrição, podendo mudar apenas a privacidade delas.
 
 ### Path Parameter
 
@@ -135,48 +108,46 @@ Atualiza os dados de uma lista do usuário autenticado. **Requer login**.
 
 ### Request Body
 
-Mesmo formato do [POST `/list/`](#post-list---criar-lista).
-
-### Resposta de Sucesso — `200`
-
-Retorna os dados completos da lista atualizada, incluindo os jogos:
-
 ```json
 {
   "name": "string",
-  "description": "string",
-  "is_private": true,
-  "creator": "string",
-  "created_at": "string",
-  "list_saves": 0,
-  "games": [
-    {
-      "game_id": 0,
-      "name": "string",
-      "picture": "string | null",
-      "year": 0,
-      "like_count": 0,
-      "gamerboxd_rating": 0.0
-    }
-  ]
+  "description": "string" | null,
+  "privacy": 0
 }
 ```
 
+| Campo         | Tipo    | Obrigatório | Regras                                                    |
+|---------------|---------|-------------|-----------------------------------------------------------|
+| `name`        | string  | ✅          | Máximo de 45 caracteres, único por usuário                |
+| `description` | string  | ✅          | Máximo de 300 caracteres                                  |
+| `privacy`     | int     | ✅          | Deve ser um dos valores dispostos na seção de privacidade |
+
+### Resposta de Sucesso — `200`
+
+Retorna schema **\_\_LIST_FULL\_\_**
+
 ### Erros possíveis
 
-| Status | Causa                                |
-|--------|--------------------------------------|
-| `400`  | Nome ou descrição acima do limite    |
-| `401`  | Usuário não autenticado              |
-| `403`  | Falta de propriedade da lista        |
-| `409`  | Novo nome já está em uso             |
-| `500`  | Erro interno ao atualizar no banco   |
+| Status | HR     | Causa                                       | 
+|--------|--------|---------------------------------------------|
+| `400`  | ✅     | Nome ou descrição acima do limite           |
+| `401`  | ✅     | Usuário não autenticado                     |
+| `403`  | ❌     | O usuário não é autor da lista, o usuário está tentando editar o nome ou a descrição das listas padrão |
+| `404`  | ✅     | Lista não encontrada                        |
+| `406`  | ❌     | A privacidade não é um dos valores válidos  |
+| `409`  | ✅     | Novo nome já está em uso pelo usuário       |
+| `500`  | ❌     | Erro interno                                | 
 
 ---
 
-## DELETE `/list/{list_id}` — Deletar lista
+## DELETE `/lists/{list_id}` — Deletar lista
 
-Remove uma lista do usuário autenticado. **Requer login**.
+Deleta uma lista do usuário autenticado. 
+
+**Regras e comportamentos:**
+- **Requer login**.
+- As listas **Jogos Favoritos** e **Jogos Completados** não podem ser deletadas.
+- A lista será removida de todas as bibliotecas de usuários que salvaram ela.
 
 ### Path Parameter
 
@@ -187,25 +158,64 @@ Remove uma lista do usuário autenticado. **Requer login**.
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "Lista deletada com sucesso!"
-}
+{"message": "Lista deletada com sucesso!"}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                                                        |
-|--------|--------------------------------------------------------------|
-| `401`  | Usuário não autenticado                                      |
-| `403`  | Falta de propriedade da lista                                |
-| `404`  | Usuário não encontrado, lista não encontrada ou privada      |
-| `500`  | Erro interno ao deletar no banco                             |
+
+| Status | HR     | Causa                                                                            |
+|--------|--------|----------------------------------------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                                                          |
+| `403`  | ❌     | O usuário não é autor da lista, o usuário está tentando deletar as listas padrão |
+| `404`  | ✅     | Lista não encontrada                                                             |
+| `500`  | ❌     | Erro interno                                                                     | 
 
 ---
 
-## POST `/list/save/{list_id}` — Salvar lista
+## GET `/lists/created/{user_id}` — Busca as listas criadas pelo usuário
 
-Salva a lista pública de outro usuário na biblioteca do autenticado. **Requer login**.
+Busca as listas criadas por um usuário específico.
+
+**Regras e comportamentos:**
+- **Não requer login**.
+- As listas que são muito privadas para o usuário que está buscando não serão enviadas no content, e nem contarão para o total.
+
+### Path Parameter
+
+| Parâmetro |  Tipo  | Descrição                                         |
+|-----------|--------|---------------------------------------------------|
+| `user_id` | string | ID do usuário cujas listas criadas serão buscadas |
+
+### Query Parameters (Paginação)
+
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis nomes da listas criadas pelo usuário
+- order padrão é `-updated_at`, que mostra as listas editadas mais recentemente. Os orders possíveis são: `["created_at", "-created_at", "name", "-name", "updated_at", "-updated_at"]`.
+
+### Resposta de Sucesso - `200`
+
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_LIST\_\_**.
+
+### Erros possíveis
+
+| Status | HR     | Causa                                           |
+|--------|--------|-------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor das listas             |
+| `403`  | ❌     | O usuário está bloqueado pelo autor das listas  |
+| `404`  | ✅     | O usuário criador das listas não foi encontrado |
+| `406`  | ❌     | Query parameters presentes, porém inválidos                      |
+| `500`  | ❌     | Erro interno                                    | 
+
+---
+
+## POST `/lists/save/{list_id}` — Salvar lista
+
+Salva a lista de outro usuário na biblioteca do autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o usuário autenticado já tiver salvado a lista, a rota não irá incluir novamente no DB, mas também não irá levantar erro (idempotência)
 
 ### Path Parameters
 
@@ -216,25 +226,30 @@ Salva a lista pública de outro usuário na biblioteca do autenticado. **Requer 
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "Lista salva com sucesso!"
-}
+{"message": "Lista salva com sucesso!"}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                                                   |
-|--------|---------------------------------------------------------|
-| `401`  | Usuário não autenticado                                 |
-| `403`  | Falta de propriedade da lista                           |
-| `404`  | Usuário não encontrado, lista não encontrada ou privada |
-| `500`  | Erro interno ao salvar                                  |
+
+| Status | HR     | Causa                                                                                   |
+|--------|--------|-----------------------------------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da lista                                                       |
+| `401`  | ✅     | Usuário não autenticado                                                                 |
+| `403`  | ❌     | O usuário está bloqueado pelo autor da lista, a lista é "privada demais" para o usuário |
+| `404`  | ✅     | Lista não encontrada                                                                    |
+| `500`  | ❌     | Erro interno                                                                            | 
 
 ---
 
-## DELETE `/list/save/{list_id}` — Remover lista salva
+## DELETE `/lists/save/{list_id}` — Remover lista salva
 
-Remove uma lista previamente salva da biblioteca do usuário autenticado. **Requer login**.
+Remove uma lista previamente salva da biblioteca do usuário autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o usuário autenticado não tiver salvado a lista, a rota não irá levantar erro (idempotência).
+- Não é possível dessalvar sua própria lista, apenas deletá-la.
 
 ### Path Parameters
 
@@ -245,25 +260,57 @@ Remove uma lista previamente salva da biblioteca do usuário autenticado. **Requ
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "Lista dessalvada com sucesso"
-}
+{"message": "Lista dessalva com sucesso!"}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                                                   |
-|--------|---------------------------------------------------------|
-| `401`  | Usuário não autenticado                                 |
-| `403`  | Usuário tentando dessalvar sua própria lista            |
-| `404`  | Usuário não encontrado, lista não encontrada ou privada |
-| `500`  | Erro interno ao remover                                 |
+
+| Status | HR     | Causa                                         |
+|--------|--------|-----------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                       |
+| `403`  | ❌     | Usuário tentando dessalvar sua própria lista  |
+| `404`  | ✅     | Lista não encontrada                          |
+| `500`  | ❌     | Erro interno                                  |
 
 ---
 
-## POST `/list/game/{list_id}/{game_id}` — Adicionar jogo à lista
+## GET `/lists/save` — Buscar listas salvas
 
-Adiciona um jogo a uma lista do usuário autenticado. **Requer login**.
+Busca de forma paginada as listas que foram salvas na biblioteca do usuário autenticado.
+
+**Regras e Comportamentos:**
+- **Requer login**.
+- Inclui as listas que o próprio usuário autenticado criou e as listas padrão **Jogos Favoritos** e **Jogos Completados**.
+
+### Query Parameters (Paginação)
+
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis nomes da listas salvas pelo usuário
+- order padrão é `-created_at`, que mostra as mais recém salvas listas. Os orders possíveis são: `["created_at", "-created_at", "name", "-name"]`.
+
+### Resposta de Sucesso — `200`
+
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_LIST\_\_**.
+
+### Erros possíveis
+
+| Status | HR     | Causa                         |
+|--------|--------|-------------------------------|
+| `401`  | ✅     | Usuário não autenticado       |
+| `406`  | ❌     | Query parameters presentes, porém inválidos    |
+| `500`  | ❌     | Erro interno                  |
+
+---
+
+## POST `/lists/game/{list_id}/{game_id}` — Adicionar jogo à lista
+
+Adiciona um jogo a uma lista do usuário autenticado. 
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o usuário autenticado já tiver adicionado esse game à lista, a rota **irá** levantar erro.
+- Para as listas **Jogos Completados** e **Jogos Favoritos**, não é possível adicionar jogos usando essa rota, apenas ao criar ou editar reviews com os parâmetros `completed` e `liked`, marcando-os como verdadeiros, respectivamente.
 
 ### Path Parameters
 
@@ -275,25 +322,28 @@ Adiciona um jogo a uma lista do usuário autenticado. **Requer login**.
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "Jogo adicionado à lista com sucesso"
-}
+{"message": "Game adicionado à lista com sucesso!"}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                              |
-|--------|------------------------------------|
-| `401`  | Usuário não autenticado            |
-| `403`  | Falta de propriedade da lista      |
-| `404`  | Lista não encontrada               |
-| `500`  | Erro interno ao adicionar o jogo   |
+| Status | HR     | Causa                                                               |
+|--------|--------|---------------------------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                                             |
+| `403`  | ❌     | Falta de propriedade da lista, tentando adicionar às listas padrão  |
+| `404`  | ✅     | Lista não encontrada, game não encontrado (game_id inválido!)       |
+| `409`  | ✅     | O jogo já pertence a lista                                          |
+| `500`  | ❌     | Erro interno                                                        |
 
 ---
 
-## DELETE `/list/game/{list_id}/{game_id}` — Remover jogo da lista
+## DELETE `/lists/game/{list_id}/{game_id}` — Remover jogo da lista
 
-Remove um jogo de uma lista do usuário autenticado. **Requer login**.
+Remove um jogo de uma lista do usuário autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
+- Se o game não pertencer a lista, a rota não irá levantar erro (idempotência). Para as listas **Jogos Completados** e **Jogos Favoritos**, não é possível remover jogos usando essa rota, apenas ao editar reviews com os parâmetros `completed` e `liked` marcando-os como falso, respectivamente, ou ao deletar a review em que esses parâmetros estavam marcados como verdadeiros.
 
 ### Path Parameters
 
@@ -305,72 +355,26 @@ Remove um jogo de uma lista do usuário autenticado. **Requer login**.
 ### Resposta de Sucesso — `200`
 
 ```json
-{
-  "message": "Jogo removido da lista com sucesso"
-}
+{"message": "Game removido da lista com sucesso!"}
 ```
 
 ### Erros possíveis
 
-| Status | Causa                              |
-|--------|------------------------------------|
-| `401`  | Usuário não autenticado            |
-| `403`  | Falta de propriedade da lista      |
-| `404`  | Lista não encontrada               |
-| `500`  | Erro interno ao remover o jogo     |
+| Status | HR     | Causa                                                               |
+|--------|--------|---------------------------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                                             |
+| `403`  | ❌     | Falta de propriedade da lista, tentando remover das listas padrão   |
+| `404`  | ✅     | Lista não encontrada, game não encontrado (game_id inválido!)       |
+| `500`  | ❌     | Erro interno                                                        |
 
 ---
 
-## GET `/list/created/{user_id} - Busca as listas criadas pelo usuário
+## GET `/lists/game/{list_id}` — Busca os games que pertencem a uma lista
 
-Busca as listas criadas por um usuário específico  . **Login opcional**
+Busca de forma paginada os jogos que pertencem a uma lista específica. 
 
-### Path Parameter
-
-| Parâmetro |  Tipo  | Descrição                                         |
-|-----------|--------|---------------------------------------------------|
-| `user_id` | string | ID do usuário cujas listas criadas serão buscadas |
-
-### Query Parameters (Paginação)
-
-Aceita parâmetros padrão de paginação (`PageQuery`).
-
-### Resposta de Sucesso - `200`
-
-Retorna um objeto paginado contendo a lista de listas criadas e seus metadados de navegação.
-
-### Erros possíveis
-
-| Status | Causa                                    |
-|--------|------------------------------------------|
-| `500`  | Erro interno ao buscar as listas criadas |
-
----
-
-## GET `/list/save/lists` — Buscar listas salvas
-
-Busca de forma paginada as listas que foram salvas na biblioteca do usuário autenticado. **Requer login**.
-
-### Query Parameters (Paginação)
-
-Aceita parâmetros padrão de paginação (`PageQuery`).
-
-### Resposta de Sucesso — `200`
-
-Retorna um objeto paginado contendo as listas salvas.
-
-### Erros possíveis
-
-| Status | Causa                                   |
-|--------|-----------------------------------------|
-| `401`  | Usuário não autenticado                 |
-| `500`  | Erro interno ao buscar as listas salvas |
-
----
-
-## GET `/list/save/users/{list_id}` — Buscar os dados dos usuários que salvaram a lista
-
-Busca de forma paginada os dados dos usuários que salvaram uma determinada lista pública. 
+**Regras e comportamentos:**
+- **Não requer login**
 
 ### Path Parameter
 
@@ -380,46 +384,22 @@ Busca de forma paginada os dados dos usuários que salvaram uma determinada list
 
 ### Query Parameters (Paginação)
 
-Aceita parâmetros padrão de paginação (`PageQuery`).
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis titulos de games que pertencem a lista
+- order padrão é `-created_at`, que mostra as mais recém inclusos games à lista. Os orders possíveis são: `["created_at", "-created_at", "title", "-title"]`.
 
 ### Resposta de Sucesso — `200`
 
-Retorna um objeto paginado com os dados dos usuários que salvaram a lista.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_GAME\_\_**.
 
 ### Erros possíveis
 
-| Status | Causa                                                                                    |
-|--------|------------------------------------------------------------------------------------------|
-| `403`  | Usuário bloqueado pelo proprietário da lista                                             |
-| `404`  | Lista não encontrada                                                                     |
-| `500`  | Erro interno ao buscar os usuários                                                       | 
-
----
-
-## GET `/list/game/{list_id}` — Busca os games que pertencem a uma lista do usuário
-
-Busca de forma paginada os jogos que pertencem a uma lista específica.
-
-### Path Parameter
-
-| Parâmetro | Tipo   | Descrição         |
-|-----------|--------|-------------------|
-| `list_id` | string | ID único da lista |
-
-### Query Parameters (Paginação)
-
-Aceita parâmetros padrão de paginação (`PageQuery`).
-
-### Resposta de Sucesso — `200`
-
-Retorna um objeto paginado com os jogos pertencentes à lista.
-
-### Erros possíveis
-
-| Status | Causa                                                                                    |
-|--------|------------------------------------------------------------------------------------------|
-| `403`  | Usuário bloqueado pelo autor da lista ou tentativa de ver lista privada de outro usuário |
-| `404`  | Lista não encontrada                                                                     |
-| `500`  | Erro interno ao buscar os jogos da lista                                                 |
+| Status | HR     | Causa                                                                          |
+|--------|--------|--------------------------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou autor da lista                                                |
+| `403`  | ❌     | Usuário bloqueado pelo autor da lista, lista é "privada demais" para o usuário |
+| `404`  | ✅     | Lista não encontrada                                                           |
+| `406`  | ❌     | Query parameters presentes, porém inválidos                                                     |
+| `500`  | ❌     | Erro interno ao buscar os jogos da lista                                       |
 
 ---

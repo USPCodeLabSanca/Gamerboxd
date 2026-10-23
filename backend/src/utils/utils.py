@@ -14,7 +14,8 @@ class RelationshipStatus(IntEnum):
     MUTUAL_FOLLOW = 30
     OWNER = 40
     SAVED = 50
-    LIKED = 60 
+    LIKED = 50
+    OWNER_LIKED = 90
 
 
 def db_query(func):
@@ -66,7 +67,7 @@ def col_name(table_alias: str, col: str):
 
 
 def escape_like(term: str) -> str:
-    """Troca caractéres que podem ser nocivos para uma cláusula LIKE pelos seus correspondentes seguros"""
+    """Troca caracteres que podem ser nocivos para uma cláusula LIKE pelos seus correspondentes seguros"""
 
     return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,14 +20,15 @@ app.add_middleware(
 )
 
 @app.exception_handler(QueryError)
-async def query_error_handler(request: Request, exc: QueryError):
+async def generic_error_handler(request: Request, exc: QueryError):
     if exc.status_code == 500:
-        print(exc.message)
+        print(f"caught: {exc.message}")
     return JSONResponse({"message": exc.message}, exc.status_code)
+
 
 @app.exception_handler(Exception)
 async def generic_error_handler(request: Request, exc: Exception):
-    print(str(exc))
+    print(f"uncaught: {str(exc)}")
     return JSONResponse(str(exc), 500)
 
 app.add_middleware(SetUserLoginState)

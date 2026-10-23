@@ -45,7 +45,7 @@ async def DB_read_user_column(conn, column: str, user_id: str = None, email: str
 @db_query
 async def DB_read_user_out(conn, user_id: str):
     row = await conn.fetchrow('''
-        SELECT username, pfp, bio, banner_pic, created_at
+        SELECT username, pfp, bio, banner, created_at
         FROM Users
         WHERE id = $1
     ''', user_id)
@@ -59,7 +59,7 @@ async def DB_read_user_out(conn, user_id: str):
         pfp=row["pfp"],
         bio=row["bio"],
         created_at=fix_date(row["created_at"]),
-        banner=row["banner_pic"]
+        banner=row["banner"]
     )
 
     return user

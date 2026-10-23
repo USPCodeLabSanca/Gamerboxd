@@ -3,49 +3,48 @@
 
 ## Sumário
 
-- [GET `/game/{search}`](#get-gamesearch---buscar-games)
+- [GET `/games` — Buscar games](#get-games--buscar-games)
 
 ---
 
-## GET `/game/{search}` — Buscar games
+## GET `/games` — Buscar games
 
-Busca jogos pelo nome. **Não requer login**.
+Busca jogos pelo nome. 
 
-### Path Parameter
+**Regras e comportamentos:**
+- **Não requer login**.
 
-| Parâmetro | Tipo   | Descrição              |
-|-----------|--------|------------------------|
-| `search`  | string | Termo de busca do jogo |
 
 ### Query Parameters
 
-| Parâmetro   | Tipo | Obrigatório | Padrão | Descrição                           |
-|-------------|------|-------------|--------|-------------------------------------|
-| `page`      | int  | ❌          | `1`    | Número da página                    |
-| `page_size` | int  | ❌          | `20`   | Quantidade de resultados por página |
+| Parâmetro   | Tipo   | Obrigatório | Padrão | Descrição                                   |
+|-------------|--------|-------------|--------|---------------------------------------------|
+| `search`    | string | ✅          | -      | Termo de busca para os jogos                |
+| `page`      | int    | ❌          | `1`    | Número da página                            |
+| `page_size` | int    | ❌          | `20`   | Quantidade máxima de resultados por página  |
+| `detail`    | bool   | ✅          | -      | Quanto de detalhe (**\_\_GAME\_\_** ou **\_\_GAME_FULL\_\_**) a resposta terá |
 
 ### Resposta de Sucesso — `200`
 
 ```json
 {
-  "count": 0,
+  "total": 0,   // Total de games que a API tem para essa busca
+  "count": 0,   // Quantos games estão indo nessa página
   "games": [
-    {
-      "game_id": 0,
-      "name": "string",
-      "picture": "string | null",
-      "year": 0,
-      "like_count": 0,
-      "gamerboxd_rating": 0.0
-    }
+    if (detail == true):
+      __GAME_FULL__ 
+
+    else:
+      __GAME__
   ]
 }
 ```
 
 ### Erros possíveis
 
-| Status | Causa                                    |
-|--------|------------------------------------------|
-| `500`  | Erro interno ou falha ao buscar os dados |
+| Status | HR    | Causa                 |
+|--------|-------|-----------------------|
+| `500`  |❌     | Erro interno          |
+| `502`  |❌     | Falha da API de games |
 
 ---

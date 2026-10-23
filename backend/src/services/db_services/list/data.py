@@ -101,7 +101,7 @@ async def DB_read_user_basic_lists(conn, user_id: str):
             ) for g in games
         ]
 
-        list_games = ListGames(list_id=list_id, name=bl, games_count=len(games_schema), games=games_schema)
+        list_games = ListGames(list_id=list_id, name=bl, games_len=len(games_schema), games=games_schema)
 
         basic_lists.append(list_games)
 
@@ -109,14 +109,14 @@ async def DB_read_user_basic_lists(conn, user_id: str):
 
 
 @db_query
-async def DB_update_list(conn, new_list: ListEdit):
+async def DB_update_list(conn, list_id: str, new_list: List):
     """Atualiza os dados de uma lista"""
     
     await conn.execute('''
         UPDATE Lists 
         SET name = $1, description = $2, privacy = $3, updated_at = NOW()
         WHERE id = $4
-    ''', new_list.name, new_list.description, new_list.privacy, new_list.list_id)
+    ''', new_list.name, new_list.description, new_list.privacy, list_id)
 
 
 @db_query
@@ -135,7 +135,7 @@ async def DB_read_list_data(conn, list_id: str):
     """Lê os dados completos de uma lista"""
 
     row = await conn.fetchrow('''
-        SELECT l.name, l.description, l.privacy, l.created_at,
+        SELECT l.name, l.description, l.privacy, l.created_at, l.updated_at,
             u.id AS creator_id, u.username, u.pfp,
             (SELECT COUNT(*) FROM SavedLists sl WHERE sl.list = l.id) AS saves,
             (SELECT COUNT(*) FROM ListContent lc WHERE lc.list = l.id) AS games,
@@ -157,10 +157,11 @@ async def DB_read_list_data(conn, list_id: str):
         description=row["description"],
         creator=User(user_id=row["creator_id"], username=row["username"], pfp=row["pfp"]),
         privacy=row["privacy"],
+        saves_count=row["saves"],
+        games_count=row["games"],
+        cover_picture=row["cover"],
         created_at=fix_date(row["created_at"]),
-        list_saves_count=row["saves"],
-        list_games_count=row["games"],
-        cover_picture=row["cover"]
+        updated_at=fix_date(row["updated_at"])
     )
 
     return user_list
@@ -212,15 +213,15 @@ async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_qu
             name=r["name"],
             list_id=r["list_id"],
             creator=User(user_id=r["user_id"], username=r["username"], pfp=r["pfp"]),
-            list_saves_count=r["saves"],
+            saves_count=r["saves"],
             cover_picture=r["cover"]
         ) for r in rows]
 
         return PageResult(
             total=total_created_lists,
-            page_size=len(rows),
+            page_len=len(rows),
             content=created_lists,
-            current_page=page_query.cursor,
-            next_page = encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            current_url=page_query.cursor,
+            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
         )
 

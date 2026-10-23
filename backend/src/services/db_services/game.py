@@ -38,7 +38,7 @@ async def DB_read_game_full(conn, game_id: int):
         SELECT g.*,
             COUNT(r.id) FILTER (WHERE r.liked = true)     AS like_count,
             COUNT(r.id) FILTER (WHERE r.completed = true) AS completed_count,
-            COUNT(r.id)                                   AS review_count,
+            COUNT(r.id) FILTER (WHERE r.game = g.id)      AS review_count,
             COALESCE(ROUND(AVG(r.rating_num)::numeric, 2), NULL) AS avg_rating
         FROM Games g
         LEFT JOIN Reviews r ON r.game = g.id

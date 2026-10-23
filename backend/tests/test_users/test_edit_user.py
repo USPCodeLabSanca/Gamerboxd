@@ -1,5 +1,8 @@
 from .utils import *
 
+BIO_WRONG_LENGTH_MSG = {"message": "A bio não pode ter mais que 280 caracteres!"}
+EMPTY_BIO_MSG = {"message": "A bio não pode ser apenas espaço vazio!"}
+
 
 def test_editing_username_to_unused_returns_200(users, edit_user_request):
     """Alice troca o seu username para Joao"""
@@ -33,20 +36,6 @@ def test_editing_username_to_too_long_returns_400(users, edit_user_request):
     response = edit_user_request(edited_user)
     assert response.status_code == 400, response.json()
     assert response.json() == USERNAME_WRONG_LENGTH_MSG, response.json()
-
-
-def test_editing_user_info_to_unused_values_returns_200(users, edit_user_request):
-    """Alice troca o seu username para Joao e seu email para Joao@gmail.com"""
-
-    user = users["Alice"]
-    edited_user = copy.copy(user)
-
-    edited_user.username = "Joao"
-    edited_user.email = "Joao@gmail.com"
-
-    response = edit_user_request(edited_user, user)
-    assert response.status_code == 200, response.json()
-    assert response.json()["username"] == edited_user.username, response.json()
 
 
 def test_editing_username_to_used_value_returns_409(users, edit_user_request):

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 
-from models.schemas import ListNew, ListEdit, ReviewIn, UserIn
+from models.schemas import ListNew, List, ReviewNew, ReviewEdit, UserIn
 from .db_services import (
     DB_read_user_column, 
     DB_read_list_id, 
@@ -62,7 +62,6 @@ async def is_user_valid(conn, user: UserIn, user_id: str = None):
     if (len(username) < 4) or (len(username) > 24):
         raise QueryError(400, "O username deve ter entre 4 e 24 caracteres!")
         
-    
     user_id_exists = await DB_read_user_column(conn=conn, column="id", username=user.username)
 
     if user_id_exists is not None:
@@ -89,7 +88,7 @@ async def is_user_valid(conn, user: UserIn, user_id: str = None):
         password = user.password
 
         if not ((len(password) < 65) and (len(password) > 7)):
-            raise QueryError(400, "A senha deve conter entre 8 a 64 caractéres!")
+            raise QueryError(400, "A senha deve conter entre 8 a 64 caracteres!")
         
         if not any(char.isdigit() for char in password):
             raise QueryError(400, "A senha deve conter pelo menos um número!")
@@ -106,7 +105,7 @@ async def is_user_valid(conn, user: UserIn, user_id: str = None):
         if bio is not None:
 
             if len(bio) > 280:
-                raise QueryError(400, "A bio não pode ter mais que 280 caractéres!")
+                raise QueryError(400, "A bio não pode ter mais que 280 caracteres!")
 
             bio_stripped = bio.strip()
 
@@ -123,10 +122,10 @@ async def is_list_insertion_valid(conn, user_id: str, list_in: ListNew):
 
     # Usuário está tentando criar uma lista nova com um nome que já está em uso
     if await DB_read_list_id(conn, name, user_id) is not None:
-        raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
+        raise QueryError(409, f'Você já possui uma lista com o nome "{list_in.name}"!')
 
     if len(name) > 45:
-        raise QueryError(400, "O nome da lista não pode exceder 45 caractéres!")
+        raise QueryError(400, "O nome da lista não pode exceder 45 caracteres!")
 
     if len(name) == 0:
         raise QueryError(400, "O nome da lista não pode ser apenas espaço vazio!")
@@ -136,8 +135,8 @@ async def is_list_insertion_valid(conn, user_id: str, list_in: ListNew):
     if list_in.description is not None:
         description = list_in.description.strip()
 
-        if len(description) > 300:
-            raise QueryError(400, "A descrição da lista não pode exceder 300 caractéres!")
+        if len(description) > 280:
+            raise QueryError(400, "A descrição da lista não pode exceder 280 caracteres!")
 
         if len(description) == 0:
             raise QueryError(400, "A descrição da lista não pode ser apenas espaço vazio!")
@@ -147,14 +146,14 @@ async def is_list_insertion_valid(conn, user_id: str, list_in: ListNew):
     return list_in
 
 
-async def is_list_update_valid(conn, user_id: str, list_in: ListEdit):
+async def is_list_update_valid(conn, user_id: str, list_in: List, list_id: str):
     """Testa se uma lista ao editar é válida para entrar no DB"""
 
     name = list_in.name.strip()
     desc = list_in.description.strip() if list_in.description is not None else None
 
-    current_list_name = await DB_read_list_name(conn, list_in.list_id)
-    current_list_desc = await DB_read_list_desc(conn, list_in.list_id)
+    current_list_name = await DB_read_list_name(conn, list_id)
+    current_list_desc = await DB_read_list_desc(conn, list_id)
 
     if current_list_name in ("Jogos Completados", "Jogos Favoritos"): 
         if (name != current_list_name) or (desc != current_list_desc):
@@ -163,18 +162,18 @@ async def is_list_update_valid(conn, user_id: str, list_in: ListEdit):
     list_id_exists = await DB_read_list_id(conn, list_in.name, user_id)
 
     # Usuário está tentando editar uma lista e trocando o nome para um nome já em uso
-    if list_id_exists is not None and (list_id_exists != list_in.list_id):
+    if list_id_exists is not None and (list_id_exists != list_id):
         raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
 
     if len(name) > 45:
-        raise QueryError(400, "O nome da lista não pode exceder 45 caractéres!")
+        raise QueryError(400, "O nome da lista não pode exceder 45 caracteres!")
 
     if len(name) == 0:
         raise QueryError(400, "O nome da lista não pode ser apenas espaço vazio!")
 
     if desc is not None:
-        if len(desc) > 300:
-            raise QueryError(400, "A descrição da lista não pode exceder 300 caractéres!")
+        if len(desc) > 280:
+            raise QueryError(400, "A descrição da lista não pode exceder 280 caracteres!")
 
         if len(desc) == 0:
             raise QueryError(400, "A descrição da lista não pode ser apenas espaço vazio!")
@@ -184,36 +183,28 @@ async def is_list_update_valid(conn, user_id: str, list_in: ListEdit):
     return list_in
 
 
-async def is_review_insertion_valid(conn, review: ReviewIn, user_id: str):
+async def is_review_insertion_valid(conn, review: ReviewNew, user_id: str):
     """Testa se uma review ao criar é válida para entrar no BD"""
 
     if await DB_read_review_id(conn, user_id, review.game_id) is not None:
         raise QueryError(409, "Você já possui uma review desse jogo!")
 
-    if review.rating_text is not None and len(review.rating_text) > 300:
-        raise QueryError(400, "O texto da review não pode exceder 300 caractéres")
+    if review.rating_text is not None and len(review.rating_text) > 280:
+        raise QueryError(400, "O texto da review não pode exceder 280 caracteres!")
     
     return review
 
 
-async def is_review_update_valid(conn, review: ReviewIn, review_id: str, user_id: str):
+async def is_review_update_valid(conn, review: ReviewEdit, review_id: str, user_id: str):
     """Testa se uma review ao editar é válida para entrar no BD"""
-
-    old_game_id = await DB_read_review_game(conn, review_id)
-
-    if old_game_id is None:
-        raise QueryError(404, "Review não encontrada!")
-
-    if review.game_id != old_game_id:
-        raise QueryError(400, "O jogo não pode ser alterado!")
 
     reviewer_id = await DB_read_review_creator(conn, review_id)
 
     if reviewer_id != user_id:
-        raise QueryError(403, "O usuário está tentando editar uma review que não é dele")
+        raise QueryError(403, LACK_OF_REVIEW_OWNERSHIP_MSG)
     
-    if review.rating_text is not None and len(review.rating_text) > 300:
-        raise QueryError(400, "O texto da review não pode exceder 300 caractéres")
+    if review.rating_text is not None and len(review.rating_text) > 280:
+        raise QueryError(400, "O texto da review não pode exceder 280 caracteres!")
     
     return review
 

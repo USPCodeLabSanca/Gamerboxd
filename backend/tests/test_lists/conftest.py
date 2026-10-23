@@ -24,9 +24,9 @@ def create_list():
         assert create_response.json()["message"] == SUCCESS_CREATING_MSG["message"]
 
         if cleanup:
-            responses.append({"list_id": create_response.json()["id"], "cookies": cookies})
+            responses.append({"list_id": create_response.json()["list_id"], "cookies": cookies})
 
-        list_in.list_id = create_response.json()["id"]
+        list_in.list_id = create_response.json()["list_id"]
 
         return list_in
 
@@ -46,7 +46,7 @@ def edit_list_request():
 
     # Tenta editar a lista no DB
     def _edit_list_request(user: BaseUser, list_in: BaseList):
-        edit_resp = requests.put(f"{BASE_URL_LISTS}", cookies=user.cookies, json=asdict(list_in))
+        edit_resp = requests.put(f"{BASE_URL_LISTS}/{list_in.list_id}", cookies=user.cookies, json=asdict(list_in))
         return edit_resp
 
     return _edit_list_request

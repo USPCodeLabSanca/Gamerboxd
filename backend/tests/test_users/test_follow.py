@@ -1,5 +1,8 @@
 from .utils import *
 
+SUCCESS_FOLLOWING_MSG = {"message":"Conta seguida com sucesso!"}
+SUCCESS_UNFOLLOWING_MSG = {"message":"Conta desseguida com sucesso!"}
+CANT_FOLLOW_YOURSELF_MSG = {"message":"O usuário não pode seguir a si mesmo!"}
 
 def test_follow_returns_200(users, follow_request):
     """Alice segue Bernardo"""

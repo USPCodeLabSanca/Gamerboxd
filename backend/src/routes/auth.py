@@ -7,7 +7,7 @@ from services.db_services import DB_read_user_column
 from utils import *
 
 
-auth_router = APIRouter(tags=["auth"])
+auth_router = APIRouter(prefix= "/auth", tags=["auth"])
 
 
 @auth_router.post("/login")
@@ -25,23 +25,29 @@ async def login(user: UserAuth, conn = Depends(get_conn), key = Depends(get_key)
         raise QueryError(400, "Usuário ou senha incorretos")
 
     new_access_token = encode_token(user_id, 10, key)
-    new_refresh_token = encode_token(user_id, 1440, key)
+    new_refresh_token = encode_token(user_id, 720, key)
 
-    response = JSONResponse({"message":"Login feito com sucesso!"})
-    response.set_cookie("access-token", new_access_token, secure=True, httponly=True)
-    response.set_cookie("refresh-token", new_refresh_token, secure=True, httponly=True)
+    response = JSONResponse({"message":"Login feito com sucesso!", "user_id": user_id})
+    response.set_cookie("access-token", new_access_token, samesite="strict", secure=True, httponly=True)
+    response.set_cookie("refresh-token", new_refresh_token, samesite="strict", secure=True, httponly=True)
     
     return response
 
 
 @auth_router.delete("/login")
-async def logout(user_id = Depends(require_login)):
+async def logout():
     """Encerra a sessão do usuário removendo os cookies de autenticação"""
 
     response = JSONResponse({"message": "Logout feito com sucesso!"})
-    response.delete_cookie("refresh-token", secure=True, httponly=True)
-    response.delete_cookie("access-token", secure=True, httponly=True)
+    response.delete_cookie("refresh-token", secure=True, httponly=True, samesite="strict")
+    response.delete_cookie("access-token", secure=True, httponly=True, samesite="strict")
 
     return response
 
+
+@auth_router.get("/me")
+async def who_am_i(user_id: str = Depends(require_login)):
+    """Envia o user_id do usuário de volta para o frontend"""
+
+    return JSONResponse({"message": "Encontramos o usuário!", "user_id": user_id})
 

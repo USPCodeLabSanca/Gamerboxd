@@ -11,7 +11,7 @@ TABLES = {
                 bio VARCHAR(290) DEFAULT NULL,
                 is_verified BOOL NOT NULL DEFAULT false,
                 pfp TEXT DEFAULT NULL,
-                banner_pic TEXT DEFAULT NULL,
+                banner TEXT DEFAULT NULL,
                 created_at TIMESTAMPTZ DEFAULT NOW()
             )   
         '''

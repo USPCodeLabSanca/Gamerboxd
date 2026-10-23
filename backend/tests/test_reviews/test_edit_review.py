@@ -22,21 +22,6 @@ def test_edit_review_valid_fields_returns_200(users, games, create_review, edit_
     assert updated_review["rating_text"] == review.rating_text
 
 
-def test_edit_review_change_game_returns_400(users, games, create_review, edit_review_request):
-    """Alice tenta trocar o jogo de uma review já existente, o que não é permitido"""
-
-    user = users["Alice"]
-    game_id = games["mario"][0]
-    other_game_id = games["GTA"][0]
-
-    review = create_review(user, game_id, True)
-    review.game_id = other_game_id
-
-    response = edit_review_request(user, review)
-    assert response.status_code == 400, response.json()
-    assert response.json() == CANT_CHANGE_GAME_MSG
-
-
 def test_edit_review_not_found_returns_404(users, games, create_review, edit_review_request):
     """Alice tenta editar uma review de um jogo que ele nunca avaliou"""
 

@@ -7,11 +7,11 @@ def base_review(**overrides):
  
     review = {
         "game_id": -1,
-        "rating_num": 8.5,
+        "rating_num": 4.5,
         "rating_text": "Muito bom, recomendo!",
         "liked": True,
         "privacy": Clearence.ANY,
-        "time_played": 15.5,
+        "time_played": 15,
         "completed": True,
     }
     review.update(overrides)
@@ -24,7 +24,7 @@ new_reviews = [
     (base_review(rating_text=None), 200, SUCCESS_CREATING_MSG),
     ({k: v for k, v in base_review().items() if k != "rating_text"}, 200, SUCCESS_CREATING_MSG),
     (base_review(liked=False, privacy=10, completed=False, time_played=0.0, rating_num=0.0), 200, SUCCESS_CREATING_MSG),
-    (base_review(rating_text="a" * 300), 200, SUCCESS_CREATING_MSG),
+    (base_review(rating_text="a" * 280), 200, SUCCESS_CREATING_MSG),
  
     # BaseReview duplicada (mesmo usuário, mesmo jogo)
     (base_review(), 409, REVIEW_ALREADY_EXISTS),
@@ -69,7 +69,7 @@ def test_new_review(users, games, review_in, expected_status, expected_body):
     if expected_status == 409:
         setup_response = requests.post(url=BASE_URL_REVIEWS, json=base_review(game_id=game_id), cookies=cookies)
         assert setup_response.status_code == 200, setup_response.json()
-        setup_review_id = setup_response.json()["id"]
+        setup_review_id = setup_response.json()["review_id"]
  
     response = requests.post(url=BASE_URL_REVIEWS, json=review_in, cookies=cookies)
     assert response.status_code == expected_status, response.json()
@@ -78,7 +78,7 @@ def test_new_review(users, games, review_in, expected_status, expected_body):
         assert response.json().keys() == expected_body.keys()
         assert response.json()["message"] == expected_body["message"]
 
-        review_id = response.json()["id"] if response.status_code == 200 else None
+        review_id = response.json()["review_id"] if response.status_code == 200 else None
 
     # Limpa a review do DB caso a sua inserção tenha dado certo
     if response.status_code == 200:

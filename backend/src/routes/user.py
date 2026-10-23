@@ -7,11 +7,11 @@ from services.db_services.user import *
 from services.db_services.list import *
 from utils import *
 
-user_router = APIRouter(prefix="/user", tags=["user"])
+user_router = APIRouter(prefix="/users", tags=["user"])
 
-@user_router.post("/")
+@user_router.post("")
 async def new_user(user: UserIn, conn = Depends(get_conn), key = Depends(get_key)):
-    """ Cria uma nova conta de usuário. Ao criar a conta, 2 listas padrão são geradas (Favoritos e Completados)"""
+    """Cria uma nova conta de usuário. Ao criar a conta, 2 listas padrão são geradas (Favoritos e Completados)"""
 
     async with conn.transaction():
         user = await is_user_valid(conn, user)          # Validação do username, email e senha
@@ -20,11 +20,11 @@ async def new_user(user: UserIn, conn = Depends(get_conn), key = Depends(get_key
         await _first_lists(new_user_id, conn)           # Cria e salva as listas de favoritos e de completados
 
     # Loga o usuário
-    response = JSONResponse({"message":"Conta criada com sucesso!", "id": new_user_id})
+    response = JSONResponse({"message":"Conta criada com sucesso!", "user_id": new_user_id})
     new_access_token = encode_token(new_user_id, 10, key)
-    new_refresh_token = encode_token(new_user_id, 1440, key)
-    response.set_cookie("access-token", new_access_token, secure=True, httponly=True)
-    response.set_cookie("refresh-token", new_refresh_token, secure=True, httponly=True)
+    new_refresh_token = encode_token(new_user_id, 720, key)
+    response.set_cookie("access-token", new_access_token, samesite="strict", secure=True, httponly=True)
+    response.set_cookie("refresh-token", new_refresh_token, samesite="strict", secure=True, httponly=True)
     
     return response
 
@@ -55,54 +55,49 @@ async def _first_lists(user_id: str, conn):
     await DB_create_list_save(conn, finished_list_id, user_id)
 
 
-async def _get_user_feed(conn, user_id_viewed: str, user_id_viewer: str = None): 
+async def _get_user_account(conn, user_id_viewed: str, rel: int): 
     """Lê os dados completos de uma conta de usuário"""
 
     out = await DB_read_user_out(conn, user_id_viewed)              # Dados da conta do usuário
-    follows = await DB_read_user_follows(conn, user_id_viewed)      # Dados de seguidores do usuário                 
+    followers, followeds = await DB_read_user_follows(conn, user_id_viewed)      # Dados de seguidores do usuário                 
     lists = await DB_read_user_basic_lists(conn, user_id_viewed)    # Dados das listas básicas do usuário 
     
-    # Relacionamento entre o usuário que está vendo a conta e o usuário dono da conta 
-    rel = RelationshipStatus.OWNER if user_id_viewer is None else await classify_relationship(conn, user_id_viewer, user_id_viewed)
-
     return UserDetails(
         user_id=user_id_viewed,
         username=out.username,
         pfp=out.pfp,
+        banner=out.banner,
         bio=out.bio,
         created_at=out.created_at,
         lists=lists,
-        follows=follows,
+        follower_count=followers,
+        following_count=followeds,
         rel=rel
     )
 
 
-@user_router.get("/")
-async def see_my_account(conn = Depends(get_conn), user_id = Depends(require_login)):
-    """Retorna os dados completos do usuário autenticado"""
-
-    user_full = await _get_user_feed(conn, user_id)
-    return JSONResponse(user_full.model_dump())
-
-
-@user_router.put("/")
+@user_router.put("")
 async def edit_user(user: UserEdit, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Atualiza os dados do usuário autenticado"""
 
     async with conn.transaction():
-        user = await is_user_valid(conn, user, user_id)     # Validação do username, email e senha
-        await DB_update_user(conn, user, user_id)           # Atualiza o usuário no BD
-        user_full = await _get_user_feed(conn, user_id)     # Busca os dados atualizados do usuário
-
+        user = await is_user_valid(conn, user, user_id)             # Validação do username, email e senha
+        await DB_update_user(conn, user, user_id)                   # Atualiza o usuário no BD
+        user_full = await _get_user_account(conn, user_id, RelationshipStatus.OWNER)  
     return JSONResponse(user_full.model_dump())
 
 
-@user_router.delete("/")
+@user_router.delete("")
 async def delete_user(conn = Depends(get_conn), user_id = Depends(require_login)):
     """Remove permanentemente a conta do usuário autenticado"""
 
     await DB_delete_user(conn, user_id)
-    return JSONResponse({"message":"Conta deletada com sucesso!"})
+
+    response = JSONResponse({"message":"Conta deletada com sucesso!"})
+    response.delete_cookie("refresh-token", secure=True, httponly=True, samesite="strict")
+    response.delete_cookie("access-token", secure=True, httponly=True, samesite="strict")
+    
+    return response
 
 
 @user_router.post("/follow/{user_id}")
@@ -172,7 +167,7 @@ async def view_followers(user_id: str, page_query: PageQuery = Depends(validate_
     return JSONResponse(followers_page_with_urls.model_dump())
 
 
-@user_router.get("/follow/followeds/{user_id}")
+@user_router.get("/follow/following/{user_id}")
 async def view_followeds(user_id: str, page_query =Depends(validate_queries(["username", "created_at"], "created_at")),
     conn = Depends(get_conn), user_id_viewer = Depends(require_login), url= Depends(get_current_url)):
     """Busca os seguidos pelo usuário SE o visualisador é seguido pelo dono da conta ou se ele é o dono da conta"""
@@ -192,10 +187,10 @@ async def view_followeds(user_id: str, page_query =Depends(validate_queries(["us
 
     resolve_user_clearence(prev_relationship, uncleared_relationships)
 
-    followeds_page = await DB_read_user_followeds(conn, user_id, page_query)
-    followeds_page_with_urls = convert_cursors_to_paths(followeds_page, url)
+    followings_page = await DB_read_user_followings(conn, user_id, page_query)
+    followings_page_with_urls = convert_cursors_to_paths(followings_page, url)
 
-    return JSONResponse(followeds_page_with_urls.model_dump())
+    return JSONResponse(followings_page_with_urls.model_dump())
 
 
 @user_router.post("/block/{user_id}")
@@ -248,17 +243,23 @@ async def view_blocks(page_query = Depends(validate_queries(["username", "create
 
 
 @user_router.get("/{user_id}")
-async def see_account(user_id: str, conn = Depends(get_conn), user_id_viewer = Depends(optional_login)):
-    """Retorna os dados públicos de qualquer usuário pelo user_id"""
+async def see_account(user_id: str, conn = Depends(get_conn), user_id_viewer = Depends(require_login)):
+    """Retorna os dados públicos de um usuário pelo user_id"""
 
     # O user_id providenciado está errado
     if await DB_read_user_column(conn, "username", user_id=user_id) is None:
         raise QueryError(404, "Usuário não encontrado!") 
 
-    if (user_id_viewer is not None) and (await DB_read_is_blocked(conn, user_id, user_id_viewer)):
-        raise QueryError(403, "Usuário está tentando ver a conta que alguém que o bloqueou!")
+    prev_relationship = await classify_relationship(conn, user_id_viewer, user_id)
+
+    uncleared_relationships = {
+        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_USER_MSG),
+        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_OTHER_MSG),
+    }
+
+    resolve_user_clearence(prev_relationship, uncleared_relationships, prev_relationship)
         
-    user_feed = await _get_user_feed(conn, user_id, user_id_viewer)
+    user_feed = await _get_user_account(conn, user_id, prev_relationship)
 
     return JSONResponse(user_feed.model_dump())
     

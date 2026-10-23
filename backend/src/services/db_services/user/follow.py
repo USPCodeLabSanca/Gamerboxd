@@ -62,15 +62,15 @@ async def _DB_read_user_follow_page(conn, user_id: str, page_query: PageQuery, o
 
         return PageResult(
             total=total_followers,
-            page_size=len(rows),
+            page_len=len(rows),
             content=followers,
-            current_page=page_query.cursor,
-            next_page=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            current_url=page_query.cursor,
+            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
         )
 
         
 @db_query
-async def DB_read_user_followeds(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_followings(conn, user_id: str, page_query: PageQuery):
     """Lê uma página de seguidos pelo usuário. Filtra por follower, mostra followed"""
 
     return await _DB_read_user_follow_page(conn, user_id, page_query, "followed", "follower")
@@ -101,7 +101,7 @@ async def DB_read_user_follows(conn, user_id: str):
             WHERE f.followed = $1
         ''', user_id)
 
-    return UserFollows(follower_count=total_followers, following_count=total_followeds)
+    return total_followers, total_followeds
 
 
 @db_query

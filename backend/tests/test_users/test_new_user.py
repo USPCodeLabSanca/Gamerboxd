@@ -1,6 +1,17 @@
 from .utils import *
 
 
+SUCCESS_CREATING_MSG = {"message": "Conta criada com sucesso!", "user_id": "abc"}
+
+INVALID_EMAIL_MSG = {"message": "Email inválido!"}
+EMAIL_IN_USE_MSG = lambda email: {"message": f'O email "{email}" já está sendo utilizado!'}
+
+PWD_WRONG_LENGTH_MSG = {"message": "A senha deve conter entre 8 a 64 caracteres!"}
+PWD_WITHOUT_NUM_MSG = {"message": "A senha deve conter pelo menos um número!"}
+PWD_WITHOUT_SYMB_MSG = {"message": "A senha deve conter pelo menos um símbolo!"}
+PWD_WITHOU_CAP_MSG = {"message": "A senha deve conter pelo menos uma letra minúscula e uma letra maiúscula!"}
+
+
 def base_user(num: int, **overrides):
     """Payload padrão de um usuário"""
 
@@ -74,7 +85,7 @@ def test_new_users(user, expected_status, expected_body):
 
     # Limpa a conta do DB caso a sua inserção tenha dado certo
     if response.status_code == 200:
-        assert "id" in response_json.keys()
+        assert "user_id" in response_json.keys()
         
         for c in response.cookies:
             c.secure = False

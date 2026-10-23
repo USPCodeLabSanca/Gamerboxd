@@ -26,17 +26,6 @@ class UserEdit(User):
     bio: str | None = None
 
 
-class UserFollows(BaseModel):
-    """Dados sobre os seguidores e os seguidos do usuário"""
-    follower_count: int
-    following_count: int
-
-
-class UserBlocked(BaseModel):
-    """Dados sobre os bloqueados pelo usuário"""
-    blocked_count: int
-
-
 class UserOut(User):
     """Dados básicos de saída sobre um usuário"""
     bio: str | None = None
@@ -48,6 +37,7 @@ from .list import ListGames
 
 class UserDetails(UserOut):
     """Dados completos para preencher a conta do usuário"""
-    follows: UserFollows
+    follower_count: int
+    following_count: int
     lists: list[ListGames]
     rel: int

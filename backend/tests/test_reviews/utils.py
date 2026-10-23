@@ -1,10 +1,10 @@
 from ..utils import *
 
-SUCCESS_CREATING_MSG = {"message":"Review criada com sucesso!", "id": "a"}
+SUCCESS_CREATING_MSG = {"message":"Review criada com sucesso!", "review_id": "abc"}
 SUCCESS_DELETING_MSG = {"message":"Review deletada com sucesso!"}
 
 CANT_CHANGE_GAME_MSG = {"message": "O jogo não pode ser alterado!"}
-RATING_TEXT_TOO_BIG_MSG = {"message": "O texto da review não pode exceder 300 caractéres"}
+RATING_TEXT_TOO_BIG_MSG = {"message": "O texto da review não pode exceder 280 caracteres!"}
 REVIEW_ALREADY_EXISTS = {"message": "Você já possui uma review desse jogo!"}
 
 SUCCESS_LIKING_MSG = {"message": "Like adicionado com sucesso!"}
@@ -28,8 +28,8 @@ def view_review_likes(user: BaseUser, review: BaseReview):
     assert response.status_code == 200, response.json()
     review_likes += response.json()["content"]
 
-    while response.json()["next_page"] != None:
-        response = requests.get(response.json()["next_page"], cookies=cookies)
+    while response.json()["next_url"] != None:
+        response = requests.get(response.json()["next_url"], cookies=cookies)
         assert response.status_code == 200, response.json()
         review_likes += response.json()["content"]
 

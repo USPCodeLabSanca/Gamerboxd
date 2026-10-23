@@ -3,13 +3,11 @@ from uuid import uuid4
 
 from models.schemas.review import *
 from utils import *
-from .like import DB_read_count_likes
 from ..game import DB_read_game_basic
-from ..user import DB_read_user_column
 
 
 @db_query
-async def DB_create_review(conn, review: ReviewIn, user_id: str):   
+async def DB_create_review(conn, review: ReviewNew, user_id: str):   
     """Insere uma review no DB"""
 
     review_id = str(uuid4())
@@ -68,7 +66,7 @@ async def DB_read_review(conn, review_id: str):
 
     review = await conn.fetchrow('''
         SELECT r.*, u.username, u.pfp,
-        (SELECT COUNT(*) FROM ReviewLikes rl  WHERE rl.usr  = r.reviewer) AS likes_count
+        (SELECT COUNT(*) FROM ReviewLikes rl  WHERE rl.usr  = r.reviewer) AS like_count
         FROM Reviews r
         JOIN Users u ON u.id = r.reviewer
         WHERE r.id = $1
@@ -99,7 +97,7 @@ async def DB_read_review(conn, review_id: str):
         completed = review["completed"],
         tag_count = len(tags),
         tags = tags,
-        likes_count = review["likes_count"],
+        like_count = review["like_count"],
         liked = review["liked"],
         created_at = fix_date(review["created_at"]),
         updated_at = fix_date(review["updated_at"])
@@ -134,7 +132,7 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
 
     async with conn.transaction():
         
-        clauses =  PageClauses(
+        clauses = PageClauses(
             basic_conditions=[("r.reviewer = $1", user_id), ("r.privacy <= $2", clearence)],
             table_alias="r",
             col2="id",
@@ -154,7 +152,7 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
         where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.name, g.picture, g.year,
-            (SELECT COUNT(*) FROM ReviewLikes rl  WHERE rl.usr  = r.reviewer) AS likes_count,
+            (SELECT COUNT(*) FROM ReviewLikes rl  WHERE rl.usr  = r.reviewer) AS like_count,
             {cursor_cols}
             FROM Reviews r
             JOIN Users u ON u.id = r.reviewer
@@ -174,30 +172,29 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
             rating_text = r["rating_text"],
             liked = r["liked"],                     
             privacy = r["privacy"],
-            likes_count = r["likes_count"],
+            like_count = r["like_count"],
             game = GameOverview(game_id=r["game_id"], title=r["title"], picture=r["picture"], year=r["year"]),
             created_at = r["created_at"]
         ) for r in rows]
 
         return PageResult(
             total=total_created_reviews,
-            page_size=len(rows),
+            page_len=len(rows),
             content=created_reviews,
-            current_page=page_query.cursor,
-            next_page = encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            current_url=page_query.cursor,
+            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
         )
 
 
 @db_query
-async def DB_update_review(conn, review_id: str, review: ReviewIn):
+async def DB_update_review(conn, review_id: str, review: ReviewEdit):
     """Atualiza uma review no DB a partir do seu id"""    
     
-    time_now = datetime.now()
 
     await conn.execute('''
         UPDATE Reviews
-        SET game = $1, rating_num = $2, rating_text = $3,
-        privacy = $4, time_played = $5, liked = $6, completed = $7, updated_at = $8 
-        WHERE id = $9
-    ''', review.game_id, review.rating_num, review.rating_text, review.privacy, review.time_played, 
-    review.liked, review.completed, time_now, review_id)
+        SET rating_num = $1, rating_text = $2,
+        privacy = $3, time_played = $4, liked = $5, completed = $6, updated_at = NOW()
+        WHERE id = $7
+    ''', review.rating_num, review.rating_text, review.privacy, review.time_played, 
+    review.liked, review.completed, review_id)

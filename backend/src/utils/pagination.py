@@ -11,9 +11,9 @@ class PageResult(BaseModel):
     """Dados de uma página"""
 
     total: int
-    page_size: int = 10
-    current_page: str | None = None
-    next_page: str | None = None
+    page_len: int
+    current_url: str | None = None
+    next_url: str | None = None
     content: list
 
 
@@ -82,7 +82,7 @@ def build_where(page_clauses: PageClauses, param_queries: PageQuery, count: bool
     return where, order_by, cols_for_cursor, params
 
 
-def convert_cursors_to_paths(page_result: PageResult, current_path: str) -> PageResult:
+def convert_cursors_to_paths(page_result: PageResult, current_path: str):
     """Converte os cursores do page_result de encoded strs para paths de rota"""
 
     start_index = current_path.find("cursor=")
@@ -90,7 +90,7 @@ def convert_cursors_to_paths(page_result: PageResult, current_path: str) -> Page
     # Primeira busca (cursor não existe, então só colocar no final)
     if start_index == -1:
         query_char = "&" if "?" in current_path else "?"
-        next_path = current_path + query_char + "cursor=" + page_result.next_page if page_result.next_page is not None else None
+        next_path = current_path + query_char + "cursor=" + page_result.next_url if page_result.next_url is not None else None
 
     # Outra busca (cursor veio de uma busca passada)
     else:
@@ -102,9 +102,9 @@ def convert_cursors_to_paths(page_result: PageResult, current_path: str) -> Page
         start_of_path = current_path[:start_index]
         end_of_path = current_path[start_index + end_index:] if end_index != -1 else ""
 
-        next_path = start_of_path + page_result.next_page + end_of_path if page_result.next_page is not None else None
+        next_path = start_of_path + page_result.next_url + end_of_path if page_result.next_url is not None else None
 
-    page_result.current_page = current_path
-    page_result.next_page = next_path
+    page_result.current_url = current_path
+    page_result.next_url = next_path
 
     return page_result

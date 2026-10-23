@@ -16,7 +16,7 @@ def create_review():
             rating_text = "Muito bom, recomendo!",
             liked = True,
             privacy = privacy,
-            time_played = 15.5,
+            time_played = 15,
             completed = True,
         )
 
@@ -24,10 +24,10 @@ def create_review():
 
         if cleanup:
             assert create_resp.status_code == 200, create_resp.json()
-            assert "id" in create_resp.json().keys()
-            review_id = create_resp.json()["id"]
+            assert "review_id" in create_resp.json().keys()
+            review_id = create_resp.json()["review_id"]
             responses.append({"cookies": user.cookies, "review_id": review_id})
-            review.review_id = create_resp.json()["id"]
+            review.review_id = review_id
 
         return review
 

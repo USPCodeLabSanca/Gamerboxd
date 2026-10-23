@@ -4,12 +4,13 @@ from fastapi.responses import JSONResponse
 from models.schemas.list import *
 from services.security_services import is_list_insertion_valid, is_list_update_valid, classify_relationship, resolve_list_clearence
 from services.db_services.list import *
+from services.db_services.user import DB_read_user_column
 from utils import *
 
-list_router = APIRouter(prefix="/list", tags=["list"])
+list_router = APIRouter(prefix="/lists", tags=["list"])
 
 
-@list_router.post("/")
+@list_router.post("")
 async def new_list(new_list: ListNew, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Cria uma nova lista para o usuário autenticado. Ao ser criada, a lista é automaticamente salva para o criador"""
 
@@ -23,7 +24,7 @@ async def new_list(new_list: ListNew, conn = Depends(get_conn), user_id = Depend
         for g in new_list.first_games:
             await DB_create_list_game(conn, new_list_id, g)
 
-    return JSONResponse({"message":"Lista criada com sucesso!", "id": new_list_id})
+    return JSONResponse({"message":"Lista criada com sucesso!", "list_id": new_list_id})
     
 
 @list_router.delete("/{list_id}")
@@ -49,11 +50,11 @@ async def delete_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
     return JSONResponse({"message":"Lista deletada com sucesso!"})
 
 
-@list_router.put("/")
-async def edit_list(new_list: ListEdit, conn = Depends(get_conn), user_id = Depends(require_login)):
+@list_router.put("/{list_id}")
+async def edit_list(list_id: str, new_list: List, conn = Depends(get_conn), user_id = Depends(require_login)):
     """Atualiza os dados de uma lista do usuário autenticado e retorna os seus dados"""
 
-    list_creator_id = await DB_read_list_creator(conn, new_list.list_id)
+    list_creator_id = await DB_read_list_creator(conn, list_id)
 
     if list_creator_id is None:
         raise QueryError(404, LIST_NOT_FOUND_MSG)
@@ -61,15 +62,15 @@ async def edit_list(new_list: ListEdit, conn = Depends(get_conn), user_id = Depe
     if list_creator_id != user_id:
         raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
-    list_to_edit = await is_list_update_valid(conn, user_id, new_list)
+    list_to_edit = await is_list_update_valid(conn, user_id, new_list, list_id)
 
     # Se a privacidade mudou de público para privado, é necessário apagar a lista de todos as bibliotecas que a salvaram
-    current_list_privacy = await DB_read_list_privacy(conn, new_list.list_id)
+    current_list_privacy = await DB_read_list_privacy(conn, list_id)
     if list_to_edit.privacy >= current_list_privacy:
-        await DB_delete_list_saves_after_privacy_change(conn, new_list.list_id, user_id)
+        await DB_delete_list_saves_after_privacy_change(conn, list_id, user_id)
 
-    await DB_update_list(conn,list_to_edit)
-    list_data = await DB_read_list_data(conn, new_list.list_id)
+    await DB_update_list(conn, list_id, list_to_edit)
+    list_data = await DB_read_list_data(conn, list_id)
     list_data.rel = RelationshipStatus.OWNER
     
     return JSONResponse(list_data.model_dump())
@@ -79,6 +80,10 @@ async def edit_list(new_list: ListEdit, conn = Depends(get_conn), user_id = Depe
 async def view_created_lists(user_id: str, page_query = Depends(validate_queries(["name", "created_at", "updated_at"], "updated_at")),
     conn = Depends(get_conn), user_id_viewer = Depends(optional_login), path = Depends(get_current_url)):
     """Busca as listas criadas pelo usuário"""
+
+    # Verifica se o user_id providenciado está errado
+    if await DB_read_user_column(conn, "username", user_id=user_id) is None:
+        raise QueryError(404, USER_NOT_FOUND_MSG) 
 
     # Verifica qual a relação do usuário visualizador com o usuário criador das listas
     prev_relationship = await classify_relationship(conn, user_id_viewer, user_id)
@@ -157,14 +162,14 @@ async def unsave_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
         raise QueryError(404, LIST_NOT_FOUND_MSG)
 
     if list_creator_id == user_id:
-        raise QueryError(403, "Não é possível dessalvar sua própria lista, apenas deletá-la!")
+        raise QueryError(403, "O usuário está tentando dessalvar sua própria lista!")
     
     await DB_delete_list_save(conn, list_id, user_id)
     
-    return JSONResponse({"message": "Lista dessalvada com sucesso"})
+    return JSONResponse({"message": "Lista dessalva com sucesso!"})
 
 
-@list_router.get("/save/lists")
+@list_router.get("/save")
 async def view_saved_lists(page_query = Depends(validate_queries(["name", "created_at"], "created_at")),
     conn = Depends(get_conn), user_id = Depends(require_login), path = Depends(get_current_url)):
     """Busca as listas salvas pelo usuário"""
@@ -197,7 +202,7 @@ async def add_to_list(list_id: str, game_id: int, conn = Depends(get_conn), user
 
     await DB_create_list_game(conn, list_id, game_id)
 
-    return JSONResponse({"message": "Jogo adicionado à lista com sucesso"})
+    return JSONResponse({"message": "Game adicionado à lista com sucesso!"})
 
 
 @list_router.delete("/game/{list_id}/{game_id}")
@@ -219,7 +224,7 @@ async def rem_from_list(list_id: str, game_id: int, conn = Depends(get_conn), us
 
     await DB_delete_list_game(conn, list_id, game_id)
 
-    return JSONResponse({"message": "Jogo removido da lista com sucesso"})
+    return JSONResponse({"message": "Jogo removido da lista com sucesso!"})
 
 
 @list_router.get("/game/{list_id}")

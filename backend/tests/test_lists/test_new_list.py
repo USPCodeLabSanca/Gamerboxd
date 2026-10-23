@@ -48,7 +48,7 @@ def test_new_lists(users, list_in, expected_status, expected_body):
         list1 = base_list(1)
         response_duplicate = requests.post(url=BASE_URL_LISTS, json=list1, cookies=cookies)
         assert response_duplicate.status_code == 200
-        duplicate_list_id = response_duplicate.json()["id"]
+        duplicate_list_id = response_duplicate.json()["list_id"]
 
     response = requests.post(url=BASE_URL_LISTS, json=list_in, cookies=cookies)
     assert response.status_code == expected_status, response.json()
@@ -57,7 +57,7 @@ def test_new_lists(users, list_in, expected_status, expected_body):
         assert expected_body.keys() == response.json().keys()
         assert expected_body["message"] == response.json()["message"]
 
-        list_id = response.json()["id"] if expected_status == 200 else None
+        list_id = response.json()["list_id"] if expected_status == 200 else None
 
     if response.status_code == 200:
         response_delete = requests.delete(url=BASE_URL_LISTS + f"/{list_id}", cookies=cookies)
@@ -77,9 +77,9 @@ def test_creating_list_with_games_returns_200(users, games):
 
     response = requests.post(url=BASE_URL_LISTS, json=list_in, cookies=user.cookies)
     assert response.status_code == 200, response.json()
-    assert "id" in response.json().keys()
+    assert "list_id" in response.json().keys()
 
-    list_with_games = BaseList(list_id=response.json()["id"])
+    list_with_games = BaseList(list_id=response.json()["list_id"])
 
     for g in games_list:
         assert_game_in_list(user, list_with_games, g)

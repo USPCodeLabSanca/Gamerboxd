@@ -17,10 +17,10 @@ def _create_account_by_username(username: str):
     assert response.status_code == 200, response_json
     assert "message" in response_json.keys()
     assert response_json["message"] == "Conta criada com sucesso!"
-    assert "id" in response_json.keys()
+    assert "user_id" in response_json.keys()
 
     return BaseUser(
-        user_id = response_json["id"],
+        user_id = response_json["user_id"],
         username=payload["username"],
         pwd=payload["password"],
         email=payload["email"],
@@ -61,7 +61,7 @@ def games():
     def _get_games(game_name: str):
         """Pega 10 jogos relacionados a um nome na API rawg"""
 
-        url = BASE_URL_GAMES + f"/{game_name}" + "?detail=false&page=1&page_size=10"
+        url = BASE_URL_GAMES + f"?search={game_name}" + "&detail=false&page=1&page_size=10"
 
         response = requests.get(url)
         assert response.status_code == 200, response.json()

@@ -21,7 +21,7 @@ def require_login(request: Request):
 
     login = request.state.user_login
     if not login["logged_in"]:
-        raise QueryError(401, "É necessário fazer login para esta ação")
+        raise QueryError(401, "É necessário fazer login para esta ação!")
     return login["user_id"]
 
 
@@ -50,7 +50,7 @@ def get_current_url(request: Request):
     return str(request.url)
 
 
-def validate_queries(order_bys: list[str], standard_order_by: str, limit: int = 100):
+def validate_queries(order_bys: list[str], standard_order_by: str, limit: int = 50):
     """Verifica se os query parameters são válidos para aquela rota"""
 
     def dependency(page_query: PageQuery = Depends()):

@@ -1,6 +1,6 @@
 from ..utils import *
 
-SUCCESS_CREATING_MSG = {"message":"Lista criada com sucesso!", "id": "abc"}
+SUCCESS_CREATING_MSG = {"message":"Lista criada com sucesso!", "list_id": "abc"}
 SUCCESS_DELETING_MSG = {"message":"Lista deletada com sucesso!"}
 
 SUCCESS_SAVING_MSG = {"message": "Lista salva com sucesso!"}
@@ -14,10 +14,10 @@ LIST_NOT_FOUND_MSG = {"message": "Lista não encontrada!"}
 USER_NOT_FOUND_MSG = {"message": "Usuário não encontrado!"}
 
 LIST_NAME_TAKEN = lambda name: {"message": f'O usuário já possui uma lista com o nome "{name}"!'}
-LIST_NAME_TOO_BIG = {"message": "O nome da lista não pode exceder 45 caractéres!"}
+LIST_NAME_TOO_BIG = {"message": "O nome da lista não pode exceder 45 caracteres!"}
 LIST_NAME_BLANK = {"message": "O nome da lista não pode ser apenas espaço vazio!"}
 
-LIST_DESC_TOO_BIG = {"message": "A descrição da lista não pode exceder 300 caractéres!"}
+LIST_DESC_TOO_BIG = {"message": "A descrição da lista não pode exceder 280 caracteres!"}
 LIST_DESC_BLANK = {"message": "A descrição da lista não pode ser apenas espaço vazio!"}
 
 PRIVATE_LIST_MSG = {"message": "Essa lista é privada!"}
@@ -48,8 +48,8 @@ def view_list_saves(user: BaseUser):
     response_json = response.json()
     saved_lists += response_json["content"]
 
-    while response_json["next_page"] != None:
-        response = requests.get(response_json["next_page"], cookies=cookies)
+    while response_json["next_url"] != None:
+        response = requests.get(response_json["next_url"], cookies=cookies)
         assert response.status_code == 200, response.json()
         response_json = response.json()
         saved_lists += response_json["content"]
@@ -82,8 +82,8 @@ def view_list_games(user: BaseUser, list_in: BaseList):
     response_json = response.json()
     list_games += response_json["content"]
 
-    while response_json["next_page"] != None:
-        response = requests.get(response_json["next_page"], cookies=cookies)
+    while response_json["next_url"] != None:
+        response = requests.get(response_json["next_url"], cookies=cookies)
         assert response.status_code == 200, response.json()
         response_json = response.json()
         list_games += response_json["content"]
@@ -116,8 +116,8 @@ def view_created_lists(user: BaseUser):
     response_json = response.json()
     user_lists += response_json["content"]
 
-    while response_json["next_page"] != None:
-        response = requests.get(response_json["next_page"], cookies=cookies)
+    while response_json["next_url"] != None:
+        response = requests.get(response_json["next_url"], cookies=cookies)
         assert response.status_code == 200, response.json()
         response_json = response.json()
         user_lists += response_json["content"]

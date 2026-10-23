@@ -4,10 +4,10 @@ from requests.cookies import RequestsCookieJar
 from dataclasses import dataclass, replace, asdict
 
 BASE_URL = "http://127.0.0.1:8000"
-BASE_URL_USERS = BASE_URL + "/user"
-BASE_URL_LISTS = BASE_URL + "/list"
-BASE_URL_REVIEWS = BASE_URL + "/review"
-BASE_URL_GAMES = BASE_URL + "/game"
+BASE_URL_USERS = BASE_URL + "/users"
+BASE_URL_LISTS = BASE_URL + "/lists"
+BASE_URL_REVIEWS = BASE_URL + "/reviews"
+BASE_URL_GAMES = BASE_URL + "/games"
 
 class Clearence(IntEnum):
     """Possíveis nívels de permissão para visibilidade de uma lista/review"""
@@ -39,10 +39,10 @@ class BaseList:
 class BaseReview:
     review_id: str | None = None
     game_id: int = -1,
-    rating_num: float = 8.5,
+    rating_num: float = 3.5,
     rating_text: str = "Muito bom, recomendo!",
     privacy: int = Clearence.ANY,
-    time_played: float = 15.5,
+    time_played: int = 15
     liked: bool = True,
     completed: bool = True
 
@@ -51,18 +51,18 @@ def view_followers(user: BaseUser):
     """Retorna por quem o user é seguido"""
 
     followers = []
-    url = BASE_URL_USERS + f"/follow/followers/{user.user_id}?page_size=50"
+    url = BASE_URL_USERS + f"/follow/followers/{user.user_id}?page_size=40"
 
     response = requests.get(url, cookies=user.cookies)
     assert response.status_code == 200, response.json()
     followers += response.json()["content"]
-    url = response.json()["next_page"]
+    url = response.json()["next_url"]
 
     while url is not None:
         response = requests.get(url, cookies=user.cookies)
         assert response.status_code == 200, response.json()
         followers += response.json()["content"]
-        url = response.json()["next_page"]
+        url = response.json()["next_url"]
 
     return followers
 
@@ -72,18 +72,18 @@ def view_followeds(user: BaseUser):
 
     followeds = []
 
-    url = BASE_URL_USERS + f"/follow/followeds/{user.user_id}?page_size=50"
+    url = BASE_URL_USERS + f"/follow/following/{user.user_id}?page_size=50"
 
     response = requests.get(url, cookies=user.cookies)
     assert response.status_code == 200, response.json()
     followeds += response.json()["content"]
-    url = response.json()["next_page"]
+    url = response.json()["next_url"]
 
     while url is not None:
         response = requests.get(url, cookies=user.cookies)
         assert response.status_code == 200, response.json()
         followeds += response.json()["content"]
-        url = response.json()["next_page"]
+        url = response.json()["next_url"]
 
     return followeds
 
@@ -122,12 +122,13 @@ def view_blocks(user: BaseUser):
     response = requests.get(url, cookies=user.cookies)
     assert response.status_code == 200, response.json()
     blocks += response.json()["content"]
+    url = response.json()["next_url"]
 
     while url is not None:
         response = requests.get(url, cookies=user.cookies)
         assert response.status_code == 200, response.json()
         blocks += response.json()["content"]
-        url = response.json()["next_page"]
+        url = response.json()["next_url"]
 
     return blocks
 

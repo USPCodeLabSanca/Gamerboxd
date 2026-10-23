@@ -90,15 +90,15 @@ async def DB_read_user_saved_lists(conn, user_id: str, page_query: PageQuery):
             name=r["name"],
             list_id=r["list_id"],
             creator=User(user_id=r["user_id"], username=r["username"], pfp=r["pfp"]),
-            list_saves_count=r["saves"],
+            saves_count=r["saves"],
             cover_picture=r["cover"],
             rel = RelationshipStatus.OWNER
         ) for r in rows]
 
         return PageResult(
             total=total_saves,
-            page_size=len(rows),
+            page_len=len(rows),
             content=saved_lists,
-            current_page=page_query.cursor,
-            next_page = encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            current_url=page_query.cursor,
+            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
         )
