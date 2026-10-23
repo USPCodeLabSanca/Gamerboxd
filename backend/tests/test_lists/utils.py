@@ -4,16 +4,16 @@ SUCCESS_CREATING_MSG = {"message":"Lista criada com sucesso!", "list_id": "abc"}
 SUCCESS_DELETING_MSG = {"message":"Lista deletada com sucesso!"}
 
 SUCCESS_SAVING_MSG = {"message": "Lista salva com sucesso!"}
-SUCCEESS_UNSAVING_MSG = {"message": "Lista dessalvada com sucesso"}
-CANT_UNSVAE_CREATED_LIST = {"message": "Não é possível dessalvar sua própria lista, apenas deletá-la!"}
+SUCCEESS_UNSAVING_MSG = {"message": "Lista dessalva com sucesso!"}
+CANT_UNSVAE_CREATED_LIST = {"message": "O usuário está tentando dessalvar sua própria lista!"}
 
-SUCCESS_ADDING_MSG = {"message": "Jogo adicionado à lista com sucesso"}
-SUCCEESS_REMOVING_MSG = {"message": "Jogo removido da lista com sucesso"}
+SUCCESS_ADDING_MSG = {"message": "Game adicionado à lista com sucesso!"}
+SUCCEESS_REMOVING_MSG = {"message": "Game removido da lista com sucesso!"}
 
 LIST_NOT_FOUND_MSG = {"message": "Lista não encontrada!"}
 USER_NOT_FOUND_MSG = {"message": "Usuário não encontrado!"}
 
-LIST_NAME_TAKEN = lambda name: {"message": f'O usuário já possui uma lista com o nome "{name}"!'}
+LIST_NAME_TAKEN = lambda name: {"message": f'Você já possui uma lista com o nome "{name}"!'}
 LIST_NAME_TOO_BIG = {"message": "O nome da lista não pode exceder 45 caracteres!"}
 LIST_NAME_BLANK = {"message": "O nome da lista não pode ser apenas espaço vazio!"}
 
@@ -43,7 +43,7 @@ def view_list_saves(user: BaseUser):
     cookies = user.cookies
     saved_lists = []
 
-    response = requests.get(BASE_URL_LISTS + "/save/lists", cookies=cookies)
+    response = requests.get(BASE_URL_LISTS + "/save", cookies=cookies)
     assert response.status_code == 200, response.json()
     response_json = response.json()
     saved_lists += response_json["content"]

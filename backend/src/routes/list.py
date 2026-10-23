@@ -104,31 +104,6 @@ async def view_created_lists(user_id: str, page_query = Depends(validate_queries
     return JSONResponse(created_lists_page_with_urls.model_dump())
 
 
-@list_router.get("/{list_id}")
-async def view_list_data(list_id: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
-    """Busca os dados completos de uma lista"""
-
-    list_creator_id = await DB_read_list_creator(conn, list_id)
-
-    if list_creator_id is None:
-        raise QueryError(404, LIST_NOT_FOUND_MSG)
-
-    list_privacy = await DB_read_list_privacy(conn, list_id)
-    prev_relationship = await classify_relationship(conn, user_id, list_creator_id)
-
-    resolve_list_clearence(prev_relationship, list_privacy)
-
-    list_data = await DB_read_list_data(conn, list_id)
-    if prev_relationship == RelationshipStatus.OWNER:
-        list_data.rel = RelationshipStatus.OWNER
-
-    else:
-        has_saved = await DB_read_user_has_saved_list(conn, list_id, user_id)
-        list_data.rel = RelationshipStatus.SAVED if has_saved else RelationshipStatus.ANY
-
-    return JSONResponse(list_data.model_dump())
-
-
 @list_router.post("/save/{list_id}")
 async def save_list(list_id: str, conn = Depends(get_conn), user_id = Depends(require_login)):  
     """Salva a lista pública de outro usuário na biblioteca do autenticado"""
@@ -173,6 +148,8 @@ async def unsave_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
 async def view_saved_lists(page_query = Depends(validate_queries(["name", "created_at"], "created_at")),
     conn = Depends(get_conn), user_id = Depends(require_login), path = Depends(get_current_url)):
     """Busca as listas salvas pelo usuário"""
+
+    print("here!")
 
     saved_lists_page = await DB_read_user_saved_lists(conn, user_id, page_query)
     saved_lists_page_with_urls = convert_cursors_to_paths(saved_lists_page, path)
@@ -224,7 +201,7 @@ async def rem_from_list(list_id: str, game_id: int, conn = Depends(get_conn), us
 
     await DB_delete_list_game(conn, list_id, game_id)
 
-    return JSONResponse({"message": "Jogo removido da lista com sucesso!"})
+    return JSONResponse({"message": "Game removido da lista com sucesso!"})
 
 
 @list_router.get("/game/{list_id}")
@@ -248,3 +225,26 @@ async def view_list_games(list_id: str, page_query = Depends(validate_queries(["
     return JSONResponse(list_games_page_with_urls.model_dump())
 
 
+@list_router.get("/{list_id}")
+async def view_list_data(list_id: str, conn = Depends(get_conn), user_id = Depends(optional_login)):
+    """Busca os dados completos de uma lista"""
+
+    list_creator_id = await DB_read_list_creator(conn, list_id)
+
+    if list_creator_id is None:
+        raise QueryError(404, LIST_NOT_FOUND_MSG)
+
+    list_privacy = await DB_read_list_privacy(conn, list_id)
+    prev_relationship = await classify_relationship(conn, user_id, list_creator_id)
+
+    resolve_list_clearence(prev_relationship, list_privacy)
+
+    list_data = await DB_read_list_data(conn, list_id)
+    if prev_relationship == RelationshipStatus.OWNER:
+        list_data.rel = RelationshipStatus.OWNER
+
+    else:
+        has_saved = await DB_read_user_has_saved_list(conn, list_id, user_id)
+        list_data.rel = RelationshipStatus.SAVED if has_saved else RelationshipStatus.ANY
+
+    return JSONResponse(list_data.model_dump())

@@ -163,7 +163,7 @@ async def is_list_update_valid(conn, user_id: str, list_in: List, list_id: str):
 
     # Usuário está tentando editar uma lista e trocando o nome para um nome já em uso
     if list_id_exists is not None and (list_id_exists != list_id):
-        raise QueryError(409, f'O usuário já possui uma lista com o nome "{list_in.name}"!')
+        raise QueryError(409, f'Você já possui uma lista com o nome "{list_in.name}"!')
 
     if len(name) > 45:
         raise QueryError(400, "O nome da lista não pode exceder 45 caracteres!")
