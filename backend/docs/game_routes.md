@@ -22,7 +22,7 @@ Busca jogos pelo nome.
 | `search`    | string | ✅          | -      | Termo de busca para os jogos                |
 | `page`      | int    | ❌          | `1`    | Número da página                            |
 | `page_size` | int    | ❌          | `20`   | Quantidade máxima de resultados por página  |
-| `detail`    | bool   | ✅          | -      | Quanto de detalhe (**\_\_GAME\_\_** ou **\_\_GAME_FULL\_\_**) a resposta terá |
+| `detail`    | bool   | ✅          | -      | Quanto de detalhe ([**\_\_GAME\_\_**](./routes.md#__game__) ou [**\_\_GAME_FULL\_\_**](./routes.md#__game_full__)) a resposta terá |
 
 ### Resposta de Sucesso — `200`
 
@@ -40,11 +40,12 @@ Busca jogos pelo nome.
 }
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
-| Status | HR    | Causa                 |
-|--------|-------|-----------------------|
-| `500`  |❌     | Erro interno          |
-| `502`  |❌     | Falha da API de games |
+| Status | HR (human readable)    | Causa                 |
+|--------|------------------------|-----------------------|
+| `422`  |❌                      | Query parameters faltando ou inválidos |
+| `500`  |❌                      | Erro interno          |
+| `502`  |❌                      | Falha da API de games |
 
 ---

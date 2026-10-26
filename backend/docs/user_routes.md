@@ -24,7 +24,7 @@ Cria uma nova conta de usuário.
 **Regras e comportamentos:**
 - **Não requer login**.
 - Ao criar a conta, duas listas padrão são geradas automaticamente: **Jogos Favoritos** e **Jogos Completados**. 
-- Na resposta, são definidos automaticamente os dois cookies padrão de autenticação.
+- Na resposta, são definidos automaticamente os dois [cookies padrão de autenticação](./routes.md#cookies-de-autenticação).
  
 ### Request Body
  
@@ -36,11 +36,11 @@ Cria uma nova conta de usuário.
 }
 ```
  
-| Campo      | Tipo   | Obrigatório | Regras                                                                                 |
-|------------|--------|-------------|----------------------------------------------------------------------------------------|
-| `username` | string | ✅          | Entre 4 e 24 caracteres, não pode estar em uso                                         |
-| `email`    | string | ✅          | Formato de e-mail válido, não pode estar em uso                                        |
-| `password` | string | ✅          | Entre 8 e 64 caracteres, com ao menos: 1 maiúscula, 1 minúscula, 1 número e 1 símbolo  |
+| Campo      | Tipo   | Obrigatório | Regras                                            |
+|------------|--------|-------------| --------------------------------------------------|
+| `username` | string | ✅          | Entre 4 e 24 caracteres, não pode estar em uso    |
+| `email`    | string | ✅          | Formato de e-mail válido, não pode estar  |
+| `password` | string | ✅          | Entre 8 e 64 caracteres, com ao menos: 1 maiúscula, 1 minúscula, 1 número e 1 símbolo |
 
 ### Resposta de Sucesso — `200`
  
@@ -48,13 +48,14 @@ Cria uma nova conta de usuário.
 {"message":"Conta criada com sucesso!", "user_id": "string"}
 ```
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
-| Status | HR     | Causa                                                             |
-|--------|--------|-------------------------------------------------------------------|
-| `400`  | ✅     | Username muito curto/longo, e-mail inválido, senha fora do padrão |
-| `409`  | ✅     | Username já em uso, e-mail já em uso                              |
-| `500`  | ❌     | Erro interno                                                      |
+| Status | HR (human readable)    | Causa                                                             |
+|--------|------------------------|-------------------------------------------------------------------|
+| `400`  | ✅                     | Username muito curto/longo, e-mail inválido, senha fora do padrão |
+| `409`  | ✅                     | Username já em uso, e-mail já em uso                              |
+| `422`  | ❌                     | Campo(s) do request body ausentes ou inválidos                    |
+| `500`  | ❌                     | Erro interno                                                      |
 
 --- 
 
@@ -73,9 +74,9 @@ Retorna os dados de um usuário pelo user_id.
  
 ### Resposta de Sucesso — `200`
  
-Retorna schema **\_\_USER_FULL\_\_**
+Retorna schema [**\_\_USER_FULL\_\_**](./routes.md#__user_full__).
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
 | Status | HR     | Causa                                                        |
 |--------|--------|--------------------------------------------------------------|
@@ -107,26 +108,27 @@ Atualiza os dados do usuário autenticado.
 }
 ```
  
-| Campo      | Tipo                   | Obrigatório  | Regras                                            |
-|------------|------------------------|--------------|---------------------------------------------------|
-| `username` | string,                | ✅           | Entre 4 e 24 caracteres, não pode estar em uso    |
-| `email`    | string,                | ✅           | Formato de e-mail válido, não pode estar em uso   |
-| `bio`      | string, null           | ✅           | Até 280 caracteres, não pode ser só espaço vazios |
-| `pfp`      | string, null           | ✅           | Caminho da foto de perfil                         |
-| `banner`   | string, null           | ✅           | Caminho do banner do perfil                       |
+| Campo      | Tipo           | Obrigatório  | Regras                                            |
+|------------|----------------|--------------|---------------------------------------------------|
+| `username` | string,        | ✅           | Entre 4 e 24 caracteres, não pode estar em uso    |
+| `email`    | string,        | ✅           | Formato de e-mail válido, não pode estar em uso   |
+| `bio`      | string, null   | ✅           | Até 280 caracteres, não pode ser só espaço vazios |
+| `pfp`      | string, null   | ✅           | Caminho da foto de perfil                         |
+| `banner`   | string, null   | ✅           | Caminho do banner do perfil                       |
  
 
 ### Resposta de Sucesso — `200`
  
-Retorna schema **\_\_USER_FULL\_\_**
+Retorna schema [**\_\_USER_FULL\_\_**](./routes.md#__user_full__).
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
 | Status | HR     | Causa                                 |
 |--------|--------|---------------------------------------|
 | `400`  | ✅     | Username muito curto/longo, e-mail inválido, descrição muito longa ou apenas espaço vazio |
 | `401`  | ✅     | Usuário não autenticado               |
 | `409`  | ✅     | Username já em uso, e-mail já em uso  |
+| `422`  | ❌     | Campo(s) do request body ausentes ou inválidos |
 | `500`  | ❌     | Erro interno                          |
  
 ---
@@ -142,7 +144,7 @@ Remove permanentemente a conta do usuário autenticado.
 - Os saves que o autenticado deu em listas criadas por outros usuários são deletados.
 - Os likes que o autenticado deu em reviews criadas por outros usuários são deletados.
 - Todos os relacionamentos do autenticado (seguidos, seguidores, bloqueios) são deletados.
-- Os cookies padrão de autenticação são deletados automaticamente na resposta.
+- Os [cookies padrão de autenticação](./routes.md#cookies-de-autenticação) são deletados automaticamente na resposta.
 
 ### Resposta de Sucesso — `200`
 
@@ -150,7 +152,7 @@ Remove permanentemente a conta do usuário autenticado.
 {"message" : "Conta deletada com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                           |
 |--------|--------|---------------------------------|
@@ -180,7 +182,7 @@ Faz o usuário autenticado seguir outro usuário.
 {"message": "Conta seguida com sucesso!"}
 ```
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
 | Status | HR     | Causa                                                            |
 |--------|--------|------------------------------------------------------------------|
@@ -212,7 +214,7 @@ Faz o usuário autenticado deixar de seguir outro usuário.
 {"message":"Conta desseguida com sucesso!"}
 ```
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
 | Status | HR     | Causa                                     |
 |--------|--------|-------------------------------------------|
@@ -224,7 +226,7 @@ Faz o usuário autenticado deixar de seguir outro usuário.
 
 ## GET `/users/follow/followers/{user_id}` — Ver os seguidores do usuário
 
-Retorna os seguidores do usuário.
+Busca de forma paginada os seguidores do usuário.
 
 **Regras e comportamentos:**
 - **Requer login**.
@@ -237,7 +239,7 @@ Retorna os seguidores do usuário.
 |------------|--------|-------------------------------------------------------------------|
 | `user_id`  | string | ID único do usuário sobre o qual se quer visualizar os seguidores |
 
-### Query Parameters
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames dos seguidores do usuário.
@@ -247,21 +249,21 @@ Retorna os seguidores do usuário.
  
 Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
 | Status | HR     | Causa                                                       |
 |--------|--------|-------------------------------------------------------------|
 | `401`  | ✅     | Usuário não autenticado                                     |
 | `403`  | ❌     | Usuário não é o dono da conta ou seguido pelo dono da conta |
 | `404`  | ✅     | Usuário dono da conta não encontrado                        |
-| `406`  | ❌     | Query parameters presentes, porém inválidos                                  |
+| `422`  | ❌     | Query parameters inválidos                                  |
 | `500`  | ❌     | Erro interno                                                |  
 
 ---
 
 ## GET `/users/follow/followings/{user_id}` — Ver os seguidos do usuário
 
-Retorna os seguidos pelo usuário.
+Busca de forma paginada os seguidos pelo usuário.
 
 **Regras e comportamentos:**
 - **Requer login**.
@@ -273,7 +275,7 @@ Retorna os seguidos pelo usuário.
 |------------|--------|------------------------------------------------------|
 | `user_id`  | string | ID único sobre o qual se quer visualizar os seguidos |
 
-### Query Parameters
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames dos seguidos pelo usuário.
@@ -283,14 +285,14 @@ Retorna os seguidos pelo usuário.
  
 Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
 | Status | HR     | Causa                                                       |
 |--------|--------|-------------------------------------------------------------|
 | `401`  | ✅     | Usuário não autenticado                                     |
 | `403`  | ❌     | Usuário não é o dono da conta ou seguido pelo dono da conta |
 | `404`  | ✅     | Usuário dono da conta não encontrado                        |
-| `406`  | ❌     | Query parameters presentes, porém inválidos                                  |
+| `422`  | ❌     | Query parameters inválidos                                  |
 | `500`  | ❌     | Erro interno                                                |
 
 ---
@@ -321,7 +323,7 @@ Faz o usuário autenticado bloquear outro usuário.
 {"message":"Conta bloqueada com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                       |
 |--------|--------|---------------------------------------------|
@@ -353,7 +355,7 @@ Faz o usuário autenticado desbloquear um usuário.
 {"message":"Conta desbloqueada com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                       |
 |--------|--------|---------------------------------------------|
@@ -365,12 +367,12 @@ Faz o usuário autenticado desbloquear um usuário.
 
 ## GET `/users/block` — Ver os bloqueados pelo usuário
 
-Retorna os bloqueados pelo usuário autenticado.
+Busca de forma paginada os bloqueados pelo usuário autenticado.
 
 **Regras e comportamentos:**
 - **Requer login**.
 
-### Query Parameters
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames dos bloqueados pelo usuário.
@@ -380,12 +382,12 @@ Retorna os bloqueados pelo usuário autenticado.
  
 Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
  
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
  
 | Status | HR     | Causa                           |
 |--------|--------|---------------------------------|
 | `401`  | ✅     | Usuário não autenticado         |
-| `406`  | ❌     | Query parameters presentes, porém inválidos      |
+| `422`  | ❌     | Query parameters inválidos      |
 | `500`  | ❌     | Erro interno                    |
 
 ---

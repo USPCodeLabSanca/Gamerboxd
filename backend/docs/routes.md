@@ -66,7 +66,7 @@ __PAGE_RESULT__ = {
 Alguns schemas vão se repetir bastante ao longo da documentação, então fica aqui a definição deles:
 
 
-- **\_\_USER\_\_**
+- #### \_\_USER\_\_
   
 ```json
 {
@@ -75,7 +75,7 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
     "pfp": "string" | null,     // Caminho para a foto de perfil, null se não houver
 }
 ```
-- **\_\_USER_FULL\_\_**
+- #### \_\_USER_FULL\_\_
   
 ```json
 {
@@ -102,7 +102,7 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
 }
 ```
 
-- **\_\_LIST\_\_**:
+- #### \_\_LIST\_\_
   
 ```json
 {
@@ -114,7 +114,7 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
     "rel": 0                            // Relacionamento entre o usuário visualizador e a lista
 }
 ```
-- **\_\_LIST_FULL\_\_**:
+- #### \_\_LIST_FULL\_\_
   
 ```json
 {
@@ -132,7 +132,7 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
 }
 
 ```
-- **\_\_GAME\_\_**:
+- #### \_\_GAME\_\_
   
 ```json
 {
@@ -142,7 +142,7 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
     "year": "string" | null,             // Ano de lançamento do jogo, null se a API não nos informar
 }
 ```
-- **\_\_GAME_FULL\_\_**:
+- #### \_\_GAME_FULL\_\_
   
 ```json
 {
@@ -156,7 +156,7 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
     "review_count": 0                 // Quantas reviews existem sobre o jogo, incluindo privadas
 }
 ```
-- **\_\_REVIEW\_\_**:
+- #### \_\_REVIEW\_\_
   
 ```json
 {
@@ -172,7 +172,7 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
     "rel": 0                          // Relacionamento entre o usuário visualizador e a review
 }
 ```
-- **\_\_REVIEW_FULL\_\_**:
+- #### \_\_REVIEW_FULL\_\_
   
 ```json
 {
@@ -218,17 +218,17 @@ Os rels possíveis para um **usuário** são:
 
 Os rels possíveis para uma **lista** são:
 
-| Nível     | Valor  | Definição                    |
-|-----------|--------|------------------------------|
-| `ANY`     |  0     | O usuário não salvou a lista |
-| `OWNER`   |  40    | O usuário é o autor da lista |
-| `SAVED`   |  50    | O usuário salvou a lista     |
+| Nível     | Valor  | Definição                                  |
+|-----------|--------|--------------------------------------------|
+| `ANY`     |  0     | O usuário não salvou e não é dono da lista |
+| `OWNER`   |  40    | O usuário é o autor da lista               |
+| `SAVED`   |  50    | O usuário salvou a lista                   |
 
 Similarmente, os rels possíveis para uma **review** são:
 
 | Nível          | Valor  | Definição                                          |
 |----------------|--------|----------------------------------------------------|
-| `ANY`          |  0     | O usuário não deu like na review                   |
+| `ANY`          |  0     | O usuário não deu like e não é autor da review     |
 | `OWNER`        |  40    | O usuário é o autor da review                      |
 | `LIKED`        |  50    | O usuário já deu like na review                    |
 | `OWNER_LIKED`  |  90    | O usuário é o autor da review e deu like na review |

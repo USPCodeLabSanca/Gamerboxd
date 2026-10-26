@@ -50,14 +50,14 @@ Cria uma nova lista para o usuário autenticado.
 {"message":"Lista criada com sucesso!", "list_id": "string", "not_included": [0]}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR (human readable)    | Causa                                               |
 |--------|------------------------|-----------------------------------------------------|
 | `400`  | ✅                     | Nome ou descrição acima do limite de caracteres     |
 | `401`  | ✅                     | Usuário não autenticado                             |
-| `406`  | ❌                     | A privacidade não é um dos valores válidos          |
 | `409`  | ✅                     | Usuário já possui uma lista com esse nome           |
+| `422`  | ❌                     | Campo(s) do request body faltando ou inválidos      |
 | `500`  | ❌                     | Erro interno                                        |      
 
 ---
@@ -77,14 +77,14 @@ Retorna os dados completos de uma lista.
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_LIST_FULL\_\_**
+Retorna schema [**\_\_LIST_FULL\_\_**](./routes.md#__list_full__).
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                                                                  |
 |--------|--------|----------------------------------------------------------------------------------------|
 | `400`  | ✅     | Usuário bloqueou o autor da lista                                                      |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da lista, a lista é "privada demais" para o usuário  |
+| `403`  | ❌     | Usuário está bloqueado pelo autor da lista, lista é "privada demais" para o usuário    |
 | `404`  | ✅     | Lista não encontrada                                                                   |
 | `500`  | ❌     | Erro interno                                                                           |  
 
@@ -124,19 +124,19 @@ Atualiza os dados de uma lista do usuário autenticado.
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_LIST_FULL\_\_**
+Retorna schema [**\_\_LIST_FULL\_\_**](./routes.md#__list_full__).
 
-### Erros possíveis
-
-| Status | HR     | Causa                                       | 
-|--------|--------|---------------------------------------------|
-| `400`  | ✅     | Nome ou descrição acima do limite           |
-| `401`  | ✅     | Usuário não autenticado                     |
+### [Erros](./routes.md#erros) possíveis
+ 
+| Status | HR     | Causa                                        | 
+|--------|--------|----------------------------------------------|
+| `400`  | ✅     | Nome ou descrição acima do limite            |
+| `401`  | ✅     | Usuário não autenticado                      |
 | `403`  | ❌     | O usuário não é autor da lista, o usuário está tentando editar o nome ou a descrição das listas padrão |
-| `404`  | ✅     | Lista não encontrada                        |
-| `406`  | ❌     | A privacidade não é um dos valores válidos  |
-| `409`  | ✅     | Novo nome já está em uso pelo usuário       |
-| `500`  | ❌     | Erro interno                                | 
+| `404`  | ✅     | Lista não encontrada                         |
+| `409`  | ✅     | Novo nome já está em uso pelo usuário        |
+| `422`  | ❌     | Campos do request body faltando ou inválidos |
+| `500`  | ❌     | Erro interno                                 | 
 
 ---
 
@@ -161,7 +161,7 @@ Deleta uma lista do usuário autenticado.
 {"message": "Lista deletada com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 
 | Status | HR     | Causa                                                                            |
@@ -175,7 +175,7 @@ Deleta uma lista do usuário autenticado.
 
 ## GET `/lists/created/{user_id}` — Busca as listas criadas pelo usuário
 
-Busca as listas criadas por um usuário específico.
+Busca de forma paginada as listas criadas por um usuário específico.
 
 **Regras e comportamentos:**
 - **Não requer login**.
@@ -187,7 +187,7 @@ Busca as listas criadas por um usuário específico.
 |-----------|--------|---------------------------------------------------|
 | `user_id` | string | ID do usuário cujas listas criadas serão buscadas |
 
-### Query Parameters (Paginação)
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis nomes da listas criadas pelo usuário
@@ -195,16 +195,16 @@ Busca as listas criadas por um usuário específico.
 
 ### Resposta de Sucesso - `200`
 
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_LIST\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_LIST\_\_**](./routes.md#__list__).
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                           |
 |--------|--------|-------------------------------------------------|
 | `400`  | ✅     | Usuário bloqueou o autor das listas             |
 | `403`  | ❌     | O usuário está bloqueado pelo autor das listas  |
 | `404`  | ✅     | O usuário criador das listas não foi encontrado |
-| `406`  | ❌     | Query parameters presentes, porém inválidos                      |
+| `422`  | ❌     | Query parameters inválidos                      |
 | `500`  | ❌     | Erro interno                                    | 
 
 ---
@@ -229,7 +229,7 @@ Salva a lista de outro usuário na biblioteca do autenticado.
 {"message": "Lista salva com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 
 | Status | HR     | Causa                                                                                   |
@@ -263,7 +263,7 @@ Remove uma lista previamente salva da biblioteca do usuário autenticado.
 {"message": "Lista dessalva com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 
 | Status | HR     | Causa                                         |
@@ -283,7 +283,7 @@ Busca de forma paginada as listas que foram salvas na biblioteca do usuário aut
 - **Requer login**.
 - Inclui as listas que o próprio usuário autenticado criou e as listas padrão **Jogos Favoritos** e **Jogos Completados**.
 
-### Query Parameters (Paginação)
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis nomes da listas salvas pelo usuário
@@ -291,14 +291,14 @@ Busca de forma paginada as listas que foram salvas na biblioteca do usuário aut
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_LIST\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_LIST\_\_**](./routes.md#__list__).
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                         |
 |--------|--------|-------------------------------|
 | `401`  | ✅     | Usuário não autenticado       |
-| `406`  | ❌     | Query parameters presentes, porém inválidos    |
+| `422`  | ❌     | Query parameters inválidos    |
 | `500`  | ❌     | Erro interno                  |
 
 ---
@@ -325,7 +325,7 @@ Adiciona um jogo a uma lista do usuário autenticado.
 {"message": "Game adicionado à lista com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                                               |
 |--------|--------|---------------------------------------------------------------------|
@@ -358,7 +358,7 @@ Remove um jogo de uma lista do usuário autenticado.
 {"message": "Game removido da lista com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                                               |
 |--------|--------|---------------------------------------------------------------------|
@@ -382,7 +382,7 @@ Busca de forma paginada os jogos que pertencem a uma lista específica.
 |-----------|--------|-------------------|
 | `list_id` | string | ID único da lista |
 
-### Query Parameters (Paginação)
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis titulos de games que pertencem a lista
@@ -390,9 +390,9 @@ Busca de forma paginada os jogos que pertencem a uma lista específica.
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_GAME\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_GAME\_\_**](./routes.md#__game__).
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                                                          |
 |--------|--------|--------------------------------------------------------------------------------|

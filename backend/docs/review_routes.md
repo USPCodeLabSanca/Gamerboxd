@@ -41,7 +41,7 @@ Cria uma review para um jogo.
 |---------------|-----------------|-------------|---------|------------------------------------------------|
 | `game_id`     | int             | ✅          | -       | ID do jogo a ser avaliado                      |
 | `rating_num`  | float           | ✅          | -       | Nota numérica da avaliação. Entre 0 e 5, múltiplo de 0.5 |
-| `rating_text` | string, null    | ❌          | null    | Texto da review, máximo de 280 caracteres      |
+| `rating_text` | string, null    | ❌          | null    | Texto da review, máximo de 300 caracteres      |
 | `privacy`     | int             | ✅          | -       | Deve ser um dos valores dispostos na seção de privacidade |
 | `time_played` | int, null       | ❌          | null    | Tempo jogado em horas                          |
 | `liked`       | bool            | ✅          | -       | Se o usuário gostou do jogo                    |
@@ -53,15 +53,15 @@ Cria uma review para um jogo.
 {"message":"Review criada com sucesso!", "review_id": "string"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR (human readable)    | Causa                                      |
 |--------|------------------------|--------------------------------------------|
-| `400`  | ✅                     | Texto acima de 280 caracteres              |
+| `400`  | ✅                     | Texto acima de 300 caracteres              |
 | `401`  | ✅                     | Usuário não autenticado                    |
 | `404`  | ✅                     | Game não encontrado (game_id inválido)     |
-| `406`  | ❌                     | A privacidade não é um dos valores válidos |
 | `409`  | ✅                     | Usuário já possui uma review desse jogo    |
+| `422`  | ❌                     | Campo(s) do request body ausentes ou inválidos  |
 | `500`  | ❌                     | Erro interno                               |
 
 ---
@@ -83,22 +83,22 @@ Retorna os detalhes completos de uma review.
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_REVIEW_FULL\_\_**
+Retorna schema [**\_\_REVIEW_FULL\_\_**](./routes.md#__review_full__)
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                                |
-|--------|--------|--------------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da review que ele está buscando                             |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da review, ou a review é "privada demais" para ele |
-| `404`  | ✅     | Review não encontrada                                                                |
-| `500`  | ❌     | Erro interno                                                                         |
+| Status | HR     | Causa                                                                             |
+|--------|--------|-----------------------------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da review que ele está buscando                          |
+| `403`  | ❌     | Usuário está bloqueado pelo autor da review, a review é "privada demais" para ele |
+| `404`  | ✅     | Review não encontrada                                                             |
+| `500`  | ❌     | Erro interno                                                                      |
 
 ---
 
 ## GET `/reviews/created/{user_id}` — Listar reviews de um usuário
 
-Retorna uma lista das reviews do usuário.
+Busca de forma paginada uma lista das reviews do usuário.
 
 **Regras e comportamentos:**
 - **Não requer login**.
@@ -110,7 +110,7 @@ Retorna uma lista das reviews do usuário.
 |------------|--------|----------------------------------|
 | `user_id`  | string | ID único do autor das reviews    |
 
-### Query Parameters
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis titulos dos games que o usuário deve ter avaliado.
@@ -118,16 +118,16 @@ Retorna uma lista das reviews do usuário.
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_REVIEW\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_REVIEW\_\_**](./routes.md#__review__). 
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                                                      |
 |--------|--------|------------------------------------------------------------|
 | `400`  | ✅     | Usuário bloqueou o autor das reviews que ele está buscando |
 | `403`  | ❌     | Usuário está bloqueado por quem ele quer ver as reviews    |
 | `404`  | ✅     | Usuário autor das reviews não encontrado                   |
-| `406`  | ❌     | Query parameters presentes, porém inválidos                                 |
+| `422`  | ❌     | Query parameters inválidos                                 |
 | `500`  | ❌     | Erro interno                                               |
 
 ---
@@ -164,7 +164,7 @@ Atualiza a review do usuário autenticado para um jogo.
 | Campo         | Tipo               | Obrigatório | Descrição/Regras                               |
 |---------------|--------------------|-------------|------------------------------------------------|
 | `rating_num`  | float              | ✅          | Nota numérica da avaliação. Entre 0 e 5, múltiplo de 0.5 | 
-| `rating_text` | string, null       | ✅          | Texto da review, máximo de 280 caracteres      |
+| `rating_text` | string, null       | ✅          | Texto da review, máximo de 300 caracteres      |
 | `privacy`     | int                | ✅          | Deve ser um dos valores dispostos na seção de privacidade |
 | `time_played` | int, null          | ✅          | Tempo jogado em horas                          |
 | `liked`       | bool               | ✅          | Se o usuário gostou do jogo                    |
@@ -172,18 +172,18 @@ Atualiza a review do usuário autenticado para um jogo.
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_REVIEW_FULL\_\_**
+Retorna schema [**\_\_REVIEW\_\_**](./routes.md#__review_full__)
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                        |
-|--------|--------|----------------------------------------------|
-| `400`  | ✅     | Texto acima de 280 caracteres                |
-| `401`  | ✅     | Usuário não autenticado                      |
-| `403`  | ❌     | Falta de propriedade da review               |
-| `404`  | ✅     | Review não encontrada                        |
-| `406`  | ❌     | A privacidade não é um dos valores válidos, nota numérica fora dos limites ou não múltipla de 0.5   |
-| `500`  | ❌     | Erro interno                                 |
+| Status | HR     | Causa                                          |
+|--------|--------|------------------------------------------------|
+| `400`  | ✅     | Texto acima de 280 caracteres                  |
+| `401`  | ✅     | Usuário não autenticado                        |
+| `403`  | ❌     | Falta de propriedade da review                 |
+| `404`  | ✅     | Review não encontrada                          |
+| `422`  | ❌     | Campo(s) do request body ausentes ou inválidos |
+| `500`  | ❌     | Erro interno                                   |
 
 ---
 
@@ -209,14 +209,14 @@ Deleta a review do usuário autenticado para um jogo.
 {"message":"Review deletada com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                   |
-|--------|--------|-------------------------|
-| `401`  | ✅     | Usuário não autenticado |
+| Status | HR     | Causa                          |
+|--------|--------|--------------------------------|
+| `401`  | ✅     | Usuário não autenticado        |
 | `403`  | ❌     | Falta de propriedade da review |
-| `404`  | ✅     | Review não encontrada   |
-| `500`  | ❌     | Erro interno            |
+| `404`  | ✅     | Review não encontrada          |
+| `500`  | ❌     | Erro interno                   |
 
 ---
 
@@ -241,15 +241,15 @@ Dá like na review de um usuário.
 {"message": "Like adicionado com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                                          |
-|--------|--------|------------------------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da review que ele está curtindo                                       |
-| `401`  | ✅     | Usuário não autenticado                                                                        |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da review, ou a review é "privada demais" para ele           |
-| `404`  | ✅     | Review não encontrada                                                                          |
-| `500`  | ❌     | Erro interno                                                                                   |
+| Status | HR     | Causa                                                                              |
+|--------|--------|------------------------------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da review que ele está curtindo                           |
+| `401`  | ✅     | Usuário não autenticado                                                            |
+| `403`  | ❌     | Usuário está bloqueado pelo autor da review, a review é "privada demais" para ele  |
+| `404`  | ✅     | Review não encontrada                                                              |
+| `500`  | ❌     | Erro interno                                                                       |
 
 ---
 
@@ -273,7 +273,7 @@ Remove o like do usuário autenticado de uma review.
 {"message": "Like removido com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                     |
 |--------|--------|---------------------------|
@@ -285,7 +285,7 @@ Remove o like do usuário autenticado de uma review.
 
 ## GET `/reviews/like/users/{review_id}` — Ver quem deu like na review
 
-Retorna os usuários que deram like em uma review específica.
+Busca de forma paginada os usuários que deram like em uma review específica.
 
 **Regras e comportamentos:**
 - **Não requer login**.
@@ -296,7 +296,7 @@ Retorna os usuários que deram like em uma review específica.
 |--------------|--------|--------------------------------------------------|
 | `review_id`  | string | ID único da review que está vendo quem curtiu    |
 
-### Query Parameters
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames de usuários que deram like na review.
@@ -306,26 +306,26 @@ Retorna os usuários que deram like em uma review específica.
 
 Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                               |
-|--------|--------|-------------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da review que ele está tentando ver os likes               |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da review ou a review é "privada demais" para ele |
-| `404`  | ✅     | Review não encontrada                                                               |
-| `406`  | ❌     | Query parameters presentes, porém inválidos                                                          |
-| `500`  | ❌     | Erro interno                                                                        |
+| Status | HR     | Causa                                                                             |
+|--------|--------|-----------------------------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da review que ele está tentando ver os likes             |
+| `403`  | ❌     | Usuário está bloqueado pelo autor da review, a review é "privada demais" para ele |
+| `404`  | ✅     | Review não encontrada                                                             |
+| `422`  | ❌     | Query parameters inválidos                                                        |
+| `500`  | ❌     | Erro interno                                                                      |
 
 ---
 
 ## GET `/reviews/like/reviews` — Ver as reviews para as quais um usuário deu like
 
-Retorna as reviews para qual o usuário autenticado deu like.
+Busca de forma paginada as reviews para qual o usuário autenticado deu like.
 
 **Regras e comportamentos:**
 - **Requer login**.
 
-### Query Parameters
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis titulos dos games que o usuário deve ter avaliado.
@@ -334,13 +334,13 @@ Retorna as reviews para qual o usuário autenticado deu like.
 
 ### Resposta de Sucesso — `200`
 
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_REVIEW\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_REVIEW\_\_**](./routes.md#__review__).
 
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                      |
 |--------|--------|----------------------------|
 | `401`  | ✅     | Usuário não autenticado    |
-| `406`  | ❌     | Query parameters presentes, porém inválidos |
+| `422`  | ❌     | Query parameters inválidos |
 | `500`  | ❌     | Erro interno               |

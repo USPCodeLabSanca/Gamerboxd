@@ -15,7 +15,7 @@ Autentica o usuário com email ou username e senha.
 
 **Regras e comportamentos:**
 - **Não requer login**. 
-- Na resposta, são definidos automaticamente os dois cookies padrão de autenticação.
+- Na resposta, são definidos automaticamente os dois [cookies padrão de autenticação](./routes.md#cookies-de-autenticação).
 
 
 ### Request Body
@@ -38,12 +38,12 @@ Autentica o usuário com email ou username e senha.
 {"message":"Login feito com sucesso!", "user_id": "string"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                               |
-|--------|--------|-------------------------------------|
-| `400`  | ✅     | Conta não existe ou senha incorreta |
-| `500`  | ❌     | Erro interno                        |
+| Status | HR (human readable)    | Causa                               |
+|--------|------------------------|-------------------------------------|
+| `400`  | ✅                     | Conta não existe ou senha incorreta |
+| `500`  | ❌                     | Erro interno                        |
 
 ---
 
@@ -54,7 +54,7 @@ Encerra a sessão do usuário.
 **Regras e comportamentos:**
 - **Não requer login**.
 - Se o usuário não estiver logado, não irá levantar erro (idempotência).
-- Os cookies padrão de autenticação são deletados automaticamente na resposta.
+- Os [cookies padrão de autenticação](./routes.md#cookies-de-autenticação) são deletados automaticamente na resposta.
 
 ### Resposta de Sucesso — `200`
 
@@ -62,7 +62,7 @@ Encerra a sessão do usuário.
 {"message": "Logout feito com sucesso!"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                   |
 |--------|--------|-------------------------|
@@ -84,7 +84,7 @@ Retorna o user_id e o email de um usuário autenticado.
 {"message": "Encontramos o usuário!", "user_id": "string", "email": "string"}
 ```
 
-### Erros possíveis
+### [Erros](./routes.md#erros) possíveis
 
 | Status | HR     | Causa                         |
 |--------|--------|-------------------------------|
