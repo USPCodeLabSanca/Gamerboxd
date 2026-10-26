@@ -399,7 +399,7 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [
 | `400`  | ✅     | Usuário bloqueou autor da lista                                                |
 | `403`  | ❌     | Usuário bloqueado pelo autor da lista, lista é "privada demais" para o usuário |
 | `404`  | ✅     | Lista não encontrada                                                           |
-| `406`  | ❌     | Query parameters presentes, porém inválidos                                                     |
+| `422`  | ❌     | Query parameters inválidos                                                     |
 | `500`  | ❌     | Erro interno ao buscar os jogos da lista                                       |
 
 ---
