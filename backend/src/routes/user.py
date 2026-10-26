@@ -112,8 +112,6 @@ async def follow_user(user_id: str, conn = Depends(get_conn), user_id_follower =
 
     uncleared_relationships = {
         RelationshipStatus.OWNER: (403, "O usuário não pode seguir a si mesmo!"),
-        RelationshipStatus.BLOCKED: (403, "O usuário está tentando seguir alguém que o bloqueou!"),
-        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_OTHER_MSG)
     }
 
     resolve_user_clearence(prev_relationship, uncleared_relationships)
@@ -153,8 +151,6 @@ async def view_followers(user_id: str, page_query: PageQuery = Depends(validate_
     prev_relationship = await classify_relationship(conn, user_id_viewer, user_id)
 
     uncleared_relationships = {
-        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_USER_MSG),
-        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_OTHER_MSG),
         RelationshipStatus.FOLLOWER: (403, LACK_OF_USER_PERMISSION_MSG),
         RelationshipStatus.ANY: (403, LACK_OF_USER_PERMISSION_MSG),
     }
@@ -179,8 +175,6 @@ async def view_followeds(user_id: str, page_query =Depends(validate_queries(["us
     prev_relationship = await classify_relationship(conn, user_id_viewer, user_id)
 
     uncleared_relationships = {
-        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_USER_MSG),
-        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_OTHER_MSG),
         RelationshipStatus.FOLLOWER: (403, LACK_OF_USER_PERMISSION_MSG),
         RelationshipStatus.ANY: (403, LACK_OF_USER_PERMISSION_MSG),
     }
@@ -252,12 +246,7 @@ async def see_account(user_id: str, conn = Depends(get_conn), user_id_viewer = D
 
     prev_relationship = await classify_relationship(conn, user_id_viewer, user_id)
 
-    uncleared_relationships = {
-        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_USER_MSG),
-        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_OTHER_MSG),
-    }
-
-    resolve_user_clearence(prev_relationship, uncleared_relationships, prev_relationship)
+    resolve_user_clearence(prev_relationship)
         
     user_feed = await _get_user_account(conn, user_id, prev_relationship)
 

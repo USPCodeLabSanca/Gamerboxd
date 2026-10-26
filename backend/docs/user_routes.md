@@ -82,8 +82,8 @@ Retorna schema [**\_\_USER_FULL\_\_**](./routes.md#__user_full__).
 |--------|--------|--------------------------------------------------------------|
 | `400`  | ✅     | Usuário está tentando ver a conta de alguém que ele bloqueou |
 | `401`  | ✅     | Usuário não autenticado                                      |
-| `403`  | ❌     | Usuário está tentando ver a conta de alguém que o bloqueou   |
 | `404`  | ✅     | Usuário alvo não encontrado                                  |
+| `433`  | ❌     | Usuário está tentando ver a conta de alguém que o bloqueou   |
 | `500`  | ❌     | Erro interno                                                 |
  
 ---
@@ -188,8 +188,9 @@ Faz o usuário autenticado seguir outro usuário.
 |--------|--------|------------------------------------------------------------------|
 | `400`  | ✅     | Usuário está tentando seguir alguém que ele bloqueou             |
 | `401`  | ✅     | Usuário não autenticado                                          |
-| `403`  | ❌     | Usuário está tentando seguir a si mesmo ou alguém que o bloqueou |
+| `403`  | ❌     | Usuário está tentando seguir a si mesmo                          |
 | `404`  | ✅     | Usuário a ser seguido não encontrado                             |
+| `433`  | ❌     | Usuário está tentando seguir alguém que o bloqueou               |
 | `500`  | ❌     | Erro interno                                                     |   
  
 ---

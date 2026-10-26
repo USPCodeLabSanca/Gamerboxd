@@ -81,12 +81,13 @@ Retorna schema [**\_\_LIST_FULL\_\_**](./routes.md#__list_full__).
 
 ### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                                  |
-|--------|--------|----------------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da lista                                                      |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da lista, lista é "privada demais" para o usuário    |
-| `404`  | ✅     | Lista não encontrada                                                                   |
-| `500`  | ❌     | Erro interno                                                                           |  
+| Status | HR     | Causa                                      |
+|--------|--------|--------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da lista          |
+| `403`  | ❌     | Lista é "privada demais" para o usuário    |
+| `404`  | ✅     | Lista não encontrada                       |
+| `433`  | ❌     | Usuário está bloqueado pelo autor da lista |
+| `500`  | ❌     | Erro interno                               |  
 
 ---
 
@@ -132,10 +133,11 @@ Retorna schema [**\_\_LIST_FULL\_\_**](./routes.md#__list_full__).
 |--------|--------|----------------------------------------------|
 | `400`  | ✅     | Nome ou descrição acima do limite            |
 | `401`  | ✅     | Usuário não autenticado                      |
-| `403`  | ❌     | O usuário não é autor da lista, o usuário está tentando editar o nome ou a descrição das listas padrão |
+| `403`  | ❌     | O usuário não é autor da lista               |
 | `404`  | ✅     | Lista não encontrada                         |
 | `409`  | ✅     | Novo nome já está em uso pelo usuário        |
 | `422`  | ❌     | Campos do request body faltando ou inválidos |
+| `435`  | ❌     | O usuário está tentando editar o nome ou a descrição das listas padrão |
 | `500`  | ❌     | Erro interno                                 | 
 
 ---
@@ -164,12 +166,13 @@ Deleta uma lista do usuário autenticado.
 ### [Erros](./routes.md#erros) possíveis
 
 
-| Status | HR     | Causa                                                                            |
-|--------|--------|----------------------------------------------------------------------------------|
-| `401`  | ✅     | Usuário não autenticado                                                          |
-| `403`  | ❌     | O usuário não é autor da lista, o usuário está tentando deletar as listas padrão |
-| `404`  | ✅     | Lista não encontrada                                                             |
-| `500`  | ❌     | Erro interno                                                                     | 
+| Status | HR     | Causa                                            |
+|--------|--------|--------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                          |
+| `403`  | ❌     | O usuário não é autor da lista                   |
+| `404`  | ✅     | Lista não encontrada                             |
+| `435`  | ❌     | O usuário está tentando deletar as listas padrão |
+| `500`  | ❌     | Erro interno                                     | 
 
 ---
 
@@ -202,9 +205,9 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [
 | Status | HR     | Causa                                           |
 |--------|--------|-------------------------------------------------|
 | `400`  | ✅     | Usuário bloqueou o autor das listas             |
-| `403`  | ❌     | O usuário está bloqueado pelo autor das listas  |
 | `404`  | ✅     | O usuário criador das listas não foi encontrado |
 | `422`  | ❌     | Query parameters inválidos                      |
+| `433`  | ❌     | O usuário está bloqueado pelo autor das listas  |
 | `500`  | ❌     | Erro interno                                    | 
 
 ---
@@ -327,13 +330,14 @@ Adiciona um jogo a uma lista do usuário autenticado.
 
 ### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                               |
-|--------|--------|---------------------------------------------------------------------|
-| `401`  | ✅     | Usuário não autenticado                                             |
-| `403`  | ❌     | Falta de propriedade da lista, tentando adicionar às listas padrão  |
-| `404`  | ✅     | Lista não encontrada, game não encontrado (game_id inválido!)       |
-| `409`  | ✅     | O jogo já pertence a lista                                          |
-| `500`  | ❌     | Erro interno                                                        |
+| Status | HR     | Causa                                                          |
+|--------|--------|----------------------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                                        |
+| `403`  | ❌     | Falta de propriedade da lista                                  |
+| `404`  | ✅     | Lista não encontrada, game não encontrado (game_id inválido!)  |
+| `409`  | ✅     | O jogo já pertence a lista                                     |
+| `435`  | ❌     | O usuário está tentando adicionar às listas padrão             |
+| `500`  | ❌     | Erro interno                                                   |
 
 ---
 
@@ -360,12 +364,13 @@ Remove um jogo de uma lista do usuário autenticado.
 
 ### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                               |
-|--------|--------|---------------------------------------------------------------------|
-| `401`  | ✅     | Usuário não autenticado                                             |
-| `403`  | ❌     | Falta de propriedade da lista, tentando remover das listas padrão   |
-| `404`  | ✅     | Lista não encontrada, game não encontrado (game_id inválido!)       |
-| `500`  | ❌     | Erro interno                                                        |
+| Status | HR     | Causa                                                         |
+|--------|--------|---------------------------------------------------------------|
+| `401`  | ✅     | Usuário não autenticado                                       |
+| `403`  | ❌     | Falta de propriedade da lista                                 |
+| `404`  | ✅     | Lista não encontrada, game não encontrado (game_id inválido!) |
+| `435`  | ❌     | O usuário está tentando remover das listas padrão             |
+| `500`  | ❌     | Erro interno                                                  |
 
 ---
 
@@ -394,12 +399,13 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [
 
 ### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                          |
-|--------|--------|--------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou autor da lista                                                |
-| `403`  | ❌     | Usuário bloqueado pelo autor da lista, lista é "privada demais" para o usuário |
-| `404`  | ✅     | Lista não encontrada                                                           |
-| `422`  | ❌     | Query parameters inválidos                                                     |
-| `500`  | ❌     | Erro interno ao buscar os jogos da lista                                       |
+| Status | HR     | Causa                                       |
+|--------|--------|---------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou autor da lista             |
+| `403`  | ❌     | Lista é "privada demais" para o usuário     |
+| `404`  | ✅     | Lista não encontrada                        |
+| `422`  | ❌     | Query parameters inválidos                  |
+| `435`  | ❌     | Usuário bloqueado pelo autor da lista       |
+| `500`  | ❌     | Erro interno ao buscar os jogos da lista    |
 
 ---

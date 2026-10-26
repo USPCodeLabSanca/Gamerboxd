@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from models.schemas import UserAuth
 from services.security_services import passwords_match, encode_token
-from services.db_services import DB_read_user_column
+from services.db_services.user import DB_read_user_column
 from utils import *
 
 
@@ -46,8 +46,10 @@ async def logout():
 
 
 @auth_router.get("/me")
-async def who_am_i(user_id: str = Depends(require_login)):
+async def who_am_i(user_id: str = Depends(require_login), conn = Depends(get_conn)):
     """Envia o user_id do usuário de volta para o frontend"""
 
-    return JSONResponse({"message": "Encontramos o usuário!", "user_id": user_id})
+    user_email = await DB_read_user_column(conn, column="email", user_id=user_id)
+
+    return JSONResponse({"message": "Encontramos o usuário!", "user_id": user_id, "email":user_email})
 

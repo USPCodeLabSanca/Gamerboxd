@@ -87,12 +87,13 @@ Retorna schema [**\_\_REVIEW_FULL\_\_**](./routes.md#__review_full__)
 
 ### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                             |
-|--------|--------|-----------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da review que ele está buscando                          |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da review, a review é "privada demais" para ele |
-| `404`  | ✅     | Review não encontrada                                                             |
-| `500`  | ❌     | Erro interno                                                                      |
+| Status | HR     | Causa                                                      |
+|--------|--------|------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da review que ele está buscando   |
+| `403`  | ❌     | A review é "privada demais" para o usuário                 |
+| `404`  | ✅     | Review não encontrada                                      |
+| `433`  | ❌     | Usuário está bloqueado pelo autor da review                |
+| `500`  | ❌     | Erro interno                                               |
 
 ---
 
@@ -125,9 +126,9 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [
 | Status | HR     | Causa                                                      |
 |--------|--------|------------------------------------------------------------|
 | `400`  | ✅     | Usuário bloqueou o autor das reviews que ele está buscando |
-| `403`  | ❌     | Usuário está bloqueado por quem ele quer ver as reviews    |
 | `404`  | ✅     | Usuário autor das reviews não encontrado                   |
 | `422`  | ❌     | Query parameters inválidos                                 |
+| `433`  | ❌     | Usuário está bloqueado pelo autor das reviews              |
 | `500`  | ❌     | Erro interno                                               |
 
 ---
@@ -243,13 +244,14 @@ Dá like na review de um usuário.
 
 ### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                              |
-|--------|--------|------------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da review que ele está curtindo                           |
-| `401`  | ✅     | Usuário não autenticado                                                            |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da review, a review é "privada demais" para ele  |
-| `404`  | ✅     | Review não encontrada                                                              |
-| `500`  | ❌     | Erro interno                                                                       |
+| Status | HR     | Causa                                                      |
+|--------|--------|------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da review que ele está curtindo   |
+| `401`  | ✅     | Usuário não autenticado                                    |
+| `403`  | ❌     | A review é "privada demais" para o usuário                 |
+| `404`  | ✅     | Review não encontrada                                      |
+| `433`  | ❌     | Usuário está bloqueado pelo autor da review                |
+| `500`  | ❌     | Erro interno                                               |
 
 ---
 
@@ -308,13 +310,14 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas *
 
 ### [Erros](./routes.md#erros) possíveis
 
-| Status | HR     | Causa                                                                             |
-|--------|--------|-----------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da review que ele está tentando ver os likes             |
-| `403`  | ❌     | Usuário está bloqueado pelo autor da review, a review é "privada demais" para ele |
-| `404`  | ✅     | Review não encontrada                                                             |
-| `422`  | ❌     | Query parameters inválidos                                                        |
-| `500`  | ❌     | Erro interno                                                                      |
+| Status | HR     | Causa                                                                  |
+|--------|--------|------------------------------------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da review que ele está tentando ver os likes  |
+| `403`  | ❌     | A review é "privada demais" para o usuário                             |
+| `404`  | ✅     | Review não encontrada                                                  |
+| `422`  | ❌     | Query parameters inválidos                                             |
+| `433`  | ❌     | Usuário está bloqueado pelo autor da review                            |
+| `500`  | ❌     | Erro interno                                                           |
 
 ---
 

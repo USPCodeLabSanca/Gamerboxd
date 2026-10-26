@@ -236,11 +236,18 @@ async def classify_relationship(conn, atv: str | None, pas: str):
         return RelationshipStatus.ANY
 
 
-def resolve_user_clearence(rel: int, clearence: dict):
+def resolve_user_clearence(rel: int, uncleared_rels: dict):
     """Verifica se a relação entre 2 usuários é motivo para levantar erro"""
 
-    if rel in clearence.keys():
-        raise QueryError(*clearence[rel])
+    basic_uncleared_relationships = {
+        RelationshipStatus.BLOCKED: (433, BLOCKED_BY_USER_MSG),
+        RelationshipStatus.BLOCKER: (400, USER_BLOCKED_OTHER_MSG)
+    }
+
+    total_uncleared_rels = uncleared_rels | basic_uncleared_relationships
+
+    if rel in total_uncleared_rels.keys():
+        raise QueryError(*total_uncleared_rels[rel])
 
 
 
@@ -251,8 +258,8 @@ def resolve_list_clearence(rel: int, list_privacy: int | None, uncleared_rels: d
         raise QueryError(403, PRIVATE_LIST_MSG)
 
     basic_uncleared_relationships = {
-        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_LIST_OWNER_MSG),
-        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_LIST_OWNER_MSG)
+        RelationshipStatus.BLOCKED: (433, BLOCKED_BY_LIST_OWNER_MSG),
+        RelationshipStatus.BLOCKER: (400, USER_BLOCKED_LIST_OWNER_MSG)
     } 
 
     total_uncleared_rels = uncleared_rels | basic_uncleared_relationships
@@ -268,8 +275,8 @@ def resolve_review_clearence(rel: int, review_privacy: int | None, uncleared_rel
         raise QueryError(403, PRIVATE_REVIEW_MSG)
 
     basic_uncleared_relationships = {
-        RelationshipStatus.BLOCKED: (403, BLOCKED_BY_REVIEW_OWNER_MSG),
-        RelationshipStatus.BLOCKER: (409, USER_BLOCKED_REVIEW_OWNER_MSG)
+        RelationshipStatus.BLOCKED: (433, BLOCKED_BY_REVIEW_OWNER_MSG),
+        RelationshipStatus.BLOCKER: (400, USER_BLOCKED_REVIEW_OWNER_MSG)
     }
 
     total_uncleared_rels = uncleared_rels | basic_uncleared_relationships
