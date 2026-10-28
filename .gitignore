@@ -8,3 +8,4 @@ package.json
 package-lock.json
 setupTests.js
 vite.config.js
+issues.py
