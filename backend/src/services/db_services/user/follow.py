@@ -65,7 +65,7 @@ async def _DB_read_user_follow_page(conn, user_id: str, page_query: PageQuery, o
             page_len=len(rows),
             content=followers,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
         

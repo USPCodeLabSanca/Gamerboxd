@@ -3,6 +3,7 @@
 
 ## Sumário
 
+- [Sumário](#sumário)
 - [POST `/lists` — Criar lista](#post-lists--criar-lista)
 - [GET `/lists/{list_id}` — Ver lista](#get-listslist_id--ver-lista)
 - [PUT `/lists/{list_id}` — Editar lista](#put-listslist_id--editar-lista)
@@ -120,7 +121,7 @@ Atualiza os dados de uma lista do usuário autenticado.
 | Campo         | Tipo    | Obrigatório | Regras                                                    |
 |---------------|---------|-------------|-----------------------------------------------------------|
 | `name`        | string  | ✅          | Máximo de 45 caracteres, único por usuário                |
-| `description` | string  | ✅          | Máximo de 300 caracteres                                  |
+| `description` | string, null  | ✅          | Máximo de 300 caracteres                                  |
 | `privacy`     | int     | ✅          | Deve ser um dos valores dispostos na seção de privacidade |
 
 ### Resposta de Sucesso — `200`
@@ -194,7 +195,7 @@ Busca de forma paginada as listas criadas por um usuário específico.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis nomes da listas criadas pelo usuário
-- order padrão é `-updated_at`, que mostra as listas editadas mais recentemente. Os orders possíveis são: `["created_at", "-created_at", "name", "-name", "updated_at", "-updated_at"]`.
+- order padrão é `!updated_at`, que mostra as listas editadas mais recentemente. Os orders possíveis são: `["created_at", "!created_at", "name", "!name", "updated_at", "!updated_at"]`.
 
 ### Resposta de Sucesso - `200`
 
@@ -235,13 +236,14 @@ Salva a lista de outro usuário na biblioteca do autenticado.
 ### [Erros](./routes.md#erros) possíveis
 
 
-| Status | HR     | Causa                                                                                   |
-|--------|--------|-----------------------------------------------------------------------------------------|
-| `400`  | ✅     | Usuário bloqueou o autor da lista                                                       |
-| `401`  | ✅     | Usuário não autenticado                                                                 |
-| `403`  | ❌     | O usuário está bloqueado pelo autor da lista, a lista é "privada demais" para o usuário |
-| `404`  | ✅     | Lista não encontrada                                                                    |
-| `500`  | ❌     | Erro interno                                                                            | 
+| Status | HR     | Causa                                        |
+|--------|--------|----------------------------------------------|
+| `400`  | ✅     | Usuário bloqueou o autor da lista            |
+| `401`  | ✅     | Usuário não autenticado                      |
+| `403`  | ❌     | A lista é "privada demais" para o usuário    |
+| `404`  | ✅     | Lista não encontrada                         |
+| `433`  | ❌     | O usuário está bloqueado pelo autor da lista |
+| `500`  | ❌     | Erro interno                                 | 
 
 ---
 
@@ -290,7 +292,7 @@ Busca de forma paginada as listas que foram salvas na biblioteca do usuário aut
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis nomes da listas salvas pelo usuário
-- order padrão é `-created_at`, que mostra as mais recém salvas listas. Os orders possíveis são: `["created_at", "-created_at", "name", "-name"]`.
+- order padrão é `!created_at`, que mostra as mais recém salvas listas. Os orders possíveis são: `["created_at", "!created_at", "name", "!name"]`.
 
 ### Resposta de Sucesso — `200`
 
@@ -347,7 +349,8 @@ Remove um jogo de uma lista do usuário autenticado.
 
 **Regras e comportamentos:**
 - **Requer login**.
-- Se o game não pertencer a lista, a rota não irá levantar erro (idempotência). Para as listas **Jogos Completados** e **Jogos Favoritos**, não é possível remover jogos usando essa rota, apenas ao editar reviews com os parâmetros `completed` e `liked` marcando-os como falso, respectivamente, ou ao deletar a review em que esses parâmetros estavam marcados como verdadeiros.
+- Se o game não pertencer a lista, a rota não irá levantar erro (idempotência). 
+- Para as listas **Jogos Completados** e **Jogos Favoritos**, não é possível remover jogos usando essa rota, apenas ao editar reviews com os parâmetros `completed` e `liked` marcando-os como falso, respectivamente, ou ao deletar a review em que esses parâmetros estavam marcados como verdadeiros.
 
 ### Path Parameters
 
@@ -391,7 +394,7 @@ Busca de forma paginada os jogos que pertencem a uma lista específica.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis titulos de games que pertencem a lista
-- order padrão é `-created_at`, que mostra as mais recém inclusos games à lista. Os orders possíveis são: `["created_at", "-created_at", "title", "-title"]`.
+- order padrão é `!created_at`, que mostra as mais recém inclusos games à lista. Os orders possíveis são: `["created_at", "!created_at", "title", "!title"]`.
 
 ### Resposta de Sucesso — `200`
 
@@ -405,7 +408,7 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [
 | `403`  | ❌     | Lista é "privada demais" para o usuário     |
 | `404`  | ✅     | Lista não encontrada                        |
 | `422`  | ❌     | Query parameters inválidos                  |
-| `435`  | ❌     | Usuário bloqueado pelo autor da lista       |
+| `433`  | ❌     | Usuário bloqueado pelo autor da lista       |
 | `500`  | ❌     | Erro interno ao buscar os jogos da lista    |
 
 ---

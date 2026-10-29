@@ -115,7 +115,7 @@ Busca de forma paginada uma lista das reviews do usuário.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis titulos dos games que o usuário deve ter avaliado.
-- order padrão é `-created_at`, que mostra as mais recém criadas reviews. Os orders possíveis são: `["created_at", "-created_at", "title", "-title", "updated_at", "-updated_at"]`.
+- order padrão é `!created_at`, que mostra as mais recém criadas reviews. Os orders possíveis são: `["created_at", "!created_at", "title", "!title", "updated_at", "!updated_at"]`.
 
 ### Resposta de Sucesso — `200`
 
@@ -302,7 +302,7 @@ Busca de forma paginada os usuários que deram like em uma review específica.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames de usuários que deram like na review.
-- order padrão é `-created_at`, que mostra os usuários que deram like mais recentemente. Os orders possíveis são: `["created_at", "-created_at", "username", "-username"]`.
+- order padrão é `!created_at`, que mostra os usuários que deram like mais recentemente. Os orders possíveis são: `["created_at", "!created_at", "username", "!username"]`.
 
 ### Resposta de Sucesso — `200`
 
@@ -332,7 +332,7 @@ Busca de forma paginada as reviews para qual o usuário autenticado deu like.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis titulos dos games que o usuário deve ter avaliado.
-- order padrão é `-created_at`, que mostra as mais recém curtidas reviews do usuário. Os orders possíveis são: `["created_at", "-created_at", "title", "-title", "updated_at", "-updated_at"]`.
+- order padrão é `!created_at`, que mostra as mais recém curtidas reviews do usuário. Os orders possíveis são: `["created_at", "!created_at", "title", "!title", "updated_at", "!updated_at"]`.
 
 
 ### Resposta de Sucesso — `200`

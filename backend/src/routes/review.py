@@ -94,7 +94,7 @@ async def delete_review(review_id: str, conn = Depends(get_conn), user_id = Depe
 
 
 @review_router.get("/created/{user_id}")
-async def get_reviews(user_id: str, page_query = Depends(validate_queries(["title", "created_at", "updated_at"], "created_at")), 
+async def get_reviews(user_id: str, page_query = Depends(validate_queries(["title", "created_at", "updated_at"], "!created_at")), 
     conn = Depends(get_conn), user_id_viewer = Depends(optional_login), path = Depends(get_current_url)):
     """Retorna uma página com as mais recente reviews públicas de um usuário"""
 
@@ -180,7 +180,7 @@ async def unlike_review(review_id: str, conn = Depends(get_conn), user_id = Depe
 
 
 @review_router.get("/like/users/{review_id}")
-async def get_review_likes(review_id: str, page_query = Depends(validate_queries(["username", "created_at"], "created_at")),
+async def get_review_likes(review_id: str, page_query = Depends(validate_queries(["username", "created_at"], "!created_at")),
     conn = Depends(get_conn), user_id = Depends(optional_login),  path = Depends(get_current_url)):
     """Retorna quem tem dado like na review"""
 
@@ -201,7 +201,7 @@ async def get_review_likes(review_id: str, page_query = Depends(validate_queries
 
 
 @review_router.get("/like/reviews")
-async def get_review_likes(page_query = Depends(validate_queries(["title", "created_at", "updated_at"], "created_at")),
+async def get_review_likes(page_query = Depends(validate_queries(["title", "created_at", "updated_at"], "!created_at")),
     conn = Depends(get_conn), user_id = Depends(require_login),  path = Depends(get_current_url)):
     """Retorna as reviews para qual o usuário já deu like"""
 

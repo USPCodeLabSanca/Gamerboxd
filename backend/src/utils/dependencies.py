@@ -54,16 +54,16 @@ def validate_queries(order_bys: list[str], standard_order_by: str, limit: int = 
     """Verifica se os query parameters são válidos para aquela rota"""
 
     def dependency(page_query: PageQuery = Depends()):
-        all_orders= ["-" + ob for ob in order_bys] + order_bys
+        all_orders= [f"!{ob}" for ob in order_bys] + order_bys
 
         if page_query.order is None:
             page_query.order = standard_order_by
 
-        if page_query.order not in order_bys:
-            raise QueryError(406, f"Método de ordenação inválido! Nessa rota, são aceitos apenas as ordens: {all_orders}")
+        if page_query.order not in all_orders:
+            raise QueryError(422, f"Método de ordenação inválido! Nessa rota, são aceitos apenas as ordens: {all_orders}")
 
         if page_query.page_size < 1 or page_query.page_size > limit:
-            raise QueryError(406, f"O tamanho da página tem que estar entre 1 e {limit}!")
+            raise QueryError(422, f"O tamanho da página tem que estar entre 1 e {limit}!")
 
         return page_query
 
