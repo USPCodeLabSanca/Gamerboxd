@@ -51,8 +51,13 @@ async def delete_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
 
 
 @list_router.put("/{list_id}")
-async def edit_list(list_id: str, new_list: List, conn = Depends(get_conn), user_id = Depends(require_login)):
-    """Atualiza os dados de uma lista do usuário autenticado e retorna os seus dados"""
+async def edit_list(
+    list_id: str,
+    new_list: List,
+    conn=Depends(get_conn),
+    user_id=Depends(require_login),
+):
+    """Atualiza os dados de uma lista do usuário autenticado e retorna seus dados."""
 
     list_creator_id = await DB_read_list_creator(conn, list_id)
 
@@ -62,19 +67,23 @@ async def edit_list(list_id: str, new_list: List, conn = Depends(get_conn), user
     if list_creator_id != user_id:
         raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
-    list_to_edit = await is_list_update_valid(conn, user_id, new_list, list_id)
+    list_for_update = await is_list_update_valid(
+        conn, user_id, new_list, list_id
+    )
 
-    # Se a privacidade mudou de público para privado, é necessário apagar a lista de todos as bibliotecas que a salvaram
     current_list_privacy = await DB_read_list_privacy(conn, list_id)
-    if list_to_edit.privacy >= current_list_privacy:
-        await DB_delete_list_saves_after_privacy_change(conn, list_id, user_id)
 
-    await DB_update_list(conn, list_id, list_to_edit)
+    if list_for_update.privacy > current_list_privacy:
+        await DB_delete_list_saves_after_privacy_change(
+            conn, list_id, user_id, list_for_update.privacy
+        )
+
+    await DB_update_list(conn, list_id, list_for_update)
+
     list_data = await DB_read_list_data(conn, list_id)
     list_data.rel = RelationshipStatus.OWNER
-    
-    return JSONResponse(list_data.model_dump())
 
+    return JSONResponse(list_data.model_dump())
 
 @list_router.get("/created/{user_id}")
 async def view_created_lists(user_id: str, page_query = Depends(validate_queries(["name", "created_at", "updated_at"], "!updated_at")),
