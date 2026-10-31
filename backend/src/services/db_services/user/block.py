@@ -79,3 +79,17 @@ async def DB_read_is_blocked(conn, user_id_blocker: str, user_id_blocked: str):
         FROM Blocks b
         WHERE b.blocker = $1 AND b.blocked = $2
     ''', user_id_blocker, user_id_blocked)
+
+@db_query
+async def DB_delete_saves_after_block(
+    conn, user_id_blocker: str, user_id_blocked: str
+):
+    """Remove saves entre as listas dos usuários envolvidos no bloqueio."""
+
+    await conn.execute('''
+        DELETE FROM SavedLists
+        WHERE usr = $1
+          AND list IN (
+              SELECT id FROM Lists WHERE creator = $2
+          )
+    ''', user_id_blocker, user_id_blocked)

@@ -209,6 +209,8 @@ async def block_user(user_id: str, conn = Depends(get_conn), user_id_blocker = D
         await DB_create_block(conn, user_id_blocker, user_id)
         await DB_delete_follow(conn, user_id_blocker, user_id)
         await DB_delete_follow(conn, user_id, user_id_blocker)
+        await DB_delete_saves_after_block(conn, user_id_blocker, user_id)
+        await DB_delete_saves_after_block(conn, user_id, user_id_blocker)
 
     return JSONResponse({"message":"Conta bloqueada com sucesso!"})
 
