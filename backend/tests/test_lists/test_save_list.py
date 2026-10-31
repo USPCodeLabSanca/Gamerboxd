@@ -113,5 +113,24 @@ def test_blocking_stops_saves(users, block_request, create_list, save_list_reque
     assert save_response.status_code == 403, save_response.json()
     assert save_response.json() == BLOCKED_BY_LIST_OWNER_MSG
     assert_unsave(user1, list_in)
-    
+
+
+def test_blocking_removes_saves_between_both_users(users, create_list, save_list_request, block_request):
+    alice = users["Alice"]
+    bernardo = users["Bernardo"]
+
+    alice_list = create_list(alice, privacy=Clearence.ANY)
+    bernardo_list = create_list(bernardo, privacy=Clearence.ANY)
+
+    response = save_list_request(bernardo, alice_list)
+    assert response.status_code == 200, response.json()
+
+    response = save_list_request(alice, bernardo_list)
+    assert response.status_code == 200, response.json()
+
+    response = block_request(alice, bernardo)
+    assert response.status_code == 200, response.json()
+
+    assert_unsave(bernardo, alice_list)
+    assert_unsave(alice, bernardo_list)
 
