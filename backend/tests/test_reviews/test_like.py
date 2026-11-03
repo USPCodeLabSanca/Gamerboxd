@@ -134,18 +134,23 @@ def test_liking_after_block_returns_403(users, games, create_review, block_reque
     assert like_response.json() == BLOCKED_BY_REVIEW_OWNER_MSG
     assert_review_unlike(user2, user1, review)
 
-def test_blocking_after_liking_remove_likes_return_200(users, games, create_review, block_request, like_review_request):
-    """Alice cria uma review, Bob curte a review. Quando Bob bloqueia Alice, o like deve sumir."""
 
-    user1, user2 = users["Alice"], users["Bob"]
+def test_blocking_after_liking_remove_likes(users, games, create_review, block_request, like_review_request):
+    """Alice cria uma review, Bernardo curte a review. Quando um bloqueia o outro, os likes devem sumir."""
 
-    game_id = games["minecraft"][0]
-    review = create_review(user1, game_id)
+    user1, user2 = users["Alice"], users["Bernardo"]
 
-    like_response = like_review_request(user2, review)
-    assert like_response.status_code == 200, like_response
+    game_id = games["mario"][0]
+    review_alice = create_review(user1, game_id)
+    review_bernardo = create_review(user2, game_id)
+
+    like_response1 = like_review_request(user2, review_alice)
+    like_response2 = like_review_request(user1, review_bernardo)
+    assert like_response1.status_code == 200, like_response1.json()
+    assert like_response2.status_code == 200, like_response2.json()
 
     block_response = block_request(user2, user1)
-    assert block_response.status_code == 200, block_response
+    assert block_response.status_code == 200, block_response.json()
 
-    assert_review_unlike(user2, user1, review)
+    assert_review_unlike(user2, user1, review_alice)
+    assert_review_unlike(user1, user2, review_bernardo)
