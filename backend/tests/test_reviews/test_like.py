@@ -135,55 +135,55 @@ def test_liking_after_block_returns_403(users, games, create_review, block_reque
     assert_review_unlike(user2, user1, review)
 
 
-def test_privacy_change_to_20_removes_unfollowed_likes_returns_200(users, games, create_review, update_review_request, like_review_request):
-    """Alice cria uma review pública, Bob curte a review. Alice muda a privacidade para 20, mas não segue Bob, portanto Bob perde o like"""
+def test_privacy_change_to_followed_removes_unfollowed_likes(users, games, create_review, update_review_request, like_review_request):
+    """Alice cria uma review pública, Bernardo curte a review. Alice muda a privacidade para FOLLOWED, mas não segue Bernardo, portanto Bernardo perde o like"""
 
-    user1, user2 = users["Alice"], users["Bob"]
-    game_id = games["minecraft"][0]
-    review = create_review(user1, game_id, privacy=0)
+    user1, user2 = users["Alice"], users["Bernardo"]
+    game_id = games["mario"][0]
+    review = create_review(user1, game_id, privacy=Clearence.ANY)
     
     like_response = like_review_request(user2, review)
-    assert like_response.status_code == 200, like_response    
+    assert like_response.status_code == 200, like_response.json()    
 
-    update_response = update_review_request(user1, review, privacy=20)
-    assert update_response.status_code == 200, update_response
+    update_response = update_review_request(user1, review, privacy=Clearence.FOLLOWED)
+    assert update_response.status_code == 200, update_response.json()
 
     assert update_response.json()["like_count"] == 0
     assert_review_unlike(user2, user1, review)
 
 
-def test_privacy_change_to_40_removes_unfollowed_likes_returns_200(users, games, create_review, update_review_request, like_review_request):
-    """Alice cria uma review pública, Bob curte a review. Alice muda a privacidade para 40, portanto Bob perde o like"""
+def test_privacy_change_to_owner_removes_unfollowed_likes(users, games, create_review, update_review_request, like_review_request):
+    """Alice cria uma review pública, Bernardo curte a review. Alice muda a privacidade para OWNER, portanto Bernardo perde o like"""
 
-    user1, user2 = users["Alice"], users["Bob"]
-    game_id = games["minecraft"][0]
-    review = create_review(user1, game_id, privacy=0)
+    user1, user2 = users["Alice"], users["Bernardo"]
+    game_id = games["mario"][0]
+    review = create_review(user1, game_id, privacy=Clearence.ANY)
     
     like_response = like_review_request(user2, review)
-    assert like_response.status_code == 200, like_response    
+    assert like_response.status_code == 200, like_response.json()    
 
-    update_response = update_review_request(user1, review, privacy=40)
-    assert update_response.status_code == 200, update_response
+    update_response = update_review_request(user1, review, privacy=Clearence.OWNER)
+    assert update_response.status_code == 200, update_response.json()
 
     assert update_response.json()["like_count"] == 0
     assert_review_unlike(user2, user1, review)
 
 
-def test_privacy_change_to_20_doesnt_remove_followed_likes_returns_200(users, games, create_review, update_review_request, like_review_request, follow_request):
-    """Alice cria uma review pública, Bob curte a review. Alice muda a privacidade para 20, e segue Bob, portanto Bob mantém o like"""
+def test_privacy_change_to_followed_doesnt_remove_followed_likes(users, games, create_review, update_review_request, like_review_request, follow_request):
+    """Alice cria uma review pública, Bernardo curte a review. Alice muda a privacidade para FOLLOWED, e segue Bernardo, portanto Bernardo mantém o like"""
 
-    user1, user2 = users["Alice"], users["Bob"]
-    game_id = games["minecraft"][0]
-    review = create_review(user1, game_id, privacy=0)
+    user1, user2 = users["Alice"], users["Bernardo"]
+    game_id = games["mario"][0]
+    review = create_review(user1, game_id, privacy=Clearence.ANY)
     
     like_response = like_review_request(user2, review)
-    assert like_response.status_code == 200, like_response    
+    assert like_response.status_code == 200, like_response.json()    
 
     follow_response = follow_request(user1, user2)
-    assert follow_response.status_code == 200, follow_response
+    assert follow_response.status_code == 200, follow_response.json()
 
-    update_response = update_review_request(user1, review, privacy=20)
-    assert update_response.status_code == 200, update_response
+    update_response = update_review_request(user1, review, privacy=Clearence.FOLLOWED)
+    assert update_response.status_code == 200, update_response.json()
 
     assert update_response.json()["like_count"] == 1
     assert_review_like(user2, user1, review)

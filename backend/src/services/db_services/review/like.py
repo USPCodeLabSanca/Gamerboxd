@@ -26,7 +26,7 @@ async def DB_delete_like_review(conn, review_id: str, user_id: str):
 async def DB_delete_likes_after_privacy(conn, review_id: str, user_id: str, new_privacy: int):
     """Remove os likes de um conjunto X de usuários que não têm mais permissão para dar like na review Y de um usuário Z"""
 
-    if new_privacy == 20: # permitido apenas para seguidos pelo autor
+    if new_privacy == RelationshipStatus.FOLLOWED: # permitido apenas para seguidos pelo autor
         await conn.execute('''
             DELETE FROM ReviewLikes AS rl
             WHERE review = $1
@@ -39,7 +39,7 @@ async def DB_delete_likes_after_privacy(conn, review_id: str, user_id: str, new_
             );
         ''', review_id, user_id)
 
-    elif new_privacy == 40: # permitido apenas para o autor
+    elif new_privacy == RelationshipStatus.OWNER: # permitido apenas para o autor
         await conn.execute('''
             DELETE FROM ReviewLikes
             WHERE review = $1 AND usr != $2
