@@ -133,3 +133,57 @@ def test_liking_after_block_returns_403(users, games, create_review, block_reque
     assert like_response.status_code == 403, like_response.json()
     assert like_response.json() == BLOCKED_BY_REVIEW_OWNER_MSG
     assert_review_unlike(user2, user1, review)
+
+
+def test_privacy_change_to_20_removes_unfollowed_likes_returns_200(users, games, create_review, update_review_request, like_review_request):
+    """Alice cria uma review pública, Bob curte a review. Alice muda a privacidade para 20, mas não segue Bob, portanto Bob perde o like"""
+
+    user1, user2 = users["Alice"], users["Bob"]
+    game_id = games["minecraft"][0]
+    review = create_review(user1, game_id, privacy=0)
+    
+    like_response = like_review_request(user2, review)
+    assert like_response.status_code == 200, like_response    
+
+    update_response = update_review_request(user1, review, privacy=20)
+    assert update_response.status_code == 200, update_response
+
+    assert update_response.json()["like_count"] == 0
+    assert_review_unlike(user2, user1, review)
+
+
+def test_privacy_change_to_40_removes_unfollowed_likes_returns_200(users, games, create_review, update_review_request, like_review_request):
+    """Alice cria uma review pública, Bob curte a review. Alice muda a privacidade para 40, portanto Bob perde o like"""
+
+    user1, user2 = users["Alice"], users["Bob"]
+    game_id = games["minecraft"][0]
+    review = create_review(user1, game_id, privacy=0)
+    
+    like_response = like_review_request(user2, review)
+    assert like_response.status_code == 200, like_response    
+
+    update_response = update_review_request(user1, review, privacy=40)
+    assert update_response.status_code == 200, update_response
+
+    assert update_response.json()["like_count"] == 0
+    assert_review_unlike(user2, user1, review)
+
+
+def test_privacy_change_to_20_doesnt_remove_followed_likes_returns_200(users, games, create_review, update_review_request, like_review_request, follow_request):
+    """Alice cria uma review pública, Bob curte a review. Alice muda a privacidade para 20, e segue Bob, portanto Bob mantém o like"""
+
+    user1, user2 = users["Alice"], users["Bob"]
+    game_id = games["minecraft"][0]
+    review = create_review(user1, game_id, privacy=0)
+    
+    like_response = like_review_request(user2, review)
+    assert like_response.status_code == 200, like_response    
+
+    follow_response = follow_request(user1, user2)
+    assert follow_response.status_code == 200, follow_response
+
+    update_response = update_review_request(user1, review, privacy=20)
+    assert update_response.status_code == 200, update_response
+
+    assert update_response.json()["like_count"] == 1
+    assert_review_like(user2, user1, review)
