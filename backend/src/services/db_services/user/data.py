@@ -1,7 +1,7 @@
 from uuid import uuid4
 
-from models.schemas.user import *
-from utils import *
+from ....models.schemas.user import *
+from ....utils import *
 
 
 @db_query

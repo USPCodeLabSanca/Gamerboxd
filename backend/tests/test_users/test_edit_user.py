@@ -1,86 +1,52 @@
 from .utils import *
 
 BIO_WRONG_LENGTH_MSG = {"message": "A bio não pode ter mais que 280 caracteres!"}
-EMPTY_BIO_MSG = {"message": "A bio não pode ser apenas espaço vazio!"}
+BIO_EMPTY_MSG = {"message": "A bio não pode ser apenas espaço vazio!"}
 
-
-def test_editing_username_to_unused_returns_200(users, edit_user_request):
-    """Alice troca o seu username para Joao"""
+@pytest.mark.parametrize("username, expected_status, expected_json", [
+    ("Joao Lucas", 200, None),
+    ("Joao      ", 200, None),
+    ("Alice_"*4, 200, None),
+    ("Bernardo", 409, USERNAME_IN_USE_MSG("Bernardo")),
+    ("Alice"*20, 400, USERNAME_WRONG_LENGTH_MSG),
+    ("A", 400, USERNAME_WRONG_LENGTH_MSG)
+])
+def test_editing_username_checks_edge_cases(users, edit_user_request, username, expected_status, expected_json):
+    """Alice troca o seu username"""
 
     user = users["Alice"]
     edited_user = copy.copy(user)
-    edited_user.username = "Joao"
+    edited_user.username = username
 
     response = edit_user_request(edited_user, user)
-    assert response.status_code == 200, response.json()
-    assert response.json()["username"] == edited_user.username, response.json()
+    assert response.status_code == expected_status, response.json()
+
+    if expected_json is None:
+        assert response.json()["username"].strip() == edited_user.username.strip()
+
+    else:
+        assert response.json() == expected_json
 
 
-def test_editing_username_to_too_short_returns_400(users, edit_user_request):
-    """Alice troca o seu username para um valor muito curto"""
-
-    edited_user = copy.copy(users["Alice"])
-    edited_user.username = "Ali"
-
-    response = edit_user_request(edited_user)
-    assert response.status_code == 400,  response.json()
-    assert response.json() == USERNAME_WRONG_LENGTH_MSG, response.json()
-
-
-def test_editing_username_to_too_long_returns_400(users, edit_user_request):
-    """Alice troca o seu username para um valor muito longo"""
-
-    edited_user = copy.copy(users["Alice"])
-    edited_user.username = "Alice" * 20 
-
-    response = edit_user_request(edited_user)
-    assert response.status_code == 400, response.json()
-    assert response.json() == USERNAME_WRONG_LENGTH_MSG, response.json()
-
-
-def test_editing_username_to_used_value_returns_409(users, edit_user_request):
-    """Alice troca seu username para Bernardo"""
-
-    user_edit = copy.copy(users["Alice"])
-    user_already_exists = users["Bernardo"]
-
-    user_edit.username = user_already_exists.username
-
-    response = edit_user_request(user_edit)
-    assert response.status_code == 409, response.json()
-    assert response.json() == USERNAME_IN_USE_MSG(user_already_exists.username), response.json()
-
-
-def test_editing_user_bio_returns_200(users, edit_user_request):
+@pytest.mark.parametrize("bio, expected_status, expected_json", [
+    ("Gosto de games de ação e cartas!", 200, None),
+    ("Gosto de games de ação!         ", 200, None),
+    ("Games"*56, 200, None),
+    ("Alice"*61, 400, BIO_WRONG_LENGTH_MSG),
+    ("        ", 400, BIO_EMPTY_MSG)
+])
+def test_editing_bio(users, edit_user_request, bio, expected_status, expected_json):
     """Alice coloca uma bio na sua conta"""
 
     user = users["Alice"]
     user_edit = copy.copy(user)
-    user_edit.bio = "Alice " * 10
+    user_edit.bio = bio
 
     response = edit_user_request(user_edit, user)
-    assert response.status_code == 200,  response.json()
-    assert response.json()["bio"] == user_edit.bio, response.json()
+    assert response.status_code == expected_status, response.json()
 
+    if expected_json is None:
+        assert response.json()["bio"].strip() == user_edit.bio.strip()
 
-def test_editing_user_bio_to_too_large_returns_400(users, edit_user_request):
-    """Alice coloca uma bio muito grande na sua conta"""
-
-    user_edit = copy.copy(users["Alice"])
-    user_edit.bio = "Alice"*80 + "."
-
-    response = edit_user_request(user_edit)
-    assert response.status_code == 400,  response.json()
-    assert response.json() == BIO_WRONG_LENGTH_MSG, response.json()
-
-
-def test_editing_user_bio_to_empty_returns_400(users, edit_user_request):
-    """Alice coloca uma bio muito grande na sua conta, e depois uma bio vazia"""
-
-    user_edit = copy.copy(users["Alice"])
-    user_edit.bio = "       "
-
-    response = edit_user_request(user_edit)
-    assert response.status_code == 400,  response.json()
-    assert response.json() == EMPTY_BIO_MSG, response.json()
-
+    else:
+        assert response.json() == expected_json

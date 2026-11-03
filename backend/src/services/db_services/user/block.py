@@ -1,5 +1,5 @@
-from models.schemas.user import *
-from utils import *
+from ....models.schemas.user import *
+from ....utils import *
 
 
 @db_query
@@ -66,7 +66,7 @@ async def DB_read_user_blockeds(conn, user_id: str, page_query: PageQuery):
             page_len=len(rows),
             content=blocks,
             current_len=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
 

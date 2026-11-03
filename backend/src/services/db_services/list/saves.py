@@ -1,6 +1,6 @@
 from .data import DB_update_list_updated_at
-from models.schemas.list import *
-from utils import *
+from ....models.schemas.list import *
+from ....utils import *
 
 
 @db_query
@@ -25,9 +25,9 @@ async def DB_delete_list_save(conn, list_id: str, user_id: str):
 async def DB_read_user_has_saved_list(conn, list_id: str, user_id: str):
     """Verifica se um usário salvou uma lista"""
 
-    has_saved = await conn.execute('''
+    has_saved = await conn.fetchval('''
         SELECT COUNT(*) FROM SavedLists WHERE list = $1 AND usr = $2
-    ''')
+    ''', list_id, user_id)
 
     return True if has_saved > 0 else False
 
@@ -100,5 +100,5 @@ async def DB_read_user_saved_lists(conn, user_id: str, page_query: PageQuery):
             page_len=len(rows),
             content=saved_lists,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )

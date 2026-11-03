@@ -60,8 +60,17 @@ def op_to_dir(op: str):
 def col_name(table_alias: str, col: str):
     """Monta o nome de uma coluna específica em uma tabela"""
 
-    if col[0] == "-":
+    if col[0] == "!":
         col = col[1:]
+
+    if col == "username":
+        table_alias = "u"
+
+    if col == "title":
+        table_alias = "g"
+
+    if col == "name":
+        table_alias = "l"
 
     return f"{table_alias}.{col}"
 

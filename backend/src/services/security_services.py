@@ -3,20 +3,20 @@ from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 
-from models.schemas import ListNew, List, ReviewNew, ReviewEdit, UserIn
+from ..models.schemas import ListNew, List, ReviewNew, ReviewEdit, UserIn
 from .db_services import (
     DB_read_user_column, 
-    DB_read_list_id, 
-    DB_read_review_game, 
+    DB_read_list_id,
     DB_read_review_creator, 
     DB_read_review_id, 
     DB_read_is_blocked,
     DB_read_already_follows,
     DB_read_list_name,
-    DB_read_list_desc
+    DB_read_list_desc,
+    DB_read_game_basic
 )
 
-from utils import *
+from ..utils import *
 
 
 def passwords_match(stored_password, tested_password):
@@ -29,14 +29,14 @@ def passwords_match(stored_password, tested_password):
 
 
 def encrypt_password(password: str):
-    """Encripta a senha"""
+    """Passa a senha por um hash"""
 
     password_bytes = password.encode('utf-8')
     encrypted_password_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
     return encrypted_password_bytes.decode('utf-8')
 
 
-def encode_token(user_id, exp_in_minutes, key):
+def encode_token(user_id: str, exp_in_minutes: int, key: str):
     """Cria os jwt para guardar nos cookies"""
 
     exp_time = datetime.now(tz=timezone.utc) + timedelta(minutes=exp_in_minutes)
@@ -48,14 +48,14 @@ def encode_token(user_id, exp_in_minutes, key):
     return token
 
 
-def decode_token(cookies, token_name, key):
+def decode_token(cookies, token_name: str, key: str):
     """Lê o que está num jwt"""
 
     return jwt.decode(cookies[token_name], key, algorithms=["HS256"], options={"verify_exp": False})
 
 
 async def is_user_valid(conn, user: UserIn, user_id: str = None):
-    """Testa se uma conta de usuário ao criar ou editar é válida para entrar no BD"""
+    """Testa se uma conta de usuário ao criar ou editar é válida para entrar no DB"""
 
     username = user.username.strip()
 
@@ -111,6 +111,8 @@ async def is_user_valid(conn, user: UserIn, user_id: str = None):
 
             if len(bio_stripped) == 0:
                 raise QueryError(400, "A bio não pode ser apenas espaço vazio!")
+
+            user.bio = bio
         
     return user
 
@@ -135,8 +137,8 @@ async def is_list_insertion_valid(conn, user_id: str, list_in: ListNew):
     if list_in.description is not None:
         description = list_in.description.strip()
 
-        if len(description) > 280:
-            raise QueryError(400, "A descrição da lista não pode exceder 280 caracteres!")
+        if len(description) > 300:
+            raise QueryError(400, "A descrição da lista não pode exceder 300 caracteres!")
 
         if len(description) == 0:
             raise QueryError(400, "A descrição da lista não pode ser apenas espaço vazio!")
@@ -157,7 +159,7 @@ async def is_list_update_valid(conn, user_id: str, list_in: List, list_id: str):
 
     if current_list_name in ("Jogos Completados", "Jogos Favoritos"): 
         if (name != current_list_name) or (desc != current_list_desc):
-            raise QueryError(403, "Não é possível alterar esses detalhes dessa lista!")
+            raise QueryError(435, "Não é possível alterar esses detalhes dessa lista!")
 
     list_id_exists = await DB_read_list_id(conn, list_in.name, user_id)
 
@@ -172,8 +174,8 @@ async def is_list_update_valid(conn, user_id: str, list_in: List, list_id: str):
         raise QueryError(400, "O nome da lista não pode ser apenas espaço vazio!")
 
     if desc is not None:
-        if len(desc) > 280:
-            raise QueryError(400, "A descrição da lista não pode exceder 280 caracteres!")
+        if len(desc) > 300:
+            raise QueryError(400, "A descrição da lista não pode exceder 300 caracteres!")
 
         if len(desc) == 0:
             raise QueryError(400, "A descrição da lista não pode ser apenas espaço vazio!")
@@ -184,27 +186,30 @@ async def is_list_update_valid(conn, user_id: str, list_in: List, list_id: str):
 
 
 async def is_review_insertion_valid(conn, review: ReviewNew, user_id: str):
-    """Testa se uma review ao criar é válida para entrar no BD"""
+    """Testa se uma review ao criar é válida para entrar no DB"""
 
     if await DB_read_review_id(conn, user_id, review.game_id) is not None:
         raise QueryError(409, "Você já possui uma review desse jogo!")
 
-    if review.rating_text is not None and len(review.rating_text) > 280:
-        raise QueryError(400, "O texto da review não pode exceder 280 caracteres!")
+    if review.rating_text is not None and len(review.rating_text) > 300:
+        raise QueryError(400, "O texto da review não pode exceder 300 caracteres!")
+
+    if await DB_read_game_basic(conn, review.game_id) is None:
+        raise QueryError(404, GAME_NOT_FOUND_MSG)
     
     return review
 
 
 async def is_review_update_valid(conn, review: ReviewEdit, review_id: str, user_id: str):
-    """Testa se uma review ao editar é válida para entrar no BD"""
+    """Testa se uma review ao editar é válida para entrar no DB"""
 
     reviewer_id = await DB_read_review_creator(conn, review_id)
 
     if reviewer_id != user_id:
         raise QueryError(403, LACK_OF_REVIEW_OWNERSHIP_MSG)
     
-    if review.rating_text is not None and len(review.rating_text) > 280:
-        raise QueryError(400, "O texto da review não pode exceder 280 caracteres!")
+    if review.rating_text is not None and len(review.rating_text) > 300:
+        raise QueryError(400, "O texto da review não pode exceder 300 caracteres!")
     
     return review
 

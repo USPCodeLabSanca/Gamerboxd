@@ -1,11 +1,10 @@
 from ..utils import *
 
-SUCCESS_CREATING_MSG = {"message":"Lista criada com sucesso!", "list_id": "abc"}
+SUCCESS_CREATING_MSG = {"message":"Lista criada com sucesso!", "list_id": "abc", "not_included": []}
 SUCCESS_DELETING_MSG = {"message":"Lista deletada com sucesso!"}
 
 SUCCESS_SAVING_MSG = {"message": "Lista salva com sucesso!"}
 SUCCEESS_UNSAVING_MSG = {"message": "Lista dessalva com sucesso!"}
-CANT_UNSVAE_CREATED_LIST = {"message": "O usuário está tentando dessalvar sua própria lista!"}
 
 SUCCESS_ADDING_MSG = {"message": "Game adicionado à lista com sucesso!"}
 SUCCEESS_REMOVING_MSG = {"message": "Game removido da lista com sucesso!"}
@@ -17,13 +16,12 @@ LIST_NAME_TAKEN = lambda name: {"message": f'Você já possui uma lista com o no
 LIST_NAME_TOO_BIG = {"message": "O nome da lista não pode exceder 45 caracteres!"}
 LIST_NAME_BLANK = {"message": "O nome da lista não pode ser apenas espaço vazio!"}
 
-LIST_DESC_TOO_BIG = {"message": "A descrição da lista não pode exceder 280 caracteres!"}
+LIST_DESC_TOO_BIG = {"message": "A descrição da lista não pode exceder 300 caracteres!"}
 LIST_DESC_BLANK = {"message": "A descrição da lista não pode ser apenas espaço vazio!"}
 
 PRIVATE_LIST_MSG = {"message": "Essa lista é privada!"}
 LACK_OF_LIST_OWNERSHIP_MSG = {"message": "Apenas o autor da lista pode realizar esta ação!"}
 BLOCKED_BY_LIST_OWNER_MSG = {"message": "O usuário está bloqueado pelo autor da lista!"}
-
 
 def assert_privacy(user: BaseUser, list_in: BaseList, privacy: bool):
     """Garante a privacidade de uma lista no DB"""

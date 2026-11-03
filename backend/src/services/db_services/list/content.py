@@ -1,7 +1,7 @@
 from .data import DB_update_list_updated_at
-from models.schemas.list import *
-from models.schemas.game import GameComplete
-from utils import *
+from ....models.schemas.list import *
+from ....models.schemas.game import GameComplete
+from ....utils import *
 
 
 @db_query

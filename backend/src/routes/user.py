@@ -1,11 +1,11 @@
 from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
-from models.schemas.user import *
-from services.security_services import is_user_valid, encrypt_password, encode_token, classify_relationship, resolve_user_clearence
-from services.db_services.user import *
-from services.db_services.list import *
-from utils import *
+from ..models.schemas.user import *
+from ..services.security_services import is_user_valid, encrypt_password, encode_token, classify_relationship, resolve_user_clearence
+from ..services.db_services.user import *
+from ..services.db_services.list import *
+from ..utils import *
 
 user_router = APIRouter(prefix="/users", tags=["user"])
 
@@ -16,7 +16,7 @@ async def new_user(user: UserIn, conn = Depends(get_conn), key = Depends(get_key
     async with conn.transaction():
         user = await is_user_valid(conn, user)          # Validação do username, email e senha
         user.password = encrypt_password(user.password) # Encriptação da senha  
-        new_user_id = await DB_create_user(conn, user)  # Adiciona ao BD
+        new_user_id = await DB_create_user(conn, user)  # Adiciona ao DB
         await _first_lists(new_user_id, conn)           # Cria e salva as listas de favoritos e de completados
 
     # Loga o usuário
@@ -81,8 +81,8 @@ async def edit_user(user: UserEdit, conn = Depends(get_conn), user_id = Depends(
     """Atualiza os dados do usuário autenticado"""
 
     async with conn.transaction():
-        user = await is_user_valid(conn, user, user_id)             # Validação do username, email e senha
-        await DB_update_user(conn, user, user_id)                   # Atualiza o usuário no BD
+        user = await is_user_valid(conn, user, user_id)             # Validação do usuário
+        await DB_update_user(conn, user, user_id)                   # Atualiza o usuário no DB
         user_full = await _get_user_account(conn, user_id, RelationshipStatus.OWNER)  
     return JSONResponse(user_full.model_dump())
 
@@ -140,7 +140,7 @@ async def unfollow_user(user_id: str, conn = Depends(get_conn), user_id_follower
 
 
 @user_router.get("/follow/followers/{user_id}")
-async def view_followers(user_id: str, page_query: PageQuery = Depends(validate_queries(["username", "created_at"], "created_at")),
+async def view_followers(user_id: str, page_query: PageQuery = Depends(validate_queries(["username", "created_at"], "!created_at")),
     conn = Depends(get_conn), user_id_viewer = Depends(require_login), url = Depends(get_current_url)):
     """Busca os seguidores do usuário SE o visualisador é seguido pelo dono da conta ou se ele é o dono da conta"""
 
@@ -163,8 +163,8 @@ async def view_followers(user_id: str, page_query: PageQuery = Depends(validate_
     return JSONResponse(followers_page_with_urls.model_dump())
 
 
-@user_router.get("/follow/following/{user_id}")
-async def view_followeds(user_id: str, page_query =Depends(validate_queries(["username", "created_at"], "created_at")),
+@user_router.get("/follow/followings/{user_id}")
+async def view_followeds(user_id: str, page_query =Depends(validate_queries(["username", "created_at"], "!created_at")),
     conn = Depends(get_conn), user_id_viewer = Depends(require_login), url= Depends(get_current_url)):
     """Busca os seguidos pelo usuário SE o visualisador é seguido pelo dono da conta ou se ele é o dono da conta"""
 
@@ -226,7 +226,7 @@ async def unblock_user(user_id: str, conn = Depends(get_conn), user_id_blocker =
 
 
 @user_router.get("/block")
-async def view_blocks(page_query = Depends(validate_queries(["username", "created_at"], "created_at")), 
+async def view_blocks(page_query = Depends(validate_queries(["username", "created_at"], "!created_at")), 
         conn = Depends(get_conn), user_id = Depends(require_login), url = Depends(get_current_url)):
     """Busca os usuários bloqueados pelo usuário autenticado"""
 

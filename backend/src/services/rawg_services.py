@@ -1,20 +1,15 @@
-from models.schemas.game import *
-from services.db_services.game import *
-from aiohttp.client_exceptions import ContentTypeError
+from ..models.schemas.game import *
+from ..services.db_services.game import *
 
-from utils.errors import *
+from ..utils.errors import *
 
 
 async def search_rawg_games_complete(conn, exconn, url):
     """Busca games na API Rawg e retorna infos completas sobre eles"""
 
     async with exconn.get(url) as response:
-        try:
-            json = await response.json()
+        json = await response.json()
 
-        except ContentTypeError:
-            text = await response.text()
-            raise QueryError(502, f"API RAWG falhou. Retorno: {text}")
 
     games_list = []
     for i in range(len(json["results"])):

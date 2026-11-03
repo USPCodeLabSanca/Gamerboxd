@@ -1,10 +1,10 @@
-from models.schemas.game import *
-from utils.utils import db_query
+from . import db_query
+from ...models.schemas.game import *
 
 
 @db_query
 async def DB_create_game(conn, game: GameOverview):
-    """Adiciona um jogo ao BD"""
+    """Adiciona um jogo ao DB"""
 
     already_exists = await conn.fetchrow('''
         INSERT INTO Games(id, title, picture, year)

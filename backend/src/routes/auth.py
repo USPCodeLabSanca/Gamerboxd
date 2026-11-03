@@ -1,10 +1,10 @@
 from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
-from models.schemas import UserAuth
-from services.security_services import passwords_match, encode_token
-from services.db_services.user import DB_read_user_column
-from utils import *
+from ..models.schemas import UserAuth
+from ..services.security_services import passwords_match, encode_token
+from ..services.db_services.user import DB_read_user_column
+from ..utils import *
 
 
 auth_router = APIRouter(prefix= "/auth", tags=["auth"])

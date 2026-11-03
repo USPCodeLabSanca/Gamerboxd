@@ -53,7 +53,7 @@ new_reviews = [
     ({}, 422, None),
 ]
  
- 
+@pytest.mark.rawg
 @pytest.mark.parametrize("review_in,expected_status,expected_body", new_reviews)
 def test_new_review(users, games, review_in, expected_status, expected_body):
     """Testa a criação de reviews: sucesso, review duplicada, texto muito longo e schema inválido"""

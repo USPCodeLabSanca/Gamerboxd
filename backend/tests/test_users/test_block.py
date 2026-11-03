@@ -5,7 +5,7 @@ from .utils import *
 SUCCESS_BLOCKING_MSG = {"message":"Conta bloqueada com sucesso!"}
 SUCCESS_UNBLOCKING_MSG = {"message":"Conta desbloqueada com sucesso!"}
 CANT_BLOCK_YOURSELF_MSG = {"message":"O usuário não pode bloquear a si mesmo!"}
-FOLLOW_SOMEONE_WHO_BLOCKED_YOU_MSG = {"message":"O usuário está tentando seguir alguém que o bloqueou!"}
+FOLLOW_SOMEONE_WHO_BLOCKED_YOU_MSG = {"message":"O usuário está tentando ver detalhes da conta de alguém que o bloqueou!"}
 FOLLOW_SOMEONE_WHO_YOUVE_BLOCKED_MSG = {"message": "Não é possível ver detalhes de um usuário antes de desbloqueá-lo!"}
 
 
@@ -99,12 +99,12 @@ def test_blocking_stops_follow_both_ways(users, block_request, follow_request):
     assert_block(user1, user2)
 
     response = follow_request(user2, user1, False)
-    assert response.status_code == 403, response.json()
+    assert response.status_code == 433, response.json()
     assert response.json() == FOLLOW_SOMEONE_WHO_BLOCKED_YOU_MSG
     assert_unfollow(user2, user1)
 
     response = follow_request(user1, user2, False)
-    assert response.status_code == 409, response.json()
+    assert response.status_code == 400, response.json()
     assert response.json() == FOLLOW_SOMEONE_WHO_YOUVE_BLOCKED_MSG
     assert_unfollow(user1, user2)
 
@@ -126,6 +126,57 @@ def test_blocking_removes_follow_both_ways(users, follow_request, block_request)
     assert response.status_code == 200, response.json()
     assert_block(user2, user1)
     assert_unfollow(user1, user2)
+
+
+@pytest.mark.slow
+def test_block_pagination(pagination_tests, users, create_account, block_request):
+    """Vários usuários seguem Alice"""
+
+    def seed_order(blocker: BaseUser, total: int, order: str = ""):
+        """Cria vários usuários diferentes e faz o blocker bloquear eles, em ordens diferentes"""
+
+        usernames = [f"User{i+1}" for i in range(total)]
+        create_account.cleanup()
+
+        for u in usernames:
+            blocked = create_account(u)
+            response = block_request(blocker, blocked, cleanup=False)
+            assert response.status_code == 200, response.json()
+
+        if ("!" in order) or (len(order) == 0):
+            usernames.reverse()
+
+        return usernames
+
+
+    def seed_search(blocker: BaseUser, total: int, search: str):
+        """Cria vários usuários diferentes e faz o blocker bloquear eles, para que alguns apareçam no search depois"""
+
+        searched_usernames = [ (search + "_" * i) for i in range(total)]
+        unsearched_usernames = ["Joao", "Maria"]
+        all_usernames = searched_usernames + unsearched_usernames
+        create_account.cleanup()
+
+        for u in all_usernames:
+            blocked = create_account(u)
+            response = block_request(blocker, blocked, cleanup=False)
+            assert response.status_code == 200, response.json()
+
+        searched_usernames.reverse()
+
+        return {"match": searched_usernames, "no_match": unsearched_usernames}
+
+    pagination_tests(
+        user = users["Alice"],
+        url = BASE_URL_USERS + "/block",
+        seed_order = seed_order,
+        seed_search = seed_search,
+        seed_obj = "username",
+        content = ["user_id", "username", "pfp"],
+        orders = ["!created_at", "created_at", "!username", "username", ""],
+        searches = ["Alex1", "Bob2", "Carla3"],
+        require_login = True
+    )
 
 
 

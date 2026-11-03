@@ -65,13 +65,13 @@ def build_where(page_clauses: PageClauses, param_queries: PageQuery, count: bool
         clauses.append(f"{page_clauses.search_col} ILIKE ${len(params)}")
 
     col1, col2 = col_name(page_clauses.table_alias, param_queries.order), col_name(page_clauses.table_alias, page_clauses.col2)
-    op = "<" if param_queries.order[0] == "-" else ">"
+    op = "<" if param_queries.order[0] == "!" else ">"
 
     # Cursor para ordenar
     if not count:
         if (param_queries.cursor is not None):
             val1, val2 = decode_cursor_to_tuple(param_queries.cursor)
-            clauses.append(f"({col1}, {col2}) {op} (${len(params)}, ${len(params)+1})")
+            clauses.append(f"({col1}, {col2}) {op} (${len(params)+1}, ${len(params)+2})")
             params += [val1, val2]
 
         params.append(param_queries.page_size+1)

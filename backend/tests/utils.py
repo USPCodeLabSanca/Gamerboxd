@@ -2,17 +2,20 @@ import pytest, requests, copy
 from enum import IntEnum
 from requests.cookies import RequestsCookieJar
 from dataclasses import dataclass, replace, asdict
+import os
+import random
 
-BASE_URL = "http://127.0.0.1:8000"
-BASE_URL_USERS = BASE_URL + "/users"
-BASE_URL_LISTS = BASE_URL + "/lists"
-BASE_URL_REVIEWS = BASE_URL + "/reviews"
-BASE_URL_GAMES = BASE_URL + "/games"
+BASE_URL = os.environ["BASE_URL"]
+BASE_URL_USERS = os.environ["BASE_URL"] + "/users"
+BASE_URL_LISTS = os.environ["BASE_URL"] + "/lists"
+BASE_URL_REVIEWS = os.environ["BASE_URL"] + "/reviews"
+BASE_URL_GAMES = os.environ["BASE_URL"] + "/games"
+
 
 class Clearence(IntEnum):
     """Possíveis nívels de permissão para visibilidade de uma lista/review"""
     ANY = 0
-    FOLLOWED = 10
+    FOLLOWED = 20
     OWNER = 40
 
 
@@ -47,6 +50,44 @@ class BaseReview:
     completed: bool = True
 
 
+def create_account_by_username(username: str):
+    """Insere uma conta no DB pelo username"""
+
+    payload = {"username": username, "password": f"{username}{username}1!", "email": f"{username}@gmail.com"}
+
+    session = requests.Session()
+    response = session.post(BASE_URL_USERS, json=payload)
+
+    for c in session.cookies:
+        c.secure = False
+
+    response_json = response.json()
+
+    assert response.status_code == 200, response_json
+    assert "message" in response_json.keys()
+    assert response_json["message"] == "Conta criada com sucesso!"
+    assert "user_id" in response_json.keys()
+
+    return BaseUser(
+        user_id = response_json["user_id"],
+        username=payload["username"],
+        pwd=payload["password"],
+        email=payload["email"],
+        cookies=session.cookies
+    )
+
+
+def delete_account(user: BaseUser):
+    """Deleta uma conta do DB"""
+
+    response = requests.delete(BASE_URL_USERS, cookies=user.cookies)
+
+    assert response.status_code == 200
+    assert response.json() == {"message":"Conta deletada com sucesso!"}
+
+
+
+
 def view_followers(user: BaseUser):
     """Retorna por quem o user é seguido"""
 
@@ -72,7 +113,7 @@ def view_followeds(user: BaseUser):
 
     followeds = []
 
-    url = BASE_URL_USERS + f"/follow/following/{user.user_id}?page_size=50"
+    url = BASE_URL_USERS + f"/follow/followings/{user.user_id}?page_size=50"
 
     response = requests.get(url, cookies=user.cookies)
     assert response.status_code == 200, response.json()

@@ -4,7 +4,7 @@ SUCCESS_CREATING_MSG = {"message":"Review criada com sucesso!", "review_id": "ab
 SUCCESS_DELETING_MSG = {"message":"Review deletada com sucesso!"}
 
 CANT_CHANGE_GAME_MSG = {"message": "O jogo não pode ser alterado!"}
-RATING_TEXT_TOO_BIG_MSG = {"message": "O texto da review não pode exceder 280 caracteres!"}
+RATING_TEXT_TOO_BIG_MSG = {"message": "O texto da review não pode exceder 300 caracteres!"}
 REVIEW_ALREADY_EXISTS = {"message": "Você já possui uma review desse jogo!"}
 
 SUCCESS_LIKING_MSG = {"message": "Like adicionado com sucesso!"}

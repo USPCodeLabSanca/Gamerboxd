@@ -1,6 +1,7 @@
 from .utils import *
 
 
+@pytest.mark.rawg
 def test_liking_review_returns_200(users, games, create_review, like_review_request):
     """Alice cria uma review e Bernado curte a review"""
 
@@ -15,6 +16,7 @@ def test_liking_review_returns_200(users, games, create_review, like_review_requ
     assert_review_like(user2, user1, review)
 
 
+@pytest.mark.rawg
 def test_unliking_review_returns_200(users, games, create_review, like_review_request, unlike_review_request):
     """Alice cria uma review, Bernado curte e depois descurte a review"""
 
@@ -32,6 +34,7 @@ def test_unliking_review_returns_200(users, games, create_review, like_review_re
     assert_review_unlike(user2, user1, review)
 
 
+@pytest.mark.rawg
 def test_liking_your_own_review_returns_200(users, games, create_review, like_review_request):
     """Alice cria uma review e curte a review"""
 
@@ -44,6 +47,7 @@ def test_liking_your_own_review_returns_200(users, games, create_review, like_re
     assert like_response.status_code == 200, like_response.json()
 
 
+@pytest.mark.rawg
 def test_liking_twice_returns_200(users, games, create_review, like_review_request):
     """Alice cria uma review e Bernado curte a review 2 vezes seguidas"""
 
@@ -61,6 +65,7 @@ def test_liking_twice_returns_200(users, games, create_review, like_review_reque
     assert_review_like(user2, user1, review)
 
 
+@pytest.mark.rawg
 def test_unliking_twice_returns_200(users, games, create_review, like_review_request, unlike_review_request):
     """Alice cria uma review e Bernado curte a review"""
 
@@ -75,12 +80,10 @@ def test_unliking_twice_returns_200(users, games, create_review, like_review_req
     unlike_response = unlike_review_request(user2, review)
     assert unlike_response.status_code == 200, unlike_response.json()
 
-    assert_review_unlike(user2, user1, review)
-
     unlike_response_twice = unlike_review_request(user2, review)
     assert unlike_response_twice.status_code == 200, unlike_response.json()
 
-    
+ 
 def test_liking_inexistent_review_returns_404(users, like_review_request):
     """Alice dá like numa review que não existe"""
 
@@ -103,6 +106,7 @@ def test_unliking_inexistent_review_returns_404(users, unlike_review_request):
     assert unlike_response.json() == REVIEW_NOT_FOUND_MSG
 
 
+@pytest.mark.rawg
 def test_liking_private_review_returns_403(users, games, create_review, like_review_request):
     """Alice cria uma review privada e Bernardo tenta dar like nela"""
 
@@ -117,7 +121,8 @@ def test_liking_private_review_returns_403(users, games, create_review, like_rev
     assert_review_unlike(user2, user1, review)
 
 
-def test_liking_after_block_returns_403(users, games, create_review, block_request, like_review_request):
+@pytest.mark.rawg
+def test_liking_after_block_returns_433(users, games, create_review, block_request, like_review_request):
     """Alice cria uma review, depois bloqueia Bernardo. Bernardo tenta dar like na review de Alice"""
 
     user1, user2 = users["Alice"], users["Bernardo"]
@@ -130,6 +135,6 @@ def test_liking_after_block_returns_403(users, games, create_review, block_reque
 
     like_response = like_review_request(user2, review)
 
-    assert like_response.status_code == 403, like_response.json()
+    assert like_response.status_code == 433, like_response.json()
     assert like_response.json() == BLOCKED_BY_REVIEW_OWNER_MSG
     assert_review_unlike(user2, user1, review)

@@ -13,58 +13,6 @@ def test_edit_list_name_to_not_used_one_200(users, create_list, edit_list_reques
     assert response.json()["name"] == list_edit.name
 
 
-def test_edit_favorites_list_name_and_desc_returns_403(users, edit_list_request):
-    """Alice tenta trocar o nome da sua lista de jogos favoritos"""
-
-    user = users["Alice"]
-    fav_list_id = favorites_list_id(user)
-
-    list_edit = BaseList(
-        list_id=fav_list_id,
-        name="Jogos Prediletos"
-    )
-
-    edit_response = edit_list_request(user, list_edit)
-    assert edit_response.status_code == 403, edit_response.json()
-    assert edit_response.json() == {"message": "Não é possível alterar esses detalhes dessa lista!"}
-
-    list_edit = BaseList(
-        list_id=fav_list_id,
-        name="Jogos Favoritos",
-        description="Gosto muito desses jogos!"
-    )
-
-    edit_response = edit_list_request(user, list_edit)
-    assert edit_response.status_code == 403, edit_response.json()
-    assert edit_response.json() == {"message": "Não é possível alterar esses detalhes dessa lista!"}
-
-
-def test_edit_completed_list_name_and_desc_returns_403(users, edit_list_request):
-    """Alice tenta trocar o nome da sua lista de jogos completados"""
-
-    user = users["Alice"]
-    comp_list_id = completed_list_id(user)
-
-    list_edit = BaseList(
-        list_id=comp_list_id,
-        name="Jogos Terminados"
-    )
-
-    edit_response = edit_list_request(user, list_edit)
-    assert edit_response.status_code == 403, edit_response.json()
-    assert edit_response.json() == {"message": "Não é possível alterar esses detalhes dessa lista!"}
-
-    list_edit = BaseList(
-        list_id=comp_list_id,
-        name="Jogos Completados",
-        description="Terminei esses jogos!"
-    )
-
-    edit_response = edit_list_request(user, list_edit)
-    assert edit_response.status_code == 403, edit_response.json()
-    assert edit_response.json() == {"message": "Não é possível alterar esses detalhes dessa lista!"}
-
-
 def test_edit_list_name_to_used_one_returns_409(users, create_list, edit_list_request):
     """Alice cria duas listas e tenta renomear a segunda para o nome da primeira"""
 

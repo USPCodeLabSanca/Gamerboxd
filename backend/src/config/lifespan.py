@@ -1,15 +1,15 @@
 import aiohttp
 import asyncpg
 from contextlib import asynccontextmanager
-from dotenv import dotenv_values
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-from time import sleep
-
-from models import create_tables
+from ..models import create_tables
 
 class LifespanConfig():
+
+    def __init__(self, env: dict):
+        self.env = env
+
 
     async def conn(self):
         """Estabelece uma conexão singular com a vm"""
@@ -23,13 +23,11 @@ class LifespanConfig():
 
 
     def read_env(self):
-        """Carrega constantes do .env"""
-
-        self.env = dotenv_values(".env")
+        """Processa as constantes do .env"""
 
         env_keys = [
             "IS_TESTING", "VM_USER", "VM_PASS", "DB_USER", "DB_PASS", "DB_NAME",
-            "DB_HOST", "DB_PORT", "JWT_KEY", "RAWG_KEY", "FRONT_URL"
+            "DB_HOST", "DB_PORT", "JWT_KEY", "RAWG_KEY", "FRONT_URL", "BACK_URL"
         ]
 
         for val in env_keys:
@@ -108,7 +106,7 @@ class LifespanConfig():
             # Lê o .env
             self.read_env()
 
-            # Cria o BD
+            # Cria o DB
             conn = await self.conn()  
             await self.create_database(conn)
 
@@ -125,11 +123,10 @@ class LifespanConfig():
         except Exception as e:
             raise RuntimeError(str(e))
 
-
         finally:
             if conn is not None:
                 await conn.close()
-               
+
         yield   # Roda o app
 
         # Fecha os pools de conexão

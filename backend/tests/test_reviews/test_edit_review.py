@@ -1,6 +1,7 @@
 from .utils import *
 
 
+@pytest.mark.rawg
 def test_edit_review_valid_fields_returns_200(users, games, create_review, edit_review_request):
     """Alice cria uma review e edita a nota, se curtiu e o texto"""
 
@@ -22,6 +23,7 @@ def test_edit_review_valid_fields_returns_200(users, games, create_review, edit_
     assert updated_review["rating_text"] == review.rating_text
 
 
+@pytest.mark.rawg
 def test_edit_review_not_found_returns_404(users, games, create_review, edit_review_request):
     """Alice tenta editar uma review de um jogo que ele nunca avaliou"""
 
@@ -37,6 +39,7 @@ def test_edit_review_not_found_returns_404(users, games, create_review, edit_rev
     assert response.json() == REVIEW_NOT_FOUND_MSG
 
 
+@pytest.mark.rawg
 def test_edit_review_rating_text_return_200(users, games, create_review, edit_review_request):
     """Alice edita apenas o texto da sua review"""
 
@@ -51,6 +54,7 @@ def test_edit_review_rating_text_return_200(users, games, create_review, edit_re
     assert response.json()["rating_text"] == review.rating_text
 
 
+@pytest.mark.rawg
 def test_edit_review_rating_text_out_of_bounds_returns_400(users, games, create_review, edit_review_request):
     """Alice tenta editar sua review com um texto maior que o permitido"""
 

@@ -1,11 +1,12 @@
 from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
-from models.schemas.list import *
-from services.security_services import is_list_insertion_valid, is_list_update_valid, classify_relationship, resolve_list_clearence
-from services.db_services.list import *
-from services.db_services.user import DB_read_user_column
-from utils import *
+from ..models.schemas.list import *
+from ..services.security_services import *
+from ..services.db_services.list import *
+from ..services.db_services.user import DB_read_user_column
+from ..services.db_services.game import DB_read_game_basic
+from ..utils import *
 
 list_router = APIRouter(prefix="/lists", tags=["list"])
 
@@ -20,11 +21,15 @@ async def new_list(new_list: ListNew, conn = Depends(get_conn), user_id = Depend
     async with conn.transaction():
         new_list_id = await DB_create_list(conn, validated_list, user_id)
         await DB_create_list_save(conn, new_list_id, user_id)
+        not_included = []
 
         for g in new_list.first_games:
-            await DB_create_list_game(conn, new_list_id, g)
+            if await DB_read_game_basic(conn, g) is None:
+                not_included.append(g)
+            else:
+                await DB_create_list_game(conn, new_list_id, g)
 
-    return JSONResponse({"message":"Lista criada com sucesso!", "list_id": new_list_id})
+    return JSONResponse({"message":"Lista criada com sucesso!", "list_id": new_list_id, "not_included": not_included})
     
 
 @list_router.delete("/{list_id}")
@@ -43,7 +48,7 @@ async def delete_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
     list_name = await DB_read_list_name(conn, list_id)
 
     if list_name in ("Jogos Completados", "Jogos Favoritos"):
-        raise QueryError(403, "Não é possível deletar essa lista!")
+        raise QueryError(435, "Não é possível deletar essa lista!")
 
     await DB_delete_list(conn, list_id)
 
@@ -77,7 +82,7 @@ async def edit_list(list_id: str, new_list: List, conn = Depends(get_conn), user
 
 
 @list_router.get("/created/{user_id}")
-async def view_created_lists(user_id: str, page_query = Depends(validate_queries(["name", "created_at", "updated_at"], "updated_at")),
+async def view_created_lists(user_id: str, page_query = Depends(validate_queries(["name", "created_at", "updated_at"], "!updated_at")),
     conn = Depends(get_conn), user_id_viewer = Depends(optional_login), path = Depends(get_current_url)):
     """Busca as listas criadas pelo usuário"""
 
@@ -115,12 +120,10 @@ async def save_list(list_id: str, conn = Depends(get_conn), user_id = Depends(re
 
     list_privacy = await DB_read_list_privacy(conn, list_id)
     prev_relationship = await classify_relationship(conn, user_id, list_creator_id)
+    resolve_list_clearence(prev_relationship, list_privacy)
 
-    uncleared_relationships = {
-        RelationshipStatus.OWNER: (403, "Usuário está tentando salvar sua própria lista!")
-    } 
-
-    resolve_list_clearence(prev_relationship, list_privacy, uncleared_relationships)
+    if await DB_read_user_has_saved_list(conn, user_id, list_id):
+        return JSONResponse({"message": "Lista salva com sucesso!"})
         
     await DB_create_list_save(conn, list_id, user_id)
     
@@ -145,11 +148,9 @@ async def unsave_list(list_id: str, conn = Depends(get_conn), user_id = Depends(
 
 
 @list_router.get("/save")
-async def view_saved_lists(page_query = Depends(validate_queries(["name", "created_at"], "created_at")),
+async def view_saved_lists(page_query = Depends(validate_queries(["name", "created_at"], "!created_at")),
     conn = Depends(get_conn), user_id = Depends(require_login), path = Depends(get_current_url)):
     """Busca as listas salvas pelo usuário"""
-
-    print("here!")
 
     saved_lists_page = await DB_read_user_saved_lists(conn, user_id, page_query)
     saved_lists_page_with_urls = convert_cursors_to_paths(saved_lists_page, path)
@@ -169,13 +170,16 @@ async def add_to_list(list_id: str, game_id: int, conn = Depends(get_conn), user
     if list_creator_id != user_id:
         raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
-    list_name = await DB_read_list_name(conn, list_id)
-
-    if list_name in ("Jogos Favoritos", "Jogos Completados"):
-        raise QueryError(400, "Não é possível adicionar games a esta lista sem escrever uma review!")
+    if await DB_read_game_basic(conn, game_id) is None:
+        raise QueryError(404, GAME_NOT_FOUND_MSG)
 
     if await DB_read_game_in_list(conn, list_id, game_id):
         raise QueryError(409, "Esse game já está na lista!")
+
+    list_name = await DB_read_list_name(conn, list_id)
+
+    if list_name in ("Jogos Favoritos", "Jogos Completados"):
+        raise QueryError(435, "Não é possível adicionar games a esta lista sem escrever ou editar uma review!")
 
     await DB_create_list_game(conn, list_id, game_id)
 
@@ -194,10 +198,13 @@ async def rem_from_list(list_id: str, game_id: int, conn = Depends(get_conn), us
     if user_id != list_creator_id:
         raise QueryError(403, LACK_OF_LIST_OWNERSHIP_MSG)
 
+    if await DB_read_game_basic(conn, game_id) is None:
+        raise QueryError(404, GAME_NOT_FOUND_MSG)
+
     list_name = await DB_read_list_name(conn, list_id)
 
     if list_name in ("Jogos Favoritos", "Jogos Completados"):
-        raise QueryError(400, "Não é possível remover games desta lista sem deletar sua review!")
+        raise QueryError(435, "Não é possível remover games desta lista sem deletar ou editar sua review!")
 
     await DB_delete_list_game(conn, list_id, game_id)
 

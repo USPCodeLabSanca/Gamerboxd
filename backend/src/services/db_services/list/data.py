@@ -1,12 +1,12 @@
 from uuid import uuid4
 
-from models.schemas.list import *
-from utils import *
+from ....models.schemas.list import *
+from ....utils import *
 
 
 @db_query
 async def DB_create_list(conn, new_list: ListNew, user_id: str):
-    """Adiciona uma lista nova ao BD"""
+    """Adiciona uma lista nova ao DB"""
 
     list_id = str(uuid4())
 
@@ -20,7 +20,7 @@ async def DB_create_list(conn, new_list: ListNew, user_id: str):
 
 @db_query
 async def DB_delete_list(conn, list_id: str):
-    """Deleta uma lista do BD"""
+    """Deleta uma lista do DB"""
 
     await conn.execute('''
         DELETE FROM Lists WHERE id = $1
@@ -222,6 +222,6 @@ async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_qu
             page_len=len(rows),
             content=created_lists,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 

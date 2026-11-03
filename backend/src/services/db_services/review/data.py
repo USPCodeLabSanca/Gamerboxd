@@ -1,8 +1,7 @@
-from datetime import datetime
 from uuid import uuid4
 
-from models.schemas.review import *
-from utils import *
+from ....models.schemas.review import *
+from ....utils import *
 from ..game import DB_read_game_basic
 
 
@@ -182,7 +181,7 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
             page_len=len(rows),
             content=created_reviews,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
 

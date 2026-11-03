@@ -244,7 +244,7 @@ Busca de forma paginada os seguidores do usuário.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames dos seguidores do usuário.
-- order padrão é `-created_at`, que mostra os mais recentes seguidores do usuário. Os orders possíveis são: `["created_at", "-created_at", "username", "-username"]`.
+- order padrão é `!created_at`, que mostra os mais recentes seguidores do usuário. Os orders possíveis são: `["created_at", "!created_at", "username", "!username"]`.
 
 ### Resposta de Sucesso — `200`
  
@@ -280,7 +280,7 @@ Busca de forma paginada os seguidos pelo usuário.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames dos seguidos pelo usuário.
-- order padrão é `-created_at`, que mostra os mais recentes seguidos pelo usuário. Os orders possíveis são: `["created_at", "-created_at", "username", "-username"]`.
+- order padrão é `!created_at`, que mostra os mais recentes seguidos pelo usuário. Os orders possíveis são: `["created_at", "!created_at", "username", "!username"]`.
 
 ### Resposta de Sucesso — `200`
  
@@ -377,7 +377,7 @@ Busca de forma paginada os bloqueados pelo usuário autenticado.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis usernames dos bloqueados pelo usuário.
-- order padrão é `-created_at`, que mostra os mais recentes bloqueados pelo usuário. Os orders possíveis são: `["created_at", "-created_at", "username", "-username"]`.
+- order padrão é `!created_at`, que mostra os mais recentes bloqueados pelo usuário. Os orders possíveis são: `["created_at", "!created_at", "username", "!username"]`.
 
 ### Resposta de Sucesso — `200`
  

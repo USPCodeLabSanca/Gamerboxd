@@ -1,9 +1,8 @@
 from fastapi import Depends, APIRouter
-from typing import Literal
 from fastapi.responses import JSONResponse
 
-from services.rawg_services import *
-from utils import *
+from ..services.rawg_services import *
+from ..utils import *
 
 game_router = APIRouter(prefix="/games", tags=["game"])
 

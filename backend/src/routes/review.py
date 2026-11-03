@@ -1,13 +1,12 @@
 from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
-from models.schemas.review import *
-from services.security_services import is_review_insertion_valid, is_review_update_valid, classify_relationship, resolve_review_clearence  
-from services.db_services.list import DB_create_list_game, DB_read_list_id, DB_delete_list_game
-from services.db_services.user import DB_read_user_column
-from services.db_services.review import *
-
-from utils import *
+from ..models.schemas.review import *
+from ..services.security_services import is_review_insertion_valid, is_review_update_valid, classify_relationship, resolve_review_clearence  
+from ..services.db_services.list import DB_create_list_game, DB_read_list_id, DB_delete_list_game
+from ..services.db_services.user import DB_read_user_column
+from ..services.db_services.review import *
+from ..utils import *
 
 review_router = APIRouter(prefix="/reviews", tags=["review"])
 
@@ -34,7 +33,7 @@ async def create_review(review: ReviewNew, conn = Depends(get_conn), user_id = D
                     
 @review_router.put("/{review_id}")
 async def update_review(review_id: str, review: ReviewEdit, conn = Depends(get_conn), user_id = Depends(require_login)):  
-    """Atualiza a review do usuário autenticado para um jogo. O campo `game` não pode ser alterado"""
+    """Atualiza a review do usuário autenticado para um jogo"""
 
     reviewer_id = await DB_read_review_creator(conn, review_id)
 
@@ -96,7 +95,7 @@ async def delete_review(review_id: str, conn = Depends(get_conn), user_id = Depe
 @review_router.get("/created/{user_id}")
 async def get_reviews(user_id: str, page_query = Depends(validate_queries(["title", "created_at", "updated_at"], "created_at")), 
     conn = Depends(get_conn), user_id_viewer = Depends(optional_login), path = Depends(get_current_url)):
-    """Retorna uma página com as mais recente reviews públicas de um usuário"""
+    """Retorna uma página com as mais recente reviews de um usuário"""
 
     if await DB_read_user_column(conn, "username", user_id=user_id) is None:
         raise QueryError(404, USER_NOT_FOUND_MSG)
