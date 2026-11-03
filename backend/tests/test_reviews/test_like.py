@@ -133,3 +133,19 @@ def test_liking_after_block_returns_403(users, games, create_review, block_reque
     assert like_response.status_code == 403, like_response.json()
     assert like_response.json() == BLOCKED_BY_REVIEW_OWNER_MSG
     assert_review_unlike(user2, user1, review)
+
+def test_blocking_after_liking_remove_likes_return_200(users, games, create_review, block_request, like_review_request):
+    """Alice cria uma review, Bob curte a review. Quando Bob bloqueia Alice, o like deve sumir."""
+
+    user1, user2 = users["Alice"], users["Bob"]
+
+    game_id = games["minecraft"][0]
+    review = create_review(user1, game_id)
+
+    like_response = like_review_request(user2, review)
+    assert like_response.status_code == 200, like_response
+
+    block_response = block_request(user2, user1)
+    assert block_response.status_code == 200, block_response
+
+    assert_review_unlike(user2, user1, review)
