@@ -132,3 +132,47 @@ def test_edit_list_name_out_of_bounds_returns_400(users, create_list, edit_list_
     assert response.json() == LIST_NAME_BLANK
 
     assert_privacy(user, list_edit_name_out_of_bounds, privacy=Clearence.OWNER)
+
+def test_edit_list_privacy_to_followed_removes_saves_from_non_followeds(
+    users, create_list, save_list_request, edit_list_request, follow_request
+):
+    owner = users["Alice"]
+    followed_saver = users["Bernardo"]
+    other_saver = users["Caua"]
+
+    list_in = create_list(owner)
+
+    follow_response = follow_request(owner, followed_saver)
+    assert follow_response.status_code == 200, follow_response.json()
+
+    assert save_list_request(followed_saver, list_in).status_code == 200
+    assert save_list_request(other_saver, list_in).status_code == 200
+
+    list_in.privacy = 20
+    response = edit_list_request(owner, list_in)
+
+    assert response.status_code == 200, response.json()
+    assert response.json()["privacy"] == 20
+    assert_save(followed_saver, list_in)
+    assert_unsave(other_saver, list_in)
+
+
+def test_edit_list_privacy_to_owner_removes_all_other_saves(
+    users, create_list, save_list_request, edit_list_request
+):
+    owner = users["Alice"]
+    savers = [users["Bernardo"], users["Caua"]]
+    list_in = create_list(owner)
+
+    for saver in savers:
+        save_response = save_list_request(saver, list_in)
+        assert save_response.status_code == 200, save_response.json()
+
+    list_in.privacy = 40
+    response = edit_list_request(owner, list_in)
+
+    assert response.status_code == 200, response.json()
+    assert response.json()["privacy"] == 40
+
+    for saver in savers:
+        assert_unsave(saver, list_in)
