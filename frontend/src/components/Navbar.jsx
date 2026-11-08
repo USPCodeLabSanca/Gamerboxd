@@ -2,23 +2,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { useAuth } from "../hooks/useAuth";
+import { useMe, useLogout } from "../hooks/useAuth";
 
 export default function Navbar() {
     const { scrollY } = useScroll();
-    const { user } = useAuth();
     const navigate = useNavigate();
     
     const [menuOpen, setMenuOpen] = useState(false);
     const [isHidden, setHidden] = useState(false);
 
-    // O status de logado é derivado diretamente do user
+    const { data: user, isLoading, isError } = useMe();
     const isLogged = !!user;
 
-    const handleLogout = () => {
-        logout();
-        navigate("/home");
-        setMenuOpen(false);
+    const logout = useLogout();
+
+    function handleLogout() {
+        logout.mutate({}, {
+            onSuccess: () => {
+                navigate("/");
+            }
+        });
     }
 
     useMotionValueEvent(scrollY, "change", (current) => {
@@ -34,10 +37,9 @@ export default function Navbar() {
         { to: "/games", label: "Jogos" },
         { to: "/lists", label: "Listas" },
         { to: "/members", label: "Membros" },
-        isLogged 
-            ? { to: `/profile/${user?.username}`, label: "Perfil" } 
-            : { to: "/login", label: "Login" },
-        !isLogged && { to: "/register", label: "Cadastre-se" },
+        !isLoading && isLogged && { to: `/profile/${user.user_id}`, label: "Perfil" },
+        !isLoading && !isLogged && { to: "/login", label: "Login" },
+        !isLogged && !isLoading && { to: "/register", label: "Cadastre-se" },
     ].filter(Boolean); // Remove itens nulos ou falsos
 
     return (
@@ -103,8 +105,20 @@ export default function Navbar() {
                             {label}
                         </Link>
                     ))}
+                    { isLogged && (
+                        <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="text-white text-lg font-medium hover:text-gray-300 transition-colors">
+                            Sair
+                        </button>
+                    )}
                 </div>
             )}
+
+            {isError && (
+                <div role="alert" className="absolute top-full left-0 w-full bg-red-500 text-white py-2 px-4 text-center">
+                    Ocorreu um erro. Tente novamente.
+                </div>
+            )}
+
         </motion.nav>
     );
 }

@@ -1,41 +1,26 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useLogin } from "../../hooks/useAuth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getErrorMessage } from "../../api/errors";
 
 export default function Login() {
-  const { login } = useAuth();
+  const [emailOrUsername, setEmailOrUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const login = useLogin();
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-    rememberMe: false,
-  });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      await login(form.username, form.password);
-      navigate("/games");
-    } catch (err) {
-      setError("Falha no login. Verifique se digitou corretamente o nome ou senha.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    
+    login.mutate({emailOrUsername, password}, {
+      onSuccess: () => {
+        navigate("/games");
+      }
+    })
 
+  }
 
   return (
     // celular: flex-col (empilhado) e permite rolar se a tela for muito pequena.
@@ -68,14 +53,16 @@ export default function Login() {
           </p>
 
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form 
+            onSubmit = {handleSubmit}
+            className="flex flex-col gap-5">
             <div>
               <input
-                name="username"
+                name="emailOrUsername"
                 type="text"
-                placeholder="Nome de usuário"
-                value={form.username}
-                onChange={handleChange}
+                placeholder="E-mail ou nome de usuário"
+                value={emailOrUsername}
+                onChange={(e) => setEmailOrUsername(e.target.value)}
                 required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
@@ -86,9 +73,9 @@ export default function Login() {
                 name="password"
                 type="password"
                 placeholder="Senha"
-                value={form.password}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                onChange={handleChange}
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
@@ -105,17 +92,27 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={login.isLoading}
               className="bg-roxo hover:bg-white hover:border hover:border-roxo hover:text-roxo hover:cursor-pointer text-white px-1 py-3 rounded-lg mt-4 mx-auto w-full sm:w-3/5 transition-colors"
             >
-              {loading ? "Entrando..." : "Login"}
+              {login.isLoading ? "Carregando..." : "Entrar"}
             </button>
           </form>
 
-
+          {login.isError && errorCardMessage(getErrorMessage(login.error))}
 
         </div>
       </div>
+    </div>
+  );
+}
+
+function errorCardMessage(error) {
+
+  return (
+    <div className="bg-red-100/50 border border-red-300 text-white px-4 py-3 rounded relative mb-4 mt-30" role="alert">
+      <strong className="font-bold">Ops!</strong>
+      <span className="block sm:inline"> {error}</span>
     </div>
   );
 }

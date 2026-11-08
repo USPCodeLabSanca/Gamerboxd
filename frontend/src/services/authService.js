@@ -15,7 +15,7 @@ export async function logout(){
     return res.data;    // {message}
 }
 
-export async function get_me(){
+export async function getMe(){
     try {
         const res = await api.get("/auth/me");
         return res.data;

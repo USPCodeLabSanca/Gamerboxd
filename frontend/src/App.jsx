@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ParallaxProvider } from "react-scroll-parallax";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import Register from "./pages/register";
@@ -29,19 +29,10 @@ export default function App() {
         <Route path="/members/all" element={<MembersList />} />
         <Route path="/lists" element={<Lists />} />
         <Route path="/lists/:id" element={<ListDetail />} />
-        <Route
-          path="/profile/:username"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        {/*
-          <Route path="/games/:slug" element={<GamePage />} />
+        <Route element={<ProtectedRoute />}>
           <Route path="/feed" element={<Feed />} />
-          <Route path="/members" element={<Members />} />
-          <Route path="/lists" element={<Lists />} /> */}
+          <Route path="/profile/:user_id" element={<Profile />} />
+        </Route>
       </Routes>
       <Footer />
     </ParallaxProvider>
