@@ -1,46 +1,34 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useRegister } from "../../hooks/useAuth";
+import { getErrorMessage } from "../../api/errors";
 
 export default function Register() {
-  const {register} = useAuth();
+  
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+  const register = useRegister();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    agreeToTerms: false,
-  })
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setForm({...form, [e.target.name]: e.target.value})
-  };
-
-  const handleSubmit = async (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
-    if (form.password !== form.confirmPassword) {
-      setError("As senhas não coincidem.");
-      setLoading(false);
+    if (password !== confirmPassword) {
+      alert("As senhas não coincidem!");
       return;
     }
 
-    try {
-      await register(form.username, form.email, form.password);
-      navigate("/games");
-    } catch (err) {
-      setError(err.response?.data?.detail || "Erro ao criar conta.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    register.mutate({ username, email, password }, {
+      onSuccess: () => {
+        navigate("/games");
+      }
+    });
+  }
 
 
   return (
@@ -77,8 +65,8 @@ export default function Register() {
                 name="email"
                 type="email"
                 placeholder="E-mail"
-                value={form.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
@@ -89,8 +77,8 @@ export default function Register() {
                 name="username"
                 type="text"
                 placeholder="Nome de usuário"
-                value={form.username}
-                onChange={handleChange}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
@@ -101,8 +89,8 @@ export default function Register() {
                 name="password"
                 type="password"
                 placeholder="Senha"
-                value={form.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
@@ -113,21 +101,20 @@ export default function Register() {
                 name="confirmPassword"
                 type="password"
                 placeholder="Confirmar Senha"
-                value={form.confirmPassword}
-                onChange={handleChange}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 className="w-full border-b border-gray-300 py-2 outline-none text-white placeholder-gray-400 bg-transparent focus:border-[#8b7df0] transition-colors"
               />
             </div>
-            {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
 
             <div className="flex items-center text-xs mt-1">
               <label className="flex items-center gap-2 text-white cursor-pointer">
                 <input 
                   name="agreeToTerms"
                   type="checkbox"
-                  checked={form.agreeToTerms}
-                  onChange={(e) => setForm({...form, agreeToTerms: e.target.checked})} 
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)} 
                   className="accent-[#8b7df0] hover:cursor-pointer"
                   required />
                   Concordo com os Termos de Serviço e Política de Privacidade
@@ -136,17 +123,27 @@ export default function Register() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={register.isPending}
               className="bg-roxo hover:bg-white hover:border hover:border-roxo hover:text-roxo hover:cursor-pointer text-white py-2.5 px-8 rounded-full mt-4 mx-auto w-full sm:w-3/5 transition-colors"
             >
-              {loading ? "Cadastrando..." : "Cadastre-se"}
+              {register.isPending ? "Cadastrando..." : "Cadastre-se"}
             </button>
           </form>
 
-
+          {register.isError && errorCardMessage(getErrorMessage(register.error))}
 
         </div>
       </div>
+    </div>
+  );
+}
+
+function errorCardMessage(error) {
+
+  return (
+    <div className="bg-red-100/50 border border-red-300 text-white px-4 py-3 rounded relative mb-4 mt-30" role="alert">
+      <strong className="font-bold">Ops!</strong>
+      <span className="block sm:inline"> {error}</span>
     </div>
   );
 }
