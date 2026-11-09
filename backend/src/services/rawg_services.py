@@ -1,7 +1,5 @@
-from ..models.schemas.game import *
-from ..services.db_services.game import *
-
-from ..utils.errors import *
+from ..models.schemas.game import GameComplete, GameOverview, GamesOut
+from ..services.db_services.game import DB_create_game, DB_read_game_full
 
 
 async def search_rawg_games_complete(conn, exconn, url):
@@ -9,7 +7,6 @@ async def search_rawg_games_complete(conn, exconn, url):
 
     async with exconn.get(url) as response:
         json = await response.json()
-
 
     games_list = []
     for i in range(len(json["results"])):

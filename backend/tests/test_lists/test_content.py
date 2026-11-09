@@ -1,11 +1,10 @@
 from .utils import *
 
 
-@pytest.mark.rawg
 def test_adding_game_to_list_returns_200(users, games, create_list, add_game_request):
     """Alice cria uma lista e adiciona um jogo a ela"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     game_id = games["mario"][0]
     list_in = create_list(creator)
 
@@ -15,11 +14,10 @@ def test_adding_game_to_list_returns_200(users, games, create_list, add_game_req
     assert_game_in_list(creator, list_in, game_id)
 
 
-@pytest.mark.rawg
 def test_adding_and_removing_game_returns_200(users, games, create_list, add_game_request, rem_game_request):
     """Alice cria uma lista, adiciona um jogo e depois o remove"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     game_id = games["GTA"][0]
     list_in = create_list(creator)
 
@@ -32,11 +30,10 @@ def test_adding_and_removing_game_returns_200(users, games, create_list, add_gam
     assert_game_not_in_list(creator, list_in, game_id)
 
 
-@pytest.mark.rawg
 def test_adding_multiple_games_all_return_200(users, games, create_list, add_game_request):
     """Alice cria uma lista e adiciona vários jogos a ela"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     list_in = create_list(creator)
     game_ids = games["mario"][:3]
 
@@ -45,11 +42,10 @@ def test_adding_multiple_games_all_return_200(users, games, create_list, add_gam
         assert add_response.status_code == 200, add_response.json()
 
 
-@pytest.mark.rawg
 def test_adding_game_to_non_existent_list_returns_404(users, games, add_game_request):
     """Alice tenta adicionar um jogo a uma lista que não existe"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     game_id = games["roblox"][0]
     list_in = BaseList(list_id = "inexistent")
 
@@ -58,11 +54,10 @@ def test_adding_game_to_non_existent_list_returns_404(users, games, add_game_req
     assert add_response.json() == LIST_NOT_FOUND_MSG
 
 
-@pytest.mark.rawg
 def test_removing_game_from_non_existent_list_returns_404(users, games, rem_game_request):
     """Alice tenta remover um jogo de uma lista que não existe"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     game_id = games["roblox"][0]
     list_in = BaseList(list_id = "inexistent")
 
@@ -71,11 +66,10 @@ def test_removing_game_from_non_existent_list_returns_404(users, games, rem_game
     assert rem_response.json() == LIST_NOT_FOUND_MSG
 
 
-@pytest.mark.rawg
 def test_adding_game_only_affects_own_list(users, games, create_list, add_game_request):
     """Alice e Bernardo criam suas próprias listas, Alice adiciona um jogo, isso não deve afetar a lista de Bernardo"""
 
-    creator1, creator2 = users["Alice"], users["Bernardo"]
+    creator1, creator2 = users("Alice"), users("Bernardo")
     game_id = games["mario"][0]
 
     list1 = create_list(creator1)
@@ -87,11 +81,10 @@ def test_adding_game_only_affects_own_list(users, games, create_list, add_game_r
     assert_game_not_in_list(creator2, list2, game_id)
 
 
-@pytest.mark.rawg
 def test_adding_games_to_list_you_dont_own_returns_403(users, games, create_list, save_list_request, add_game_request):
     """Alice cria uma lista, Bernardo salva a lista, Bernardo tenta adicionar um jogo a lista de Alice"""
 
-    creator, saver = users["Alice"], users["Bernardo"]
+    creator, saver = users("Alice"), users("Bernardo")
     game_id = games["mario"][0]
     list_in = create_list(creator)
 
@@ -104,11 +97,10 @@ def test_adding_games_to_list_you_dont_own_returns_403(users, games, create_list
     assert_game_not_in_list(creator, list_in, game_id)
 
 
-@pytest.mark.rawg
 def test_adding_the_same_game_twice_returns_409(users, games, create_list, add_game_request):
     """Alice cria uma lista e tenta adicionar o mesmo game a ela 2 vezes"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     game_id = games["mario"][0]
     list_in = create_list(creator)
 
@@ -120,11 +112,10 @@ def test_adding_the_same_game_twice_returns_409(users, games, create_list, add_g
     assert duplicate_response.json() == {"message": "Esse game já está na lista!"}
 
 
-@pytest.mark.rawg
 def test_removing_the_same_game_twice_returns_200(users, games, create_list, add_game_request, rem_game_request):
     """Alice cria uma lista adiciona um game a ela, e depois o remove 2 vezes"""
     
-    creator = users["Alice"]
+    creator = users("Alice")
     game_id = games["mario"][0]
     list_in = create_list(creator)
 

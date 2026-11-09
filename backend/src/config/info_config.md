@@ -12,4 +12,4 @@
 - [aiohttp (Python)](https://docs.aiohttp.org/en/stable/)
 
 ## A classe LifespanConfig
-A classe LifespanConfig contém a rotina de inicializar e de encerrar o backend. No método `__call__`, que é a função que estabelece esse ciclo de vida do programa, tudo antes do yield é realizado antes do nosso servidor ser ativado, e tudo depois do yield é realizado após.
+A classe LifespanConfig contém a rotina de inicializar e de encerrar o backend. No método `__call__`, que é a função que estabelece esse ciclo de vida do programa, tudo antes do yield é realizado antes do nosso servidor ser ativado, e tudo depois do yield é realizado após ele ser encerrado.

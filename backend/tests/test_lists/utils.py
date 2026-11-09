@@ -1,27 +1,26 @@
-from ..utils import *
+import requests
+
+from ..utils import BaseUser, BaseList, BASE_URL_LISTS
 
 SUCCESS_CREATING_MSG = {"message":"Lista criada com sucesso!", "list_id": "abc", "not_included": []}
 SUCCESS_DELETING_MSG = {"message":"Lista deletada com sucesso!"}
 
-SUCCESS_SAVING_MSG = {"message": "Lista salva com sucesso!"}
-SUCCEESS_UNSAVING_MSG = {"message": "Lista dessalva com sucesso!"}
-
 SUCCESS_ADDING_MSG = {"message": "Game adicionado à lista com sucesso!"}
 SUCCEESS_REMOVING_MSG = {"message": "Game removido da lista com sucesso!"}
 
-LIST_NOT_FOUND_MSG = {"message": "Lista não encontrada!"}
-USER_NOT_FOUND_MSG = {"message": "Usuário não encontrado!"}
+LIST_NAME_TAKEN_MSG = lambda name: {"message": f'Você já possui uma lista com o nome "{name}"!'}
+LIST_NAME_TOO_BIG_MSG = {"message": "O nome da lista não pode exceder 45 caracteres!"}
+LIST_NAME_BLANK_MSG = {"message": "O nome da lista não pode ser apenas espaço vazio!"}
 
-LIST_NAME_TAKEN = lambda name: {"message": f'Você já possui uma lista com o nome "{name}"!'}
-LIST_NAME_TOO_BIG = {"message": "O nome da lista não pode exceder 45 caracteres!"}
-LIST_NAME_BLANK = {"message": "O nome da lista não pode ser apenas espaço vazio!"}
+LIST_DESC_TOO_BIG_MSG = {"message": "A descrição da lista não pode exceder 300 caracteres!"}
+LIST_DESC_BLANK_MSG = {"message": "A descrição da lista não pode ser apenas espaço vazio!"}
 
-LIST_DESC_TOO_BIG = {"message": "A descrição da lista não pode exceder 300 caracteres!"}
-LIST_DESC_BLANK = {"message": "A descrição da lista não pode ser apenas espaço vazio!"}
+LIST_PRIVACY_INVALID_MSG = {"message": "A privacidade da lista não é um dos valores válidos!"}
 
 PRIVATE_LIST_MSG = {"message": "Essa lista é privada!"}
 LACK_OF_LIST_OWNERSHIP_MSG = {"message": "Apenas o autor da lista pode realizar esta ação!"}
 BLOCKED_BY_LIST_OWNER_MSG = {"message": "O usuário está bloqueado pelo autor da lista!"}
+USER_BLOCKED_LIST_OWNER_MSG = {"message": "Não é possível ver detalhes da lista um usuário antes de desbloqueá-lo!"}
 
 def assert_privacy(user: BaseUser, list_in: BaseList, privacy: bool):
     """Garante a privacidade de uma lista no DB"""
@@ -123,27 +122,41 @@ def view_created_lists(user: BaseUser):
     return user_lists
 
 
-def favorites_list_id(user: BaseUser):
-    """Retorna o list_id da lista de favoritos do usuário"""
+def favorites_list(user: BaseUser):
+    """Retorna os dados básicos da lista de favoritos do usuário"""
 
     created_lists = view_created_lists(user)
+    fav_list = None
 
     for cl in created_lists:
         if cl["name"] == "Jogos Favoritos":
-            return cl["list_id"]
+            fav_list = BaseList(
+                list_id=cl["list_id"],
+                name=cl["name"],
+                privacy=cl["privacy"],
+                description="Meus games favoritos"
+            )
+            break
 
-    return None
+    return fav_list
 
 
-def completed_list_id(user: BaseUser):
-    """Retorna o list_id da lista de completados do usuário"""
+def completed_list(user: BaseUser):
+    """Retorna os dados básicos da lista de completados do usuário"""
 
     created_lists = view_created_lists(user)
+    comp_list = None
 
     for cl in created_lists:
         if cl["name"] == "Jogos Completados":
-            return cl["list_id"]
+            comp_list = BaseList(
+                list_id=cl["list_id"],
+                name=cl["name"],
+                privacy=cl["privacy"],
+                description="Meus games completados"
+            )
+            break
 
-    return None
+    return comp_list
 
 

@@ -1,9 +1,11 @@
 from uuid import uuid4
 
-from ....models.schemas.review import *
-from ....utils import *
 from ..game import DB_read_game_basic
-
+from ....models.schemas.review import ReviewNew, ReviewEdit, ReviewOutOverview, ReviewOutComplete
+from ....models.schemas.game import GameOverview
+from ....models.schemas.user import User
+from ....utils.utils import db_query, fix_date
+from ....utils import pagination as pag
 
 @db_query
 async def DB_create_review(conn, review: ReviewNew, user_id: str):   
@@ -126,12 +128,12 @@ async def DB_read_review_id(conn, user_id: str, game_id: int):
 
 
 @db_query
-async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_query: PageQuery):
+async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_query: pag.PageQuery):
     """Busca uma página de reviews criadas por um usuário"""
 
     async with conn.transaction():
         
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("r.reviewer = $1", user_id), ("r.privacy <= $2", clearence)],
             table_alias="r",
             col2="id",
@@ -139,7 +141,7 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
         )
 
         # Conta quantas reviews criadas pelo usuário correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_created_reviews = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Reviews r
@@ -148,7 +150,7 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
         ''', *params)
 
         # Pega uma página de reviews criadas
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.name, g.picture, g.year,
             (SELECT COUNT(*) FROM ReviewLikes rl  WHERE rl.usr  = r.reviewer) AS like_count,
@@ -176,12 +178,12 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
             created_at = r["created_at"]
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_created_reviews,
             page_len=len(rows),
             content=created_reviews,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
 

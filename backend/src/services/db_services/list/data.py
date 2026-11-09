@@ -1,8 +1,10 @@
 from uuid import uuid4
 
-from ....models.schemas.list import *
-from ....utils import *
-
+from ....models.schemas.list import ListEdit, ListNew, ListOutOverview, ListOutComplete, ListGames
+from ....models.schemas.game import GameOverview
+from ....models.schemas.user import User
+from ....utils.utils import db_query, fix_date
+from ....utils import pagination as pag
 
 @db_query
 async def DB_create_list(conn, new_list: ListNew, user_id: str):
@@ -73,14 +75,17 @@ async def DB_read_list_id(conn, list_name: str, user_id: str):
 
 
 @db_query
-async def DB_read_user_basic_lists(conn, user_id: str):
+async def DB_read_user_basic_lists(conn, user_id: str, rel: int):
     """Lê dados das listas básicas de um usuário"""
-    basic_lists_names = ("Jogos Favoritos", "Jogos Completados")
 
+    basic_lists_names = ("Jogos Favoritos", "Jogos Completados")
     basic_lists = []
 
     for bl in basic_lists_names:
         list_id = await DB_read_list_id(conn, bl, user_id)
+        list_privacy = await DB_read_list_privacy(conn, list_id)
+        if list_privacy > rel:
+            continue
 
         games = await conn.fetch('''
             SELECT g.id AS game_id, g.title, g.picture, g.year
@@ -109,7 +114,7 @@ async def DB_read_user_basic_lists(conn, user_id: str):
 
 
 @db_query
-async def DB_update_list(conn, list_id: str, new_list: List):
+async def DB_update_list(conn, list_id: str, new_list: ListEdit):
     """Atualiza os dados de uma lista"""
     
     await conn.execute('''
@@ -164,16 +169,18 @@ async def DB_read_list_data(conn, list_id: str):
         updated_at=fix_date(row["updated_at"])
     )
 
+    await DB_update_list_updated_at(conn, list_id)
+
     return user_list
 
 
 @db_query
-async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_query: PageQuery):
+async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_query: pag.PageQuery):
     """Busca uma página de listas criadas por um usuário"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("l.creator = $1", user_id), ("l.privacy <= $2", clearence)],
             table_alias="l",
             col2="id",
@@ -181,7 +188,7 @@ async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_qu
         )
 
         # Conta quantas listas criadas pelo usuário correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_created_lists = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Lists l
@@ -190,13 +197,13 @@ async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_qu
         ''', *params)
 
         # Pega uma página de listas criadas
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
-            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp,
+            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp, l.privacy,
             (SELECT COUNT(*) FROM SavedLists sl WHERE sl.list = l.id) AS saves,
             (SELECT g.picture FROM Games g 
             LEFT JOIN ListContent lc ON lc.game = g.id 
-            WHERE lc.list = l.id ORDER BY lc.created_at ASC 
+            WHERE lc.list = l.id AND g.picture != null ORDER BY lc.created_at ASC 
             LIMIT 1) AS cover,
             {cursor_cols}
             FROM Lists l
@@ -214,14 +221,15 @@ async def DB_read_user_created_lists(conn, user_id: str, clearence: int, page_qu
             list_id=r["list_id"],
             creator=User(user_id=r["user_id"], username=r["username"], pfp=r["pfp"]),
             saves_count=r["saves"],
-            cover_picture=r["cover"]
+            cover_picture=r["cover"],
+            privacy=r["privacy"]
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_created_lists,
             page_len=len(rows),
             content=created_lists,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 

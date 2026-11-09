@@ -1,15 +1,21 @@
-import pytest, requests, copy
+from dataclasses import dataclass
 from enum import IntEnum
-from requests.cookies import RequestsCookieJar
-from dataclasses import dataclass, replace, asdict
 import os
-import random
+import requests
+from requests.cookies import RequestsCookieJar
+
 
 BASE_URL = os.environ["BASE_URL"]
 BASE_URL_USERS = os.environ["BASE_URL"] + "/users"
 BASE_URL_LISTS = os.environ["BASE_URL"] + "/lists"
 BASE_URL_REVIEWS = os.environ["BASE_URL"] + "/reviews"
 BASE_URL_GAMES = os.environ["BASE_URL"] + "/games"
+
+NOT_LOGGED_IN_MSG = {"message" : "É necessário fazer login para esta ação!"}
+USER_NOT_FOUND_MSG = {"message":"Usuário não encontrado!"}
+REVIEW_NOT_FOUND_MSG = {"message": "Review não encontrada!"}
+GAME_NOT_FOUND_MSG = {"message": "Game não encontrado!"}
+LIST_NOT_FOUND_MSG = {"message": "Lista não encontrada!"}
 
 
 class Clearence(IntEnum):
@@ -26,6 +32,8 @@ class BaseUser:
     pwd: str | None = "UserUser1!"
     email: str | None = "user1@gmail.com"
     bio: str | None = None
+    pfp: str | None = None
+    banner: str | None = None
     cookies: RequestsCookieJar | None = None
 
 
@@ -86,13 +94,11 @@ def delete_account(user: BaseUser):
     assert response.json() == {"message":"Conta deletada com sucesso!"}
 
 
-
-
 def view_followers(user: BaseUser):
     """Retorna por quem o user é seguido"""
 
     followers = []
-    url = BASE_URL_USERS + f"/follow/followers/{user.user_id}?page_size=40"
+    url = BASE_URL_USERS + f"/follow/followers/{user.user_id}"
 
     response = requests.get(url, cookies=user.cookies)
     assert response.status_code == 200, response.json()
@@ -113,7 +119,7 @@ def view_followeds(user: BaseUser):
 
     followeds = []
 
-    url = BASE_URL_USERS + f"/follow/followings/{user.user_id}?page_size=50"
+    url = BASE_URL_USERS + f"/follow/followings/{user.user_id}"
 
     response = requests.get(url, cookies=user.cookies)
     assert response.status_code == 200, response.json()
@@ -158,7 +164,7 @@ def view_blocks(user: BaseUser):
 
     blocks = []
 
-    url = BASE_URL_USERS + "/block?page_size=50"
+    url = BASE_URL_USERS + "/block"
 
     response = requests.get(url, cookies=user.cookies)
     assert response.status_code == 200, response.json()

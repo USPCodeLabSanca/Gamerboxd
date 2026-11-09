@@ -1,8 +1,7 @@
 from .data import DB_update_list_updated_at
-from ....models.schemas.list import *
 from ....models.schemas.game import GameComplete
-from ....utils import *
-
+from ....utils.utils import db_query
+from ....utils import pagination as pag
 
 @db_query
 async def DB_create_list_game(conn, list_id, game_id):
@@ -27,7 +26,7 @@ async def DB_delete_list_game(conn, list_id: str, game_id: int):
 
 
 @db_query
-async def DB_read_game_in_list(conn, list_id, game_id):
+async def DB_read_game_in_list(conn, list_id: str, game_id: str):
     """Verifica se um game já pertence a uma lista"""
 
     game_exists = await conn.fetchval('''
@@ -38,12 +37,12 @@ async def DB_read_game_in_list(conn, list_id, game_id):
     
 
 @db_query
-async def DB_read_list_games(conn, list_id: str, page_query: PageQuery):
+async def DB_read_list_games(conn, list_id: str, page_query: pag.PageQuery):
     """Busca uma página de jogos de uma lista"""
 
     async with conn.transaction():
 
-        clauses =  PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("lc.list = $1", list_id)],
             table_alias="lc",
             col2="game",
@@ -51,7 +50,7 @@ async def DB_read_list_games(conn, list_id: str, page_query: PageQuery):
         )
 
         # Conta quantas jogos da lista correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_games = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Games g
@@ -60,7 +59,7 @@ async def DB_read_list_games(conn, list_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de jogo
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT g.id AS game_id, g.title, g.picture, g.year,
                 COUNT(r.liked) FILTER (WHERE r.liked = true) AS like_count,
@@ -91,12 +90,12 @@ async def DB_read_list_games(conn, list_id: str, page_query: PageQuery):
             gamerboxd_rating=float(r["gamerboxd_rating"]) if r["gamerboxd_rating"] is not None else None
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_games,
             page_len=len(rows),
             content=games,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
 

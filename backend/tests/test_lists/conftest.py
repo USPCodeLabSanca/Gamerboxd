@@ -1,4 +1,8 @@
-from .utils import *
+from dataclasses import asdict
+import pytest
+import requests
+
+from ..utils import Clearence, BaseUser, BaseList, BASE_URL_LISTS
 
 
 @pytest.fixture
@@ -48,8 +52,9 @@ def edit_list_request():
     """Faz o request para editar uma review de usuário."""
 
     # Tenta editar a lista no DB
-    def _edit_list_request(user: BaseUser, list_in: BaseList):
-        edit_resp = requests.put(f"{BASE_URL_LISTS}/{list_in.list_id}", cookies=user.cookies, json=asdict(list_in))
+    def _edit_list_request(user: BaseUser, list_in: dict):
+        list_id = list_in.pop("list_id")
+        edit_resp = requests.put(f"{BASE_URL_LISTS}/{list_id}", cookies=user.cookies, json=list_in)
         return edit_resp
 
     return _edit_list_request

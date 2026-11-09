@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import LifespanConfig
-from .middlewares import SetUserLoginState
+from .middlewares import *
 from .routes import auth_router, game_router, list_router, review_router, user_router
 from .utils.errors import QueryError
 
@@ -45,7 +45,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(SetUserLoginState)
+app.add_middleware(SetUserLoginStateMiddleware)
+app.add_middleware(TimeoutMiddleware)
 
 app.include_router(auth_router)
 app.include_router(user_router)

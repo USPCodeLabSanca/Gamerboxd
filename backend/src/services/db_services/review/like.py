@@ -1,5 +1,8 @@
-from ....models.schemas.review import *
-from ....utils import *
+from ....models.schemas.review import ReviewOutOverview
+from ....models.schemas.game import GameOverview
+from ....models.schemas.user import User
+from ....utils.utils import db_query
+from ....utils import pagination as pag
 
 
 @db_query
@@ -45,12 +48,12 @@ async def DB_read_count_likes(conn, review_id: str):
 
 
 @db_query
-async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
+async def DB_read_review_likers(conn, review_id: str, page_query: pag.PageQuery):
     """Busca uma página de usuários que deram like numa review"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("rl.review = $1", review_id)],
             table_alias="rl",
             col2="usr",
@@ -58,7 +61,7 @@ async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
         )
 
         # Conta quantos usuários que curtiram a review correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_review_likes = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Users u
@@ -67,7 +70,7 @@ async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de usuários que curtiram a review
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT u.id AS user_id, u.pfp, u.username,
             {cursor_cols}
@@ -87,22 +90,22 @@ async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
             pfp=r["pfp"]
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_review_likes,
             page_len=len(rows),
             content=review_likes,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
     
 @db_query
-async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_likes(conn, user_id: str, page_query: pag.PageQuery):
     """Busca uma página de reviews curtidas por um usuário"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("rl.usr = $1", user_id)],
             table_alias="rl",
             col2="review",
@@ -110,7 +113,7 @@ async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
         )
 
         # Conta quantas reviews curtidas pelo usuário correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_user_likes = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Reviews r
@@ -120,7 +123,7 @@ async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de reviews curtidas
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.name, g.picture, g.year,
             {cursor_cols}
@@ -149,10 +152,10 @@ async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
             created_at = r["created_at"]
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_user_likes,
             page_len=len(rows),
             content=reviews_liked,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )

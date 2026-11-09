@@ -11,6 +11,6 @@
 Utilizamos o [dbdiagram.io](https://dbdiagram.io/d/gamerboxd-69e7bbe7d80a958d1ca0428c) para esquematizar as tabelas do banco de dados do Gamerboxd.
 
 ## A função create_tables
-As tabelas são construidas a partir da função assíncrona create_tables seguindo as especificações expressas no diagrama acima.
+As tabelas são construidas a partir da função assíncrona create_tables seguindo as especificações expressas no diagrama acima. Alguns índices também saão criados para agilizar buscas frequentes.
 
 

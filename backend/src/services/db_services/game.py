@@ -1,6 +1,6 @@
-from . import db_query
-from ...models.schemas.game import *
-
+from ...models.schemas.game import GameOverview, GameComplete
+from ...utils.utils import db_query
+from ...utils.utils import *
 
 @db_query
 async def DB_create_game(conn, game: GameOverview):

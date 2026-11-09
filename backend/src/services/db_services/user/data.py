@@ -1,11 +1,10 @@
 from uuid import uuid4
 
-from ....models.schemas.user import *
-from ....utils import *
-
+from ....models.schemas.user import UserNew, UserOut, UserEdit
+from ....utils.utils import db_query, fix_date
 
 @db_query
-async def DB_create_user(conn, user: UserIn):
+async def DB_create_user(conn, user: UserNew):
     user_id = str(uuid4())
     await conn.execute('''
         INSERT INTO Users(id, username, email, password)
@@ -69,9 +68,9 @@ async def DB_read_user_out(conn, user_id: str):
 async def DB_update_user(conn, user: UserEdit, user_id: str):
     await conn.execute('''
         UPDATE Users 
-        SET username = $1, email = $2, bio = $3 , pfp = $4
-        WHERE id = $5
-    ''', user.username, user.email, user.bio, user.pfp, user_id)
+        SET username = $1, email = $2, bio = $3 , pfp = $4, banner = $5
+        WHERE id = $6
+    ''', user.username, user.email, user.bio, user.pfp, user.banner, user_id)
 
     return user
 

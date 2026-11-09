@@ -1,10 +1,11 @@
-from .utils import *
+from ..utils import LIST_NOT_FOUND_MSG
+from .utils import SUCCESS_DELETING_MSG, LACK_OF_LIST_OWNERSHIP_MSG, assert_unsave
 
 
 def test_deleting_list_returns_200(users, create_list, delete_list_request, get_list_request):
     """Alice cria e deleta uma lista"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     list_in = create_list(creator, cleanup=False)
 
     delete_response = delete_list_request(creator, list_in)
@@ -19,7 +20,7 @@ def test_deleting_list_returns_200(users, create_list, delete_list_request, get_
 def test_deleting_twice_returns_404(users, create_list, delete_list_request):
     """Alice cria e deleta uma lista e tenta deletar uma segunda vez"""
 
-    creator = users["Alice"]
+    creator = users("Alice")
     list_in = create_list(creator, cleanup=False)
 
     delete_response = delete_list_request(creator, list_in)
@@ -33,7 +34,7 @@ def test_deleting_twice_returns_404(users, create_list, delete_list_request):
 def test_deleting_list_you_dont_own_returns_403(users, create_list, delete_list_request):
     """Alice cria uma lista, Bernardo tenta deletar a lista de Alice"""
 
-    creator, deleter = users["Alice"], users["Bernardo"]
+    creator, deleter = users("Alice"), users("Bernardo")
     list_in = create_list(creator)   
     
     delete_response = delete_list_request(deleter, list_in)
@@ -44,7 +45,7 @@ def test_deleting_list_you_dont_own_returns_403(users, create_list, delete_list_
 def test_deleting_list_cascades_to_saved_lists(users, create_list, save_list_request, delete_list_request):
     """Alice cria uma lista, Bernardo salva a lista, Alice deleta a lista"""
 
-    creator, saver = users["Alice"], users["Bernardo"]
+    creator, saver = users("Alice"), users("Bernardo")
     list_in = create_list(creator, cleanup=False)
 
     save_response = save_list_request(saver, list_in)
