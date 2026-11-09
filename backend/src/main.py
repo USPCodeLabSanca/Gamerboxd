@@ -10,7 +10,7 @@ from .middlewares import *
 from .routes import auth_router, game_router, list_router, review_router, user_router
 from .utils.errors import QueryError
 
-env = dotenv_values(".env")
+env = dotenv_values("../.env")
 
 lifespan = LifespanConfig(env)
 app = FastAPI(lifespan=lifespan)
