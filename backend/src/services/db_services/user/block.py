@@ -14,6 +14,21 @@ async def DB_create_block(conn, user_id_blocker: str, user_id_blocked:str):
 
 
 @db_query
+async def DB_delete_likes_after_block(conn, user_id_liker: str, user_id_liked: str):
+    """Remove todos os likes que um usuário A deu nas reviews do usuário B"""
+
+    await conn.execute('''
+        DELETE FROM ReviewLikes
+        WHERE usr = $1
+        AND review IN (
+            SELECT id
+            FROM Reviews
+            WHERE reviewer = $2
+        );
+    ''', user_id_liker, user_id_liked)
+
+
+@db_query
 async def DB_delete_block(conn, user_id_blocker: str, user_id_blocked:str):
     """Remove um bloqueio do DB"""
 

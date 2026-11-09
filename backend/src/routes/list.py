@@ -53,17 +53,17 @@ async def edit_list(new_list: ListEdit, list_id: str = Depends(dep.list_is_owned
 
     list_to_edit = await is_list_update_valid(conn, user_id, new_list, list_id)
 
-    # Se a privacidade mudou de público para privado, é necessário apagar a lista de todos as bibliotecas que a salvaram
     current_list_privacy = await DB_read_list_privacy(conn, list_id)
-    if list_to_edit.privacy >= current_list_privacy:
-        await DB_delete_list_saves_after_privacy_change(conn, list_id, user_id)
+
+    if list_to_edit.privacy > current_list_privacy:
+        await DB_delete_list_saves_after_privacy_change(conn, list_id, user_id, list_to_edit.privacy)
 
     await DB_update_list(conn, list_id, list_to_edit)
+
     list_data = await DB_read_list_data(conn, list_id)
     list_data.rel = RelationshipStatus.OWNER
-    
-    return JSONResponse(list_data.model_dump())
 
+    return JSONResponse(list_data.model_dump())
 
 @list_router.get("/created/{user_id}")
 async def view_created_lists(user_id: str = Depends(dep.user_id_exists), page_query = Depends(dep.validate_queries(["name", "created_at", "updated_at"], "!updated_at")),
