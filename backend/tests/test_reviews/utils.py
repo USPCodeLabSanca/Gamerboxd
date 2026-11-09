@@ -14,6 +14,7 @@ TIME_PLAYED_INVALID_MSG = {"message": "O tempo de jogo não pode ser negativo!"}
 PRIVATE_REVIEW_MSG = {"message": "Essa review é privada!"}
 LACK_OF_REVIEW_OWNERSHIP_MSG = {"message": "Apenas o autor da review pode realizar essa ação!"}
 BLOCKED_BY_REVIEW_OWNER_MSG = {"message": "O usuário está bloqueado pelo autor da review!"}
+USER_BLOCKED_REVIEW_OWNER_MSG = {"message": "Não é possível ver detalhes da review um usuário antes de desbloqueá-lo!"}
 
 
 def view_review_likes(user: BaseUser, review: BaseReview):

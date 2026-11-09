@@ -50,6 +50,12 @@ async def update_review(review: ReviewEdit, review_id: str = Depends(dep.review_
     if review.completed != old_review_completed:
         args = (conn, await DB_read_list_id(conn, "Jogos Completados", user_id), game_id)
         await DB_create_list_game(*args) if review.completed else await DB_delete_list_game(*args)
+
+    current_review_privacy = await DB_read_review_privacy(conn, review_id)
+    new_privacy = validated_review_update.privacy
+
+    if new_privacy > current_review_privacy:
+        await DB_delete_likes_after_privacy_change(conn, review_id, user_id, new_privacy)
         
     await DB_update_review(conn, review_id, validated_review_update)
     updated_review = await DB_read_review(conn, review_id)

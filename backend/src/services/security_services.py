@@ -243,6 +243,13 @@ async def classify_relationship(conn, atv: str | None, pas: str):
 
     if atv == pas:
         return RelationshipStatus.OWNER
+
+    atv_follows_pas, pas_follows_atv = await DB_read_already_follows(conn, atv, pas), await DB_read_already_follows(conn, pas, atv)
+
+    follow_relationship = atv_follows_pas + 2*pas_follows_atv
+
+    if follow_relationship > 0:
+        return RelationshipStatus(10*follow_relationship)
     
     atv_blocked_pas, pas_blocked_atv = await DB_read_is_blocked(conn, atv, pas), await DB_read_is_blocked(conn, pas, atv)
 
@@ -251,18 +258,11 @@ async def classify_relationship(conn, atv: str | None, pas: str):
     if block_relationship > 0:
         return RelationshipStatus(-10*block_relationship)
 
-    atv_follows_pas, pas_follows_atv = await DB_read_already_follows(conn, atv, pas), await DB_read_already_follows(conn, pas, atv)
-
-    follow_relationship = atv_follows_pas + 2*pas_follows_atv
-
-    if follow_relationship > 0:
-        return RelationshipStatus(10*follow_relationship)
-
     else:
         return RelationshipStatus.ANY
 
 
-def resolve_user_clearence(rel: int, uncleared_rels: dict):
+def resolve_user_clearence(rel: int, uncleared_rels: dict = {}):
     """Verifica se a relação entre 2 usuários é motivo para levantar erro"""
 
     basic_uncleared_relationships = {

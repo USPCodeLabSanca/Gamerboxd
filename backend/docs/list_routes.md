@@ -3,6 +3,7 @@
 
 ## Sumário
 
+- [Sumário](#sumário)
 - [POST `/lists` — Criar lista](#post-lists--criar-lista)
 - [GET `/lists/{list_id}` — Ver lista](#get-listslist_id--ver-lista)
 - [PUT `/lists/{list_id}` — Editar lista](#put-listslist_id--editar-lista)
@@ -120,7 +121,7 @@ Atualiza os dados de uma lista do usuário autenticado.
 | Campo         | Tipo    | Obrigatório | Regras                                                    |
 |---------------|---------|-------------|-----------------------------------------------------------|
 | `name`        | string  | ✅          | Máximo de 45 caracteres, único por usuário                |
-| `description` | string  | ✅          | Máximo de 300 caracteres                                  |
+| `description` | string, null  | ✅          | Máximo de 300 caracteres                                  |
 | `privacy`     | int     | ✅          | Deve ser um dos valores dispostos na seção de privacidade |
 
 ### Resposta de Sucesso — `200`
@@ -393,7 +394,7 @@ Busca de forma paginada os jogos que pertencem a uma lista específica.
 
 **\_\_PAGE_QUERY\_\_**:
 - search busca por possíveis titulos de games que pertencem a lista
-- order padrão é `!created_at`, que mostra as mais recém inclusos games à lista. Os orders possíveis são: `["created_at", "!created_at", "title", "!created_at"]`.
+- order padrão é `!created_at`, que mostra as mais recém inclusos games à lista. Os orders possíveis são: `["created_at", "!created_at", "title", "!title"]`.
 
 ### Resposta de Sucesso — `200`
 
@@ -407,7 +408,7 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [
 | `403`  | ❌     | Lista é "privada demais" para o usuário     |
 | `404`  | ✅     | Lista não encontrada                        |
 | `422`  | ❌     | Query parameters inválidos                  |
-| `435`  | ❌     | Usuário bloqueado pelo autor da lista       |
-| `500`  | ❌     | Erro interno                                | 
+| `433`  | ❌     | Usuário bloqueado pelo autor da lista       |
+| `500`  | ❌     | Erro interno ao buscar os jogos da lista    |
 
 ---

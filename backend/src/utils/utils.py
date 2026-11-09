@@ -63,14 +63,14 @@ def col_name(table_alias: str, col: str):
     if col[0] == "!":
         col = col[1:]
 
-    if col == "username":
-        table_alias = "u"
+    main_cols = {
+        "username": "u",
+        "title": "g",
+        "name": "l"
+    }
 
-    if col == "title":
-        table_alias = "g"
-
-    if col == "name":
-        table_alias = "l"
+    if col in main_cols.keys():
+        table_alias = main_cols[col]
 
     return f"{table_alias}.{col}"
 

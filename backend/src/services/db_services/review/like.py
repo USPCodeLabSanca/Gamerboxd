@@ -1,7 +1,7 @@
 from ....models.schemas.review import ReviewOutOverview
 from ....models.schemas.game import GameOverview
 from ....models.schemas.user import User
-from ....utils.utils import db_query
+from ....utils.utils import db_query, RelationshipStatus
 from ....utils import pagination as pag
 
 
@@ -45,6 +45,30 @@ async def DB_read_count_likes(conn, review_id: str):
     ''', review_id)
 
     return likes
+
+
+@db_query
+async def DB_delete_likes_after_privacy_change(conn, review_id: str, user_id: str, new_privacy: int):
+    """Remove os likes de um conjunto X de usuários que não têm mais permissão para dar like na review Y de um usuário Z"""
+
+    if new_privacy == RelationshipStatus.FOLLOWED: # permitido apenas para seguidos pelo autor
+        await conn.execute('''
+            DELETE FROM ReviewLikes AS rl
+            WHERE review = $1
+            AND usr != $2
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Follows AS f
+                WHERE f.follower = $2
+                AND f.followed = rl.usr
+            );
+        ''', review_id, user_id)
+
+    elif new_privacy == RelationshipStatus.OWNER: # permitido apenas para o autor
+        await conn.execute('''
+            DELETE FROM ReviewLikes
+            WHERE review = $1 AND usr != $2
+        ''', review_id, user_id)
 
 
 @db_query
