@@ -4,7 +4,7 @@ from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 import math
 
-from ..models.schemas import ListNew, ListEdit, ReviewNew, ReviewEdit, UserNew
+from ..models.schemas import ListNew, ListEdit, ReviewNew, ReviewEdit, UserNew, UserEdit
 from .db_services import (
     DB_read_already_follows,
     DB_read_is_blocked,
@@ -57,7 +57,7 @@ def decode_token(cookies, token_name: str, key: str):
     return jwt.decode(cookies[token_name], key, algorithms=["HS256"], options={"verify_exp": False})
 
 
-async def is_user_valid(conn, user: UserNew, user_id: str = None):
+async def is_user_valid(conn, user: UserNew | UserEdit, user_id: str = None):
     """Testa se uma conta de usuário ao criar ou editar é válida para entrar no DB"""
 
     username = user.username.strip()
