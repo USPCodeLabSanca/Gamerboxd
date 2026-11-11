@@ -29,8 +29,8 @@ async def login(user: UserAuth, conn = Depends(dep.get_conn), key = Depends(dep.
     new_refresh_token = encode_token(user_id, 720, key)
 
     response = JSONResponse({"message":"Login feito com sucesso!", "user_id": user_id})
-    response.set_cookie("access-token", new_access_token, samesite="strict", secure=True, httponly=True)
-    response.set_cookie("refresh-token", new_refresh_token, samesite="strict", secure=True, httponly=True)
+    response.set_cookie("access-token", new_access_token, samesite="lax", secure=True, httponly=True)
+    response.set_cookie("refresh-token", new_refresh_token, samesite="lax", secure=True, httponly=True)
     
     return response
 
