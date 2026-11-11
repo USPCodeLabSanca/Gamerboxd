@@ -116,6 +116,7 @@ def test_blocking_stops_saves(users, block_request, create_list, save_list_reque
 
 
 def test_blocking_removes_saves_between_both_users(users, create_list, save_list_request, block_request):
+    """Alice cria uma lista publica, Bernardo salva a lista de Alice, Alice bloqueia Bernardo, a lista de Alice deve ser removida da biblioteca de Bernardo"""
     alice = users["Alice"]
     bernardo = users["Bernardo"]
 

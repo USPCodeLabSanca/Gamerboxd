@@ -145,8 +145,11 @@ def test_edit_list_privacy_to_followed_removes_saves_from_non_followeds(
     follow_response = follow_request(owner, followed_saver)
     assert follow_response.status_code == 200, follow_response.json()
 
-    assert save_list_request(followed_saver, list_in).status_code == 200
-    assert save_list_request(other_saver, list_in).status_code == 200
+    save_response_followed = save_list_request(followed_saver, list_in)
+    assert save_response_followed.status_code == 200, save_response_followed.json()
+
+    save_response_other = save_list_request(other_saver, list_in)
+    assert save_response_other.status_code == 200, save_response_other.json()
 
     list_in.privacy = 20
     response = edit_list_request(owner, list_in)
@@ -157,9 +160,8 @@ def test_edit_list_privacy_to_followed_removes_saves_from_non_followeds(
     assert_unsave(other_saver, list_in)
 
 
-def test_edit_list_privacy_to_owner_removes_all_other_saves(
-    users, create_list, save_list_request, edit_list_request
-):
+def test_edit_list_privacy_to_owner_removes_all_other_saves(users, create_list, save_list_request, edit_list_request):
+    """Alice cria uma lista, Bernardo e Cauã salvam ela, e depois Alice muda a privacidade da lista para apenas ela poder ver"""
     owner = users["Alice"]
     savers = [users["Bernardo"], users["Caua"]]
     list_in = create_list(owner)
