@@ -115,8 +115,8 @@ class LifespanConfig():
             data = json.load(file)
 
         total_games = data["total"]
-        last_game_in_DB = await DB_read_last_game(conn)
-        offset = last_game_in_DB if ((last_game_in_DB is not None) and (self.load_games != "all")) else 0
+        last_game_in_DB = (await DB_read_last_game(conn) or 0)
+        offset = last_game_in_DB if self.load_games != "all" else 0
 
         for i in range(offset, total_games):
             g = data["games"][i]

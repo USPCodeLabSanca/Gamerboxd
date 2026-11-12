@@ -21,7 +21,7 @@ async def DB_read_game_name(conn, game_id: int):
     """Lê o nome de um game do DB a partir do seu id"""
 
     game_name = await conn.fetchval('''
-        SELECT name
+        SELECT title
         FROM Games
         WHERE id = $1
     ''', game_id)
