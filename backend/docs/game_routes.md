@@ -4,6 +4,7 @@
 ## Sumário
 
 - [GET `/games` — Buscar games](#get-games--buscar-games)
+- [GET `/games/{game_id}` — Buscar detalhes de um game](#get-gamesgame_id--buscar-detalhes-de-um-game)
 
 ---
 
@@ -19,7 +20,7 @@ Busca jogos pelo nome.
 
 | Parâmetro   | Tipo   | Obrigatório | Padrão | Descrição                                   |
 |-------------|--------|-------------|--------|---------------------------------------------|
-| `search`    | string | ✅          | -      | Termo de busca para os jogos                |
+| `search`    | string | ❌          | ""     | Termo de busca para os jogos, se não vier nenhum, iremos só mostrar os jogos mais populares  |
 | `page`      | int    | ❌          | `1`    | Número da página                            |
 | `page_size` | int    | ❌          | `20`   | Quantidade máxima de resultados por página  |
 | `detail`    | bool   | ✅          | -      | Quanto de detalhe ([**\_\_GAME\_\_**](./routes.md#__game__) ou [**\_\_GAME_FULL\_\_**](./routes.md#__game_full__)) a resposta terá |
@@ -49,3 +50,28 @@ Busca jogos pelo nome.
 | `502`  |❌                      | Falha da API de games |
 
 ---
+
+
+## GET `/games/{game_id}` — Buscar detalhes de um game
+
+Retorna os detalhes completos de um gme pelo id.
+
+**Regras e comportamentos:**
+- **Não requer login**.
+
+### Path Parameters
+
+| Parâmetro    | Tipo   | Descrição                   |
+|--------------|--------|-----------------------------|
+| `game_id`    | int    | ID único do game buscado  |
+
+### Resposta de Sucesso — `200`
+
+Retorna schema [**\_\_GAME_FULL\_\_**](./routes.md#__game_full__)
+
+### [Erros](./routes.md#erros) possíveis
+
+| Status | HR     | Causa                 |
+|--------|--------|-----------------------|
+| `404`  | ✅     | Game não encontrado   |
+| `500`  | ❌     | Erro interno          |

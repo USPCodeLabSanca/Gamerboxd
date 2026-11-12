@@ -71,7 +71,7 @@ def build_where(page_clauses: PageClauses, param_queries: PageQuery, count: bool
     if not count:
         if (param_queries.cursor is not None):
             val1, val2 = decode_cursor_to_tuple(param_queries.cursor)
-            clauses.append(f"({col1}, {col2}) {op} (${len(params)}, ${len(params)+1})")
+            clauses.append(f"({col1}, {col2}) {op} (${len(params)+1}, ${len(params)+2})")
             params += [val1, val2]
 
         params.append(param_queries.page_size+1)

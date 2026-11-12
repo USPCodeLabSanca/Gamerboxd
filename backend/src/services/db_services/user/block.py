@@ -1,5 +1,6 @@
-from models.schemas.user import *
-from utils import *
+from ....models.schemas.user import User
+from ....utils.utils import db_query
+from ....utils import pagination as pag
 
 
 @db_query
@@ -13,6 +14,21 @@ async def DB_create_block(conn, user_id_blocker: str, user_id_blocked:str):
 
 
 @db_query
+async def DB_delete_likes_after_block(conn, user_id_liker: str, user_id_liked: str):
+    """Remove todos os likes que um usuário A deu nas reviews do usuário B"""
+
+    await conn.execute('''
+        DELETE FROM ReviewLikes
+        WHERE usr = $1
+        AND review IN (
+            SELECT id
+            FROM Reviews
+            WHERE reviewer = $2
+        );
+    ''', user_id_liker, user_id_liked)
+
+
+@db_query
 async def DB_delete_block(conn, user_id_blocker: str, user_id_blocked:str):
     """Remove um bloqueio do DB"""
 
@@ -23,12 +39,12 @@ async def DB_delete_block(conn, user_id_blocker: str, user_id_blocked:str):
 
 
 @db_query
-async def DB_read_user_blockeds(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_blockeds(conn, user_id: str, page_query: pag.PageQuery):
     """Lê uma página de bloqueados pelo usuário"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("b.blocker = $1", user_id)],
             table_alias="b",
             col2="blocked",
@@ -36,7 +52,7 @@ async def DB_read_user_blockeds(conn, user_id: str, page_query: PageQuery):
         )
 
         # Conta quantos bloqueados pelo usuário correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_blockeds = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Blocks b
@@ -45,7 +61,7 @@ async def DB_read_user_blockeds(conn, user_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de bloqueados pelo usuário
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT u.id, u.username, u.pfp,
             {cursor_cols}
@@ -61,12 +77,12 @@ async def DB_read_user_blockeds(conn, user_id: str, page_query: PageQuery):
     
         blocks = [User(user_id=r["id"], username=r["username"], pfp=r["pfp"]) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_blockeds,
             page_len=len(rows),
             content=blocks,
             current_len=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
 

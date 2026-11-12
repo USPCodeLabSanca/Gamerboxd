@@ -1,4 +1,3 @@
-from .dependencies import *
+from .utils import *
 from .errors import *
 from .pagination import *
-from .utils import *

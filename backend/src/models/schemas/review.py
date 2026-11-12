@@ -44,8 +44,3 @@ class ReviewOutComplete(ReviewOutOverview):
     updated_at: str                         # Data de ultima atualização da review
     rel: int | None = None                  # Relacionamento de quem está vendo a lista com a lista
 
-
-class ReviewLike(BaseModel):
-    """Dados sobre o like de uma review"""
-    review_id: str
-    user_id: str

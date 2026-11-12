@@ -1,5 +1,8 @@
-from models.schemas.review import *
-from utils import *
+from ....models.schemas.review import ReviewOutOverview
+from ....models.schemas.game import GameOverview
+from ....models.schemas.user import User
+from ....utils.utils import db_query, RelationshipStatus, fix_date
+from ....utils import pagination as pag
 
 
 @db_query
@@ -20,7 +23,31 @@ async def DB_delete_like_review(conn, review_id: str, user_id: str):
         DELETE FROM ReviewLikes 
         WHERE usr = $1 AND review = $2
     ''', user_id, review_id)
-    
+
+
+@db_query
+async def DB_delete_likes_after_privacy(conn, review_id: str, user_id: str, new_privacy: int):
+    """Remove os likes de um conjunto X de usuários que não têm mais permissão para dar like na review Y de um usuário Z"""
+
+    if new_privacy == RelationshipStatus.FOLLOWED: # permitido apenas para seguidos pelo autor
+        await conn.execute('''
+            DELETE FROM ReviewLikes AS rl
+            WHERE review = $1
+            AND usr != $2
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Follows AS f
+                WHERE f.follower = $2
+                AND f.followed = rl.usr
+            );
+        ''', review_id, user_id)
+
+    elif new_privacy == RelationshipStatus.OWNER: # permitido apenas para o autor
+        await conn.execute('''
+            DELETE FROM ReviewLikes
+            WHERE review = $1 AND usr != $2
+        ''', review_id, user_id)
+
 
 @db_query
 async def DB_read_review_like(conn, review_id: str, user_id: str):
@@ -45,12 +72,36 @@ async def DB_read_count_likes(conn, review_id: str):
 
 
 @db_query
-async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
+async def DB_delete_likes_after_privacy_change(conn, review_id: str, user_id: str, new_privacy: int):
+    """Remove os likes de um conjunto X de usuários que não têm mais permissão para dar like na review Y de um usuário Z"""
+
+    if new_privacy == RelationshipStatus.FOLLOWED: # permitido apenas para seguidos pelo autor
+        await conn.execute('''
+            DELETE FROM ReviewLikes AS rl
+            WHERE review = $1
+            AND usr != $2
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Follows AS f
+                WHERE f.follower = $2
+                AND f.followed = rl.usr
+            );
+        ''', review_id, user_id)
+
+    elif new_privacy == RelationshipStatus.OWNER: # permitido apenas para o autor
+        await conn.execute('''
+            DELETE FROM ReviewLikes
+            WHERE review = $1 AND usr != $2
+        ''', review_id, user_id)
+
+
+@db_query
+async def DB_read_review_likers(conn, review_id: str, page_query: pag.PageQuery):
     """Busca uma página de usuários que deram like numa review"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("rl.review = $1", review_id)],
             table_alias="rl",
             col2="usr",
@@ -58,7 +109,7 @@ async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
         )
 
         # Conta quantos usuários que curtiram a review correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_review_likes = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Users u
@@ -67,7 +118,7 @@ async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de usuários que curtiram a review
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT u.id AS user_id, u.pfp, u.username,
             {cursor_cols}
@@ -87,22 +138,22 @@ async def DB_read_review_likers(conn, review_id: str, page_query: PageQuery):
             pfp=r["pfp"]
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_review_likes,
             page_len=len(rows),
             content=review_likes,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
     
 @db_query
-async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_likes(conn, user_id: str, page_query: pag.PageQuery):
     """Busca uma página de reviews curtidas por um usuário"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("rl.usr = $1", user_id)],
             table_alias="rl",
             col2="review",
@@ -110,7 +161,7 @@ async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
         )
 
         # Conta quantas reviews curtidas pelo usuário correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_user_likes = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Reviews r
@@ -120,11 +171,11 @@ async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de reviews curtidas
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
-            SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.name, g.picture, g.year,
+            SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.title, g.picture, g.year,
+            (SELECT COUNT(*) FROM ReviewLikes rl WHERE rl.usr = r.reviewer) AS like_count,
             {cursor_cols}
-            (SELECT COUNT(*) FROM ReviewLikes rl WHERE rl.usr  = r.reviewer) AS like_count
             FROM Reviews r
             RIGHT JOIN Games g ON g.id = r.game
             RIGHT JOIN Users u ON u.id = r.reviewer
@@ -146,13 +197,13 @@ async def DB_read_user_likes(conn, user_id: str, page_query: PageQuery):
             privacy = r["privacy"],
             like_count = r["like_count"],
             game = GameOverview(game_id=r["game_id"], title=r["title"], picture=r["picture"], year=r["year"]),
-            created_at = r["created_at"]
+            created_at = fix_date(r["created_at"])
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_user_likes,
             page_len=len(rows),
             content=reviews_liked,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )

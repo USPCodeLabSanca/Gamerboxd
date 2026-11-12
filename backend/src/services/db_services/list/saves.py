@@ -1,6 +1,9 @@
 from .data import DB_update_list_updated_at
-from models.schemas.list import *
-from utils import *
+from ....models.schemas.list import *
+from ....utils.utils import db_query
+from ....utils import pagination as pag
+from ....utils.utils import RelationshipStatus
+
 
 
 @db_query
@@ -25,9 +28,9 @@ async def DB_delete_list_save(conn, list_id: str, user_id: str):
 async def DB_read_user_has_saved_list(conn, list_id: str, user_id: str):
     """Verifica se um usário salvou uma lista"""
 
-    has_saved = await conn.execute('''
+    has_saved = await conn.fetchval('''
         SELECT COUNT(*) FROM SavedLists WHERE list = $1 AND usr = $2
-    ''')
+    ''', list_id, user_id)
 
     return True if has_saved > 0 else False
 
@@ -56,12 +59,12 @@ async def DB_delete_list_saves_after_privacy_change(conn, list_id: str, user_id:
 
 
 @db_query
-async def DB_read_user_saved_lists(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_saved_lists(conn, user_id: str, page_query: pag.PageQuery):
     """Busca uma página de listas salvas por um usuário"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions=[("sl.usr = $1", user_id)],
             table_alias="sl",
             col2= "list",
@@ -69,7 +72,7 @@ async def DB_read_user_saved_lists(conn, user_id: str, page_query: PageQuery):
         )
 
         # Conta quantas listas salvas pelo usuário correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_saves = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM SavedLists sl
@@ -78,9 +81,9 @@ async def DB_read_user_saved_lists(conn, user_id: str, page_query: PageQuery):
         ''', *params)
 
         # Pega uma página de listas salvas
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
-            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp,
+            SELECT l.id AS list_id, l.name, u.id AS user_id, u.username, u.pfp, l.privacy,
             (SELECT COUNT(*) FROM SavedLists sl WHERE sl.list  = l.id) AS saves,
             (SELECT g.picture FROM Games g 
             LEFT JOIN ListContent lc ON lc.game = g.id 
@@ -104,13 +107,14 @@ async def DB_read_user_saved_lists(conn, user_id: str, page_query: PageQuery):
             creator=User(user_id=r["user_id"], username=r["username"], pfp=r["pfp"]),
             saves_count=r["saves"],
             cover_picture=r["cover"],
-            rel = RelationshipStatus.OWNER
+            rel = RelationshipStatus.OWNER,
+            privacy=r["privacy"]
         ) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_saves,
             page_len=len(rows),
             content=saved_lists,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor(rows[-1]["main_col"], rows[-1]["other_col"]) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
