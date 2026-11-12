@@ -45,7 +45,7 @@ async def user_id_exists(user_id: str, conn = Depends(get_conn)):
     return user_id
 
 
-async def game_id_exists(game_id: str, conn = Depends(get_conn)):
+async def game_id_exists(game_id: int, conn = Depends(get_conn)):
     """Verifica que um game existe no DB"""
 
     if await DB_read_game_name(conn, game_id) is None:

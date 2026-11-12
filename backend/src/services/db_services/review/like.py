@@ -1,7 +1,7 @@
 from ....models.schemas.review import ReviewOutOverview
 from ....models.schemas.game import GameOverview
 from ....models.schemas.user import User
-from ....utils.utils import db_query, RelationshipStatus
+from ....utils.utils import db_query, RelationshipStatus, fix_date
 from ....utils import pagination as pag
 
 
@@ -173,9 +173,9 @@ async def DB_read_user_likes(conn, user_id: str, page_query: pag.PageQuery):
         # Pega uma página de reviews curtidas
         where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
-            SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.name, g.picture, g.year,
+            SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.title, g.picture, g.year,
+            (SELECT COUNT(*) FROM ReviewLikes rl WHERE rl.usr = r.reviewer) AS like_count,
             {cursor_cols}
-            (SELECT COUNT(*) FROM ReviewLikes rl WHERE rl.usr  = r.reviewer) AS like_count
             FROM Reviews r
             RIGHT JOIN Games g ON g.id = r.game
             RIGHT JOIN Users u ON u.id = r.reviewer
@@ -197,7 +197,7 @@ async def DB_read_user_likes(conn, user_id: str, page_query: pag.PageQuery):
             privacy = r["privacy"],
             like_count = r["like_count"],
             game = GameOverview(game_id=r["game_id"], title=r["title"], picture=r["picture"], year=r["year"]),
-            created_at = r["created_at"]
+            created_at = fix_date(r["created_at"])
         ) for r in rows]
 
         return pag.PageResult(

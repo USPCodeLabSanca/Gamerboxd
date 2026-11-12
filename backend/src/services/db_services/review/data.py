@@ -67,7 +67,7 @@ async def DB_read_review(conn, review_id: str):
 
     review = await conn.fetchrow('''
         SELECT r.*, u.username, u.pfp,
-        (SELECT COUNT(*) FROM ReviewLikes rl  WHERE rl.usr  = r.reviewer) AS like_count
+        (SELECT COUNT(*) FROM ReviewLikes rl WHERE rl.review = r.id) AS like_count
         FROM Reviews r
         JOIN Users u ON u.id = r.reviewer
         WHERE r.id = $1

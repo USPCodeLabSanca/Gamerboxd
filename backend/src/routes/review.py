@@ -47,7 +47,7 @@ async def update_review(review: ReviewEdit, review_id: str = Depends(dep.review_
         await DB_delete_likes_after_privacy(conn, review_id, user_id, new_privacy)
 
     old_review_liked, old_review_completed = await DB_read_liked_and_completed(conn, review_id)
-    game_id = await DB_read_review_game(conn, review_id) if (old_review_liked or old_review_completed) else None
+    game_id = await DB_read_review_game(conn, review_id)
 
     if review.liked != old_review_liked:
         args = (conn, await DB_read_list_id(conn, "Jogos Favoritos", user_id), game_id)

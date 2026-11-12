@@ -103,7 +103,7 @@ def test_creating_list_with_invalid_games_returns_invalid_games_and_200(users, g
     """Alice cria uma lista, mas um dos game-ids para inserir na lista não são válidos"""
 
     user = users("Alice")
-    invalid_games = [1, 2]
+    invalid_games = [-1, -2]
     games_list = games["mario"] + invalid_games
     list_in = base_list(1, first_games=games_list)
 

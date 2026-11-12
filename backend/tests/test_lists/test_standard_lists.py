@@ -129,7 +129,7 @@ def test_adding_games_to_standard_lists_with_review_update(users, games, create_
     review.liked = not review.liked
     review.completed = not review.completed
 
-    response = edit_review_request(creator, review)
+    response = edit_review_request(creator, asdict(review))
     assert response.status_code == 200, response.json()
 
     for l in standard_lists:
@@ -170,7 +170,6 @@ def test_removing_games_from_standard_lists_with_review_deletion(users, games, c
     standard_lists = [favorites_list(creator), completed_list(creator)]
 
     review_creation_kwargs = {
-        "cleanup": False,
         "liked": any("Favoritos" in name for name in names),
         "completed": any("Completados" in name for name in names)
     }
@@ -207,7 +206,7 @@ def test_removing_games_from_standard_lists_with_review_update(users, games, cre
     review.liked = not review.liked
     review.completed = not review.completed
 
-    response = edit_review_request(creator, review)
+    response = edit_review_request(creator, asdict(review))
     assert response.status_code == 200, response.json()
 
     for l in standard_lists:
