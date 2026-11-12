@@ -1,412 +1,412 @@
 Total: 411
-New Super Mario Bros. Wii, 414
-Minecraft, 500
-Grand Theft Auto V, 499
-The Witcher 3: Wild Hunt, 487
-Red Dead Redemption 2, 492
-Elden Ring, 485
-The Legend of Zelda: Breath of the Wild, 498
-Mario Kart 8 Deluxe, 490
-Terraria, 483
-Stardew Valley, 488
-The Elder Scrolls V: Skyrim, 489
-Baldur's Gate 3, 484
-Tetris, 495
-Super Mario Bros., 494
-The Legend of Zelda, 400
-Metroid, 392
-Final Fantasy, 411
-Mega Man 2, 110
-Castlevania III: Dracula's Curse, 113
-Sonic the Hedgehog, 471
-Street Fighter II, 410
-The Legend of Zelda: A Link to the Past, 399
-Super Mario World, 422
-Chrono Trigger, 220
-Super Mario 64, 479
-Pokémon Red/Blue, 493
-Resident Evil, 438
-Tomb Raider, 369
-GoldenEye 007, 165
-Final Fantasy VII, 441
-Age of Empires, 297
-Half-Life, 451
-The Legend of Zelda: Ocarina of Time, 461
-StarCraft, 301
-Baldur's Gate, 442
-Metal Gear Solid, 425
-Super Smash Bros., 419
-Tony Hawk's Pro Skater 2, 312
-The Sims, 449
-Diablo II, 302
-Deus Ex, 9
-Counter-Strike, 454
-Grand Theft Auto III, 473
-Halo: Combat Evolved, 387
-Super Smash Bros. Melee, 417
-Animal Crossing, 19
-Ico, 19
-The Elder Scrolls III: Morrowind, 28
-Metroid Prime, 390
-Warcraft III: Reign of Chaos, 298
-Grand Theft Auto: Vice City, 472
-The Legend of Zelda: The Wind Waker, 397
-Call of Duty, 456
-Star Wars: Knights of the Old Republic, 36
-Prince of Persia: The Sands of Time, 36
-Beyond Good & Evil, 36
-World of Warcraft, 453
-Half-Life 2, 450
-Grand Theft Auto: San Andreas, 475
-Metal Gear Solid 3: Snake Eater, 41
-Resident Evil 4, 439
-God of War, 430
-Shadow of the Colossus, 47
-Guitar Hero, 47
-The Elder Scrolls IV: Oblivion, 53
-Gears of War, 53
-Wii Sports, 476
-Bully, 53
-Okami, 12
-The Legend of Zelda: Twilight Princess, 398
-BioShock, 377
-Portal, 433
-Call of Duty 4: Modern Warfare, 458
-Assassin's Creed, 375
-Mass Effect, 379
-Super Mario Galaxy, 421
-Rock Band, 59
-Fallout 3, 382
-Left 4 Dead, 65
-Dead Space, 65
-Braid, 3
-LittleBigPlanet, 65
-Super Smash Bros. Brawl, 416
-Portal 2, 432
-Batman: Arkham Asylum, 251
-Demon's Souls, 363
-Uncharted 2: Among Thieves, 366
-League of Legends, 455
-Angry Birds, 342
-Limbo, 2
-Red Dead Redemption, 426
-Super Mario Galaxy 2, 271
-Mass Effect 2, 380
-StarCraft II: Wings of Liberty, 300
-Fallout: New Vegas, 383
-Super Meat Boy, 76
-Amnesia: The Dark Descent, 76
-Dark Souls, 437
-Batman: Arkham City, 252
-The Binding of Isaac, 82
-Fez, 1
-Journey, 283
-Hotline Miami, 89
-Far Cry 3, 371
-Dishonored, 89
-XCOM: Enemy Unknown, 292
-Borderlands 2, 303
-Papers, Please, 92
-The Last of Us, 482
-BioShock Infinite, 376
-Dota 2, 402
-The Stanley Parable, 281
-Payday 2, 92
-The Legend of Zelda: A Link Between Worlds, 393
-Super Mario 3D World, 275
-Dark Souls II, 261
-Hearthstone, 99
-Mario Kart 8, 415
-Five Nights at Freddy's, 346
-Shovel Knight, 99
-The Sims 4, 448
-Alien: Isolation, 99
-Dragon Age: Inquisition, 352
-Bloodborne, 436
-Undertale, 359
-Rocket League, 405
-Fallout 4, 385
-Metal Gear Solid V: The Phantom Pain, 424
-Life Is Strange, 290
-Ori and the Blind Forest, 279
-Cities: Skylines, 322
-Dying Light, 107
-Splatoon, 107
-Xenoblade Chronicles X, 107
-Overwatch, 447
-Doom, 431
-Dark Souls III, 266
-Inside, 117
-The Witness, 117
-Pokémon Go, 478
-Uncharted 4: A Thief's End, 368
-Civilization VI, 295
-The Last Guardian, 117
-Final Fantasy XV, 413
-Hollow Knight, 434
-PlayerUnknown's Battlegrounds, 126
-Horizon Zero Dawn, 126
-Super Mario Odyssey, 459
-Cuphead, 280
-Nier: Automata, 126
-Fortnite, 496
-Assassin's Creed Origins, 374
-Monster Hunter: World, 258
-Super Smash Bros. Ultimate, 477
-Celeste, 358
-Dead Cells, 278
-Among Us, 445
-Marvel's Spider-Man, 365
-Assassin's Creed Odyssey, 373
-Detroit: Become Human, 289
-Apex Legends, 404
-Sekiro: Shadows Die Twice, 362
-Resident Evil 2, 262
-Disco Elysium, 357
-Fire Emblem: Three Houses, 152
-Luigi's Mansion 3, 237
-Control, 152
-Death Stranding, 152
-The Outer Worlds, 152
-Call of Duty: Modern Warfare, 306
-Animal Crossing: New Horizons, 481
-The Last of Us Part II, 427
-Hades, 360
-Doom Eternal, 162
-Cyberpunk 2077, 444
-Ghost of Tsushima, 162
-Microsoft Flight Simulator, 162
-Genshin Impact, 403
-Fall Guys, 341
-It Takes Two, 340
-Resident Evil Village, 267
-Forza Horizon 5, 246
-Metroid Dread, 388
-Psychonauts 2, 169
-Ratchet & Clank: Rift Apart, 169
-Halo Infinite, 386
-Returnal, 169
-Monster Hunter Rise, 256
-God of War Ragnarök, 428
-Horizon Forbidden West, 177
-Stray, 177
-Vampire Survivors, 277
-Marvel's Midnight Suns, 177
-Xenoblade Chronicles 3, 177
-Cult of the Lamb, 177
-Overwatch 2, 177
-Call of Duty: Modern Warfare II, 305
-Hogwarts Legacy, 443
-The Legend of Zelda: Tears of the Kingdom, 460
-Alan Wake 2, 190
-Super Mario Bros. Wonder, 420
-Marvel's Spider-Man 2, 364
-Lethal Company, 268
-Dave the Diver, 273
-Street Fighter 6, 409
-Resident Evil 4 (2023), 269
-Armored Core VI: Fires of Rubicon, 190
-Starfield, 190
-The Finals, 190
-Palworld, 263
-Helldivers 2, 260
-Super Metroid, 391
-Yoshi's Island, 222
-EarthBound, 221
-Secret of Mana, 218
-Suikoden II, 217
-Vagrant Story, 9
-Parasite Eve, 166
-Xenogears, 216
-Planescape: Torment, 215
-System Shock 2, 213
-Thief: The Dark Project, 212
-Unreal Tournament, 211
-Quake III Arena, 210
-EverQuest, 209
-Homeworld, 207
-Age of Empires II, 296
-Command & Conquer: Red Alert 2, 206
-Baldur's Gate II: Shadows of Amn, 9
-The Legend of Zelda: Majora's Mask, 396
-Perfect Dark, 205
-Jet Set Radio, 182
-Crazy Taxi, 159
-Tony Hawk's Pro Skater 3, 19
-Gran Turismo 3: A-Spec, 19
-Advance Wars, 19
-Max Payne, 19
-Silent Hill 2, 19
-Jak and Daxter: The Precursor Legacy, 19
-Ikaruga, 19
-Rez, 19
-Kingdom Hearts, 247
-Mafia: The City of Lost Heaven, 28
-Neverwinter Nights, 28
-Medal of Honor: Allied Assault, 28
-Battlefield 1942, 28
-Tom Clancy's Splinter Cell, 28
-The Sims 2, 254
-Fable, 41
-Rome: Total War, 41
-Katamari Damacy, 111
-Burnout 3: Takedown, 87
-Paper Mario: The Thousand-Year Door, 69
-Viewtiful Joe, 36
-Psychonauts, 43
-Killer7, 47
-Civilization IV, 294
-Guild Wars, 47
-Dragon Quest VIII, 250
-Mario Kart DS, 264
-Ōkami, 53
-Company of Heroes, 7
-The Legend of Zelda: Phantom Hourglass, 272
-Crackdown, 59
-S.T.A.L.K.E.R.: Shadow of Chernobyl, 6
-Team Fortress 2, 308
-Crysis, 59
-The Orange Box, 307
-Patapon, 59
-No More Heroes, 59
-Valkyria Chronicles, 65
-Persona 4, 354
-Dead Space 2, 82
-F.E.A.R., 47
-Mirror's Edge, 5
-Left 4 Dead 2, 309
-Dragon Age: Origins, 353
-Dawn of War II, 71
-Plants vs. Zombies, 343
-Bayonetta, 71
-Forza Motorsport 3, 240
-L.A. Noire, 82
-Saints Row: The Third, 82
-Deus Ex: Human Revolution, 82
-The Witcher 2: Assassins of Kings, 381
-Dead Island, 82
-Rayman Origins, 82
-The Walking Dead: Season Two, 92
-Far Cry 4, 370
-Middle-earth: Shadow of Mordor, 99
-Darkest Dungeon, 117
-The Talos Principle, 99
-Alien Swarm, 76
-The Crew, 99
-Until Dawn, 107
-Splatoon 2, 126
-Persona 5, 356
-Firewatch, 288
-The Banner Saga, 99
-Divinity: Original Sin, 99
-Divinity: Original Sin 2, 351
-Thumper, 117
-Nioh, 126
-Prey, 126
-What Remains of Edith Finch, 286
-Night in the Woods, 126
-Injustice 2, 126
-Tekken 7, 407
-Divinity: Original Sin 2 - Definitive Edition, 138
-A Way Out, 138
-Frostpunk, 138
-Subnautica, 339
-Into the Breach, 138
-Return of the Obra Dinn, 284
-Gris, 138
-Tetris Effect, 138
-Forza Horizon 4, 244
-Dragon Ball FighterZ, 255
-Octopath Traveler, 138
-The Messenger, 138
-Katana ZERO, 152
-Outer Wilds, 285
-Slay the Spire, 349
-Baba Is You, 152
-A Plague Tale: Innocence, 152
-Sayonara Wild Hearts, 152
-The Legend of Zelda: Link's Awakening, 394
-Pokémon Gold/Silver, 468
-Pokémon Ruby/Sapphire, 466
-Pokémon Diamond/Pearl, 465
-Pokémon Black/White, 464
-Pokémon X/Y, 462
-Pokémon Sun/Moon, 274
-Pokémon Sword/Shield, 467
-Pokémon Scarlet/Violet, 470
-Kirby Super Star, 226
-Kirby and the Forgotten Land, 227
-Donkey Kong Country 2: Diddy's Kong Quest, 224
-Donkey Kong Country: Tropical Freeze, 223
-Pikmin, 233
-Pikmin 2, 229
-Pikmin 3, 228
-Luigi's Mansion, 238
-WarioWare, Inc.: Mega Microgame$!, 36
-Rhythm Heaven, 53
-Professor Layton and the Curious Village, 239
-Ghost Trick: Phantom Detective, 241
-Phoenix Wright: Ace Attorney, 245
-Danganronpa: Trigger Happy Havoc, 243
-Zero Escape: Nine Hours, Nine Persons, Nine Doors, 71
-The House in Fata Morgana, 76
-Doki Doki Literature Club!, 345
-Inscryption, 347
-Balatro, 348
-Animal Well, 201
-Cocoon, 190
-Chants of Sennaar, 190
-The Talos Principle 2, 190
-Sea of Stars, 190
-Dredge, 190
-Hi-Fi Rush, 190
-Lies of P, 190
-Remnant II, 190
-Warhammer 40,000: Space Marine 2, 235
-Tekken 8, 408
-Like a Dragon: Infinite Wealth, 201
-Persona 3 Reload, 257
-Unicorn Overlord, 201
-Prince of Persia: The Lost Crown, 201
-Thank Goodness You're Here!, 201
-UFO 50, 201
-Satisfactory, 324
-Factorio, 326
-RimWorld, 325
-Oxygen Not Included, 152
-Kerbal Space Program, 319
-Euro Truck Simulator 2, 323
-American Truck Simulator, 117
-Planet Coaster, 320
-Planet Zoo, 152
-Two Point Hospital, 138
-RollerCoaster Tycoon, 172
-Football Manager 2024, 315
-FIFA 23, 318
-NBA 2K24, 317
-WWE 2K24, 232
-Tony Hawk's Pro Skater 1 + 2, 311
-Gran Turismo 7, 314
-Forza Motorsport, 249
-F1 23, 234
-Trackmania, 162
-Need for Speed: Most Wanted, 313
-Burnout Paradise, 65
-SSX 3, 36
-F1 2020, 230
-This War of Mine, 99
-Don't Starve, 328
-Don't Starve Together, 329
-Valheim, 337
-The Forest, 332
-Sons of the Forest, 331
-Green Hell, 152
-Project Zomboid, 334
-DayZ, 330
-Rust, 336
-ARK: Survival Evolved, 335
-Conan Exiles, 138
-Grounded, 177
-Raft, 138
-The Long Dark, 126
-Subnautica: Below Zero, 169
+Minecraft
+Grand Theft Auto V
+The Legend of Zelda: Breath of the Wild
+Fortnite
+Tetris
+Super Mario Bros.
+Pokémon Red/Blue
+Red Dead Redemption 2
+Mario Kart 8 Deluxe
+The Elder Scrolls V: Skyrim
+Stardew Valley
+The Witcher 3: Wild Hunt
+Elden Ring
+Baldur's Gate 3
+Terraria
+The Last of Us
+Animal Crossing: New Horizons
+Super Mario 64
+Pokémon Go
+Super Smash Bros. Ultimate
+Wii Sports
+Grand Theft Auto: San Andreas
+Grand Theft Auto III
+Grand Theft Auto: Vice City
+Sonic the Hedgehog
+Pokémon Scarlet/Violet
+Pokémon Gold/Silver
+Pokémon Sword/Shield
+Pokémon Ruby/Sapphire
+Pokémon Diamond/Pearl
+Pokémon Black/White
+Pokémon X/Y
+The Legend of Zelda: Ocarina of Time
+The Legend of Zelda: Tears of the Kingdom
+Super Mario Odyssey
+Call of Duty 4: Modern Warfare
+Call of Duty
+League of Legends
+Counter-Strike
+World of Warcraft
+Half-Life
+Half-Life 2
+The Sims
+The Sims 4
+Overwatch
+Among Us
+Cyberpunk 2077
+Hogwarts Legacy
+Baldur's Gate
+Final Fantasy VII
+Resident Evil 4
+Resident Evil
+Dark Souls
+Bloodborne
+Hollow Knight
+Portal
+Portal 2
+Doom
+God of War
+God of War Ragnarök
+The Last of Us Part II
+Red Dead Redemption
+Metal Gear Solid
+Metal Gear Solid V: The Phantom Pain
+Super Mario World
+Super Mario Galaxy
+Super Mario Bros. Wonder
+Super Smash Bros.
+Super Smash Bros. Melee
+Super Smash Bros. Brawl
+Mario Kart 8
+New Super Mario Bros. Wii
+Final Fantasy XV
+Final Fantasy
+Street Fighter II
+Street Fighter 6
+Tekken 8
+Tekken 7
+Rocket League
+Apex Legends
+Genshin Impact
+Dota 2
+The Legend of Zelda
+The Legend of Zelda: A Link to the Past
+The Legend of Zelda: Twilight Princess
+The Legend of Zelda: The Wind Waker
+The Legend of Zelda: Majora's Mask
+The Legend of Zelda: Link's Awakening
+The Legend of Zelda: A Link Between Worlds
+Metroid
+Super Metroid
+Metroid Prime
+Metroid Dread
+Halo: Combat Evolved
+Halo Infinite
+Fallout 4
+Fallout: New Vegas
+Fallout 3
+The Witcher 2: Assassins of Kings
+Mass Effect 2
+Mass Effect
+BioShock
+BioShock Infinite
+Assassin's Creed
+Assassin's Creed Origins
+Assassin's Creed Odyssey
+Far Cry 3
+Far Cry 4
+Tomb Raider
+Uncharted 4: A Thief's End
+Uncharted 2: Among Thieves
+Marvel's Spider-Man
+Marvel's Spider-Man 2
+Demon's Souls
+Sekiro: Shadows Die Twice
+Hades
+Undertale
+Celeste
+Disco Elysium
+Persona 5
+Persona 4
+Dragon Age: Origins
+Dragon Age: Inquisition
+Divinity: Original Sin 2
+Slay the Spire
+Balatro
+Inscryption
+Five Nights at Freddy's
+Doki Doki Literature Club!
+Plants vs. Zombies
+Angry Birds
+Fall Guys
+It Takes Two
+Subnautica
+Valheim
+Rust
+ARK: Survival Evolved
+Project Zomboid
+The Forest
+Sons of the Forest
+DayZ
+Don't Starve Together
+Don't Starve
+Factorio
+RimWorld
+Satisfactory
+Euro Truck Simulator 2
+Cities: Skylines
+Planet Coaster
+Kerbal Space Program
+FIFA 23
+NBA 2K24
+Football Manager 2024
+Gran Turismo 7
+Need for Speed: Most Wanted
+Tony Hawk's Pro Skater 2
+Tony Hawk's Pro Skater 1 + 2
+Left 4 Dead 2
+Team Fortress 2
+The Orange Box
+Call of Duty: Modern Warfare
+Call of Duty: Modern Warfare II
+Borderlands 2
+Diablo II
+StarCraft
+StarCraft II: Wings of Liberty
+Warcraft III: Reign of Chaos
+Age of Empires
+Age of Empires II
+Civilization VI
+Civilization IV
+XCOM: Enemy Unknown
+Life Is Strange
+Detroit: Become Human
+Firewatch
+What Remains of Edith Finch
+Outer Wilds
+Return of the Obra Dinn
+Journey
+The Stanley Parable
+Cuphead
+Ori and the Blind Forest
+Dead Cells
+Vampire Survivors
+Super Mario 3D World
+Pokémon Sun/Moon
+Dave the Diver
+The Legend of Zelda: Phantom Hourglass
+Super Mario Galaxy 2
+Resident Evil 4 (2023)
+Lethal Company
+Resident Evil Village
+Dark Souls III
+Mario Kart DS
+Palworld
+Resident Evil 2
+Dark Souls II
+Helldivers 2
+Monster Hunter: World
+Persona 3 Reload
+Monster Hunter Rise
+Dragon Ball FighterZ
+The Sims 2
+Batman: Arkham City
+Batman: Arkham Asylum
+Dragon Quest VIII
+Forza Motorsport
+Kingdom Hearts
+Forza Horizon 5
+Phoenix Wright: Ace Attorney
+Forza Horizon 4
+Danganronpa: Trigger Happy Havoc
+Ghost Trick: Phantom Detective
+Forza Motorsport 3
+Professor Layton and the Curious Village
+Luigi's Mansion
+Luigi's Mansion 3
+Warhammer 40, 000: Space Marine 2
+F1 23
+Pikmin
+WWE 2K24
+F1 2020
+Pikmin 2
+Pikmin 3
+Kirby and the Forgotten Land
+Kirby Super Star
+Donkey Kong Country 2: Diddy's Kong Quest
+Donkey Kong Country: Tropical Freeze
+Yoshi's Island
+EarthBound
+Chrono Trigger
+Secret of Mana
+Suikoden II
+Xenogears
+Planescape: Torment
+System Shock 2
+Thief: The Dark Project
+Unreal Tournament
+Quake III Arena
+EverQuest
+Homeworld
+Command & Conquer: Red Alert 2
+Perfect Dark
+Animal Well
+Like a Dragon: Infinite Wealth
+Unicorn Overlord
+Prince of Persia: The Lost Crown
+Thank Goodness You're Here!
+UFO 50
+Alan Wake 2
+Armored Core VI: Fires of Rubicon
+Starfield
+The Finals
+Cocoon
+Chants of Sennaar
+The Talos Principle 2
+Sea of Stars
+Dredge
+Hi-Fi Rush
+Lies of P
+Remnant II
+Jet Set Radio
+Horizon Forbidden West
+Stray
+Marvel's Midnight Suns
+Xenoblade Chronicles 3
+Cult of the Lamb
+Overwatch 2
+Grounded
+RollerCoaster Tycoon
+Psychonauts 2
+Ratchet & Clank: Rift Apart
+Returnal
+Subnautica: Below Zero
+Parasite Eve
+GoldenEye 007
+Doom Eternal
+Ghost of Tsushima
+Microsoft Flight Simulator
+Trackmania
+Crazy Taxi
+Fire Emblem: Three Houses
+Control
+Death Stranding
+The Outer Worlds
+Katana ZERO
+Baba Is You
+A Plague Tale: Innocence
+Sayonara Wild Hearts
+Oxygen Not Included
+Planet Zoo
+Green Hell
+Divinity: Original Sin 2 - Definitive Edition
+A Way Out
+Frostpunk
+Into the Breach
+Gris
+Tetris Effect
+Octopath Traveler
+The Messenger
+Two Point Hospital
+Conan Exiles
+Raft
+PlayerUnknown's Battlegrounds
+Horizon Zero Dawn
+Nier: Automata
+Splatoon 2
+Nioh
+Prey
+Night in the Woods
+Injustice 2
+The Long Dark
+Inside
+The Witness
+The Last Guardian
+Darkest Dungeon
+Thumper
+American Truck Simulator
+Castlevania III: Dracula's Curse
+Katamari Damacy
+Mega Man 2
+Dying Light
+Splatoon
+Xenoblade Chronicles X
+Until Dawn
+Hearthstone
+Shovel Knight
+Alien: Isolation
+Middle-earth: Shadow of Mordor
+The Talos Principle
+The Crew
+The Banner Saga
+Divinity: Original Sin
+This War of Mine
+Papers
+Payday 2
+The Walking Dead: Season Two
+Hotline Miami
+Dishonored
+Burnout 3: Takedown
+The Binding of Isaac
+Dead Space 2
+L.A. Noire
+Saints Row: The Third
+Deus Ex: Human Revolution
+Dead Island
+Rayman Origins
+Super Meat Boy
+Amnesia: The Dark Descent
+Alien Swarm
+The House in Fata Morgana
+Dawn of War II
+Bayonetta
+Zero Escape: Nine Hours, Nine Persons, Nine Doors
+Paper Mario: The Thousand-Year Door
+Left 4 Dead
+Dead Space
+LittleBigPlanet
+Valkyria Chronicles
+Burnout Paradise
+Rock Band
+Crackdown
+Crysis
+Patapon
+No More Heroes
+The Elder Scrolls IV: Oblivion
+Gears of War
+Bully
+Ōkami
+Rhythm Heaven
+Shadow of the Colossus
+Guitar Hero
+Killer7
+Guild Wars
+F.E.A.R.
+Psychonauts
+Metal Gear Solid 3: Snake Eater
+Fable
+Rome: Total War
+Star Wars: Knights of the Old Republic
+Prince of Persia: The Sands of Time
+Beyond Good & Evil
+Viewtiful Joe
+WarioWare, Inc.: Mega Microgame$!
+SSX 3
+The Elder Scrolls III: Morrowind
+Mafia: The City of Lost Heaven
+Neverwinter Nights
+Medal of Honor: Allied Assault
+Battlefield 1942
+Tom Clancy's Splinter Cell
+Animal Crossing
+Ico
+Tony Hawk's Pro Skater 3
+Gran Turismo 3: A-Spec
+Advance Wars
+Max Payne
+Silent Hill 2
+Jak and Daxter: The Precursor Legacy
+Ikaruga
+Rez
+Okami
+Deus Ex
+Vagrant Story
+Baldur's Gate II: Shadows of Amn
+Company of Heroes
+S.T.A.L.K.E.R.: Shadow of Chernobyl
+Mirror's Edge
+Braid
+Limbo
+Fez
