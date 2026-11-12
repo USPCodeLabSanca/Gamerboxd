@@ -3,6 +3,11 @@ import Card from "./gameCard";
 import liked from "../assets/icons/liked.svg";
 import nota from "../assets/icons/nota.svg";
 import complete from "../assets/icons/complete.svg";
+import { Link } from "react-router-dom";
+import { useMe } from "../hooks/useAuth";
+import { useDeleteReview, useLikeReview, useUnlikeReview, useReview } from "../hooks/useReviews";
+import { getErrorMessage } from "../api/errors";
+import ReviewModal from "./ReviewModal";
 
 // Ícones SVG inline para não depender de lib externa
 const HeartIcon = ({ filled }) => (
@@ -18,29 +23,44 @@ const ShareIcon = () => (
     </svg>
 );
 
-const Review = ({ review, game, gameClassName = "" }) => {
-    const [likedReview, setLikedReview] = useState(false);
-    const [likeCount, setLikeCount] = useState(review.likes ?? Math.floor(Math.random() * 80) + 5);
+const Review = ({ review, game: previewGame, gameClassName = "", onDelete }) => {
+    const { data: me } = useMe();
+    const likeReview = useLikeReview(review.review_id);
+    const unlikeReview = useUnlikeReview(review.review_id);
+    const deleteReview = useDeleteReview(review.review_id);
+    const [editing, setEditing] = useState(false);
+    const detail = useReview(editing ? review.review_id : null);
     const [showShareToast, setShowShareToast] = useState(false);
-    const [likeBurst, setLikeBurst] = useState(false);
+    const [shareError, setShareError] = useState("");
+    const likedReview = review.rel === 50 || review.rel === 90;
+    const isOwner = !!review.review_id && me?.user_id === review.reviewer.user_id;
+    const game = review.game ? {id: review.game.game_id, title: review.game.title, url: review.game.picture, year: review.game.year} : previewGame;
+    const author = review.reviewer ?? review.author;
+    const rating = review.rating_num ?? game.nota ?? 0;
+    const pending = likeReview.isPending || unlikeReview.isPending || deleteReview.isPending;
+    const error = likeReview.error || unlikeReview.error || deleteReview.error || detail.error;
 
     const handleLike = () => {
-        setLikeBurst(true);
-        setTimeout(() => setLikeBurst(false), 400);
-        setLikedReview((prev) => {
-            setLikeCount((c) => prev ? c - 1 : c + 1);
-            return !prev;
-        });
+        if (!pending && review.review_id) {
+            if (likedReview) unlikeReview.mutate();
+            else likeReview.mutate();
+        }
     };
 
-    const handleShare = () => {
-        navigator.clipboard?.writeText(window.location.href).catch(() => { });
-        setShowShareToast(true);
-        setTimeout(() => setShowShareToast(false), 2000);
+    const handleShare = async () => {
+        try {
+            const url = review.review_id ? `${window.location.origin}/profile/${author.user_id}#review-${review.review_id}` : window.location.href;
+            await navigator.clipboard.writeText(url);
+            setShareError("");
+            setShowShareToast(true);
+            setTimeout(() => setShowShareToast(false), 2000);
+        } catch {
+            setShareError("Não foi possível copiar o link.");
+        }
     };
 
     return (
-        <div className="w-full flex flex-row gap-4 items-start text-white group">
+        <div id={review.review_id ? `review-${review.review_id}` : undefined} className="w-full flex flex-row gap-4 items-start text-white group">
             {/* Capa do jogo */}
             <div className="shrink-0">
                 <Card game={game} status={false} className={gameClassName} />
@@ -54,28 +74,28 @@ const Review = ({ review, game, gameClassName = "" }) => {
                 {/* Autor + texto */}
                 <div className="flex flex-row gap-3 items-start">
                     <img
-                        src={review.author.avatar}
-                        alt={review.author.username}
+                        src={author.pfp || author.avatar || undefined}
+                        alt={author.username}
                         className="w-8 h-8 rounded-full shrink-0 mt-0.5 ring-1 ring-white/20"
                     />
                     <div className="min-w-0">
-                        <p className="text-xs text-white/40 mb-1">{review.author.username}</p>
-                        <p className="text-sm text-white/80 leading-relaxed line-clamp-3">{review.content}</p>
+                        {author.user_id ? <Link to={`/profile/${author.user_id}`} className="text-xs text-white/40 mb-1">{author.username}</Link> : <p className="text-xs text-white/40 mb-1">{author.username}</p>}
+                        <p className="text-sm text-white/80 leading-relaxed line-clamp-3">{review.rating_text ?? review.content}</p>
                     </div>
                 </div>
 
                 {/* Nota + ícones do jogo */}
                 <div className="flex flex-row gap-3 items-center">
-                    {game.liked && <img src={liked} alt="Liked" className="w-4 h-4 opacity-80" />}
+                    {(review.liked ?? game.liked) && <img src={liked} alt="Liked" className="w-4 h-4 opacity-80" />}
                     <div className="flex flex-row items-center">
-                        {[...Array(Math.floor(game.nota))].map((_, i) => (
+                        {[...Array(Math.floor(rating))].map((_, i) => (
                             <img key={i} src={nota} alt="Nota" className="w-4 h-4" />
                         ))}
-                        {game.nota % 1 !== 0 && (
+                        {rating % 1 !== 0 && (
                             <span className="text-roxo ml-1 text-xs">½</span>
                         )}
                     </div>
-                    {review.complete && <img src={complete} alt="Complete" className="w-4 h-4 opacity-80" />}
+                    {(review.completed ?? review.complete) && <img src={complete} alt="Complete" className="w-4 h-4 opacity-80" />}
                 </div>
 
                 {/* Ações de interação */}
@@ -83,16 +103,27 @@ const Review = ({ review, game, gameClassName = "" }) => {
                     {/* Like */}
                     <button
                         onClick={handleLike}
+                        disabled={!review.review_id || !me || pending}
+                        aria-label={likedReview ? "Remover curtida" : "Curtir review"}
+                        aria-pressed={likedReview}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200
                             ${likedReview
                                 ? "bg-roxo/20 text-roxo"
                                 : "text-white/40 hover:text-white/80 hover:bg-white/5"
-                            } ${likeBurst ? "scale-125" : "scale-100"}`}
+                            }`}
                     >
                         <HeartIcon filled={likedReview} />
-                        <span>{likeCount}</span>
+                        <span>{review.like_count ?? review.likes ?? 0}</span>
                     </button>
 
+                    {isOwner && (
+                        <>
+                            <button disabled={pending} onClick={() => setEditing(true)} className="text-xs text-roxo px-3">Editar</button>
+                            <button disabled={pending} onClick={() => {
+                                if (window.confirm("Excluir esta review?")) deleteReview.mutate(undefined, {onSuccess: onDelete});
+                            }} className="text-xs text-red-300 px-3">{deleteReview.isPending ? "Excluindo..." : "Excluir"}</button>
+                        </>
+                    )}
                     {/* Compartilhar */}
                     <div className="relative">
                         <button
@@ -110,6 +141,10 @@ const Review = ({ review, game, gameClassName = "" }) => {
                         </div>
                     </div>
                 </div>
+                {error && <p role="alert" className="text-red-300 text-sm">{getErrorMessage(error)}</p>}
+                {shareError && <p role="alert" className="text-red-300 text-sm">{shareError}</p>}
+                {editing && detail.isPending && <p className="text-white/50 text-sm">Carregando avaliação...</p>}
+                {editing && detail.data && <ReviewModal game={game} review={detail.data} isOpen={true} onClose={() => setEditing(false)} />}
             </div>
         </div>
     );

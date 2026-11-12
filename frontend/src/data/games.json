@@ -1,0 +1,51 @@
+[
+  {
+    "game_id": 2,
+    "name": "Minecraft",
+    "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8fu7.jpg",
+    "release_date": "2011-11-18",
+    "relevancy": 500
+  },
+  {
+    "game_id": 3,
+    "name": "Grand Theft Auto V",
+    "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2lbd.jpg",
+    "release_date": "2013-09-17",
+    "relevancy": 499
+  },
+  {
+    "game_id": 7,
+    "name": "The Legend of Zelda: Breath of the Wild",
+    "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.jpg",
+    "release_date": "2017-03-03",
+    "relevancy": 498
+  },
+  {
+    "game_id": 151,
+    "name": "Fortnite",
+    "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5ztm.jpg",
+    "release_date": "2017-07-25",
+    "relevancy": 496
+  },
+  {
+    "game_id": 13,
+    "name": "Tetris",
+    "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co53x2.jpg",
+    "release_date": "1984-06-06",
+    "relevancy": 495
+  },
+  {
+    "game_id": 14,
+    "name": "Super Mario Bros.",
+    "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6pib.jpg",
+    "release_date": "1985-09-13",
+    "relevancy": 494
+  },
+  {
+    "game_id": 26,
+    "name": "Pokémon Red/Blue",
+    "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co5pi4.jpg",
+    "release_date": "1996-02-27",
+    "relevancy": 493
+  }
+]
