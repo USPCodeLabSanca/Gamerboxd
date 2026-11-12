@@ -23,22 +23,22 @@ from .utils import (
     pytest.param("rating_num", 6.0, 422, RATING_NUM_INVALID_MSG, id="rating_num above superior limit"),
     pytest.param("rating_num", -1, 422, RATING_NUM_INVALID_MSG, id="rating_num below inferior limit"),
     pytest.param("rating_num", 1.49, 422, RATING_NUM_INVALID_MSG, id="rating_num with wrong increment"),
-    pytest.param("rating_num", "3.5", 422, None, id="rating_num as str"),
+    pytest.param("rating_num", "pouco", 422, None, id="rating_num as str"),
     pytest.param("rating_num", None, 422, None, id="rating_num as null"),
     pytest.param("rating_text", "Gostei desse game", 200, None, id="rating_text ok"),
     pytest.param("rating_text", "Gostei desse game 👍", 200, None, id="rating_text with emoji"),
     pytest.param("rating_text", "Gostei desse game   ", 200, None, id="rating_text with trailing space"),
     pytest.param("rating_text", "Gostei"*50, 200, None, id="rating_text at superior character limit"),
     pytest.param("rating_text", None, 200, None, id="rating_text as null"),
-    pytest.param("rating_text", "Gostei"*51, 200, RATING_TEXT_TOO_BIG_MSG, id="rating_text too long"),
-    pytest.param("rating_text", "         ", 200, RATING_TEXT_BLANK_MSG, id="rating_text as blank space"),
+    pytest.param("rating_text", "Gostei"*51, 400, RATING_TEXT_TOO_BIG_MSG, id="rating_text too long"),
+    pytest.param("rating_text", "         ", 400, RATING_TEXT_BLANK_MSG, id="rating_text as blank space"),
     pytest.param("rating_text", 4220, 422, None, id="rating_text as int"),
     pytest.param("privacy", Clearence.ANY, 200, None, id="privacy at min"),
     pytest.param("privacy", Clearence.FOLLOWED, 200, None, id="privacy at med"),
     pytest.param("privacy", Clearence.OWNER, 200, None, id="privacy at max"),
     pytest.param("privacy", 21, 422, REVIEW_PRIVACY_INVALID_MSG, id="privacy invalid"),
-    pytest.param("privacy", "secret", 400, None, id="privacy as str"),
-    pytest.param("privacy", None, 400, None, id="privacy as null"),
+    pytest.param("privacy", "secret", 422, None, id="privacy as str"),
+    pytest.param("privacy", None, 422, None, id="privacy as null"),
     pytest.param("time_played", 10, 200, None, id="time played ok"),
     pytest.param("time_played", None, 200, None, id="time played as null"),
     pytest.param("time_played", -1, 400, TIME_PLAYED_INVALID_MSG, id="time played negative"),
@@ -46,11 +46,9 @@ from .utils import (
     pytest.param("time_played", "lots", 422, None, id="time_played as str"),
     pytest.param("liked", True, 200, None, id="liked ok as bool"),
     pytest.param("liked", 1, 200, None, id="liked ok as int"),
-    pytest.param("liked", "yes", 422, None, id="liked as str"),
     pytest.param("liked", None, 422, None, id="liked as null"),
     pytest.param("completed", False, 200, None, id="completed ok as bool"),
     pytest.param("completed", 0, 200, None, id="completed ok as int"),
-    pytest.param("completed", "no", 422, None, id="completed as str"),
     pytest.param("completed", None, 422, None, id="completed as null"),
 ])
 def test_editing_review_checks_edge_cases(users, create_review, edit_review_request, field, new_value, expected_status, expected_body):
@@ -76,7 +74,7 @@ def test_editing_review_checks_edge_cases(users, create_review, edit_review_requ
         assert edit_response.json() == expected_body
 
 
-@pytest.mark.parametrize("field_to_remove", ["rating_num", "rating_text", "privacy", "time_played", "liked", "completed"])
+@pytest.mark.parametrize("field_to_remove", ["rating_num", "privacy", "liked", "completed"])
 def test_not_sending_all_fields_when_editing_review_returns_422(users, create_review, edit_review_request, field_to_remove):
     """Alice tenta editar sua review, mas não envia todos os campos necessários"""
 

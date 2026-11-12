@@ -1,3 +1,4 @@
+from dataclasses import asdict
 import requests
 
 from ..utils import BaseReview, Clearence, BASE_URL_REVIEWS, NOT_LOGGED_IN_MSG, REVIEW_NOT_FOUND_MSG
@@ -135,7 +136,7 @@ def test_blocking_prevents_likes_both_ways(users, create_review, block_request, 
     assert like_response.json() == BLOCKED_BY_REVIEW_OWNER_MSG
     assert_review_unlike_by_review(blocked, blocker, review_blocker)
 
-    like_response = like_review_request(blocked, review_blocked)
+    like_response = like_review_request(blocker, review_blocked)
 
     assert like_response.status_code == 400, like_response.json()
     assert like_response.json() == USER_BLOCKED_REVIEW_OWNER_MSG
@@ -177,7 +178,7 @@ def test_unliking_review_while_not_logged_in_returns_401():
     assert response.json() == NOT_LOGGED_IN_MSG
 
 
-def test_privacy_change_to_followed_removes_unfollowed_likes(users, create_review, update_review_request, like_review_request):
+def test_privacy_change_to_followed_removes_unfollowed_likes(users, create_review, edit_review_request, like_review_request):
     """Alice cria uma review pública, Bernardo curte a review. Alice muda a privacidade para FOLLOWED, mas não segue Bernardo, portanto Bernardo perde o like"""
 
     creator, liker = users("Alice"), users("Bernardo")
@@ -186,14 +187,15 @@ def test_privacy_change_to_followed_removes_unfollowed_likes(users, create_revie
     like_response = like_review_request(liker, review)
     assert like_response.status_code == 200, like_response.json()    
 
-    update_response = update_review_request(creator, review, privacy=Clearence.FOLLOWED)
+    review.privacy = Clearence.FOLLOWED
+    update_response = edit_review_request(creator, asdict(review))
     assert update_response.status_code == 200, update_response.json()
 
     assert update_response.json()["like_count"] == 0
     assert_review_unlike_by_review(liker, creator, review)
 
 
-def test_privacy_change_to_owner_removes_unfollowed_likes(users, create_review, update_review_request, like_review_request):
+def test_privacy_change_to_owner_removes_unfollowed_likes(users, create_review, edit_review_request, like_review_request):
     """Alice cria uma review pública, Bernardo curte a review. Alice muda a privacidade para OWNER, portanto Bernardo perde o like"""
 
     creator, liker = users("Alice"), users("Bernardo")
@@ -202,14 +204,15 @@ def test_privacy_change_to_owner_removes_unfollowed_likes(users, create_review, 
     like_response = like_review_request(liker, review)
     assert like_response.status_code == 200, like_response.json()    
 
-    update_response = update_review_request(creator, review, privacy=Clearence.OWNER)
+    review.privacy = Clearence.OWNER
+    update_response = edit_review_request(creator, asdict(review))
     assert update_response.status_code == 200, update_response.json()
 
     assert update_response.json()["like_count"] == 0
     assert_review_unlike_by_review(liker, creator, review)
 
 
-def test_privacy_change_to_followed_doesnt_remove_followed_likes(users, create_review, update_review_request, like_review_request, follow_request):
+def test_privacy_change_to_followed_doesnt_remove_followed_likes(users, create_review, edit_review_request, like_review_request, follow_request):
     """Alice cria uma review pública, Bernardo curte a review. Alice muda a privacidade para FOLLOWED, e segue Bernardo, portanto Bernardo mantém o like"""
 
     creator, liker = users("Alice"), users("Bernardo")
@@ -221,8 +224,9 @@ def test_privacy_change_to_followed_doesnt_remove_followed_likes(users, create_r
     follow_response = follow_request(creator, liker)
     assert follow_response.status_code == 200, follow_response.json()
 
-    update_response = update_review_request(creator, review, privacy=Clearence.FOLLOWED)
+    review.privacy = Clearence.FOLLOWED
+    update_response = edit_review_request(creator, asdict(review))
     assert update_response.status_code == 200, update_response.json()
 
-    assert update_response.json()["like_count"] == 1
     assert_review_like_by_review(liker, creator, review)
+    assert update_response.json()["like_count"] == 1

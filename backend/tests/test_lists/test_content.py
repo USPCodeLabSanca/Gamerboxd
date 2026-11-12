@@ -1,4 +1,5 @@
 from .utils import *
+from ..utils import LIST_NOT_FOUND_MSG
 
 
 def test_adding_game_to_list_returns_200(users, games, create_list, add_game_request):
@@ -18,7 +19,7 @@ def test_adding_and_removing_game_returns_200(users, games, create_list, add_gam
     """Alice cria uma lista, adiciona um jogo e depois o remove"""
 
     creator = users("Alice")
-    game_id = games["GTA"][0]
+    game_id = games["mario"][0]
     list_in = create_list(creator)
 
     add_response = add_game_request(creator, list_in, game_id)
@@ -46,7 +47,7 @@ def test_adding_game_to_non_existent_list_returns_404(users, games, add_game_req
     """Alice tenta adicionar um jogo a uma lista que não existe"""
 
     creator = users("Alice")
-    game_id = games["roblox"][0]
+    game_id = games["mario"][0]
     list_in = BaseList(list_id = "inexistent")
 
     add_response = add_game_request(creator, list_in, game_id)
@@ -58,7 +59,7 @@ def test_removing_game_from_non_existent_list_returns_404(users, games, rem_game
     """Alice tenta remover um jogo de uma lista que não existe"""
 
     creator = users("Alice")
-    game_id = games["roblox"][0]
+    game_id = games["mario"][0]
     list_in = BaseList(list_id = "inexistent")
 
     rem_response = rem_game_request(creator, list_in, game_id)

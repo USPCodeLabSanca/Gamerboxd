@@ -63,8 +63,8 @@ def assert_review_like_by_review(atv: BaseUser, pas: BaseUser, review: BaseRevie
 def assert_review_like_by_user(atv: BaseUser, pas: BaseUser, review: BaseReview):
     """Garante que o atv deu like na review do pas, verificando todos os likes que o atv já deu"""
 
-    user_likes = view_user_likes(atv, review)
-    assert any((review.review_id == ul["review_id"]) and (pas.user_id == ul["creator"]["user_id"]) for ul in user_likes)
+    user_likes = view_user_likes(atv)
+    assert any((review.review_id == ul["review_id"]) and (pas.user_id == ul["reviewer"]["user_id"]) for ul in user_likes)
 
 
 def assert_review_unlike_by_review(atv: BaseUser, pas: BaseUser, review: BaseReview):
@@ -77,5 +77,5 @@ def assert_review_unlike_by_review(atv: BaseUser, pas: BaseUser, review: BaseRev
 def assert_review_unlike_by_user(atv: BaseUser, pas: BaseUser, review: BaseReview):
     """Garante que o atv deu like na review do pas, verificando todos os likes que o atv já deu"""
 
-    user_likes = view_user_likes(atv, review)
-    assert all((review.review_id != ul["review_id"]) or (pas.user_id != ul["creator"]["user_id"]) for ul in user_likes)
+    user_likes = view_user_likes(atv)
+    assert all((review.review_id != ul["review_id"]) or (pas.user_id != ul["reviewer"]["user_id"]) for ul in user_likes)

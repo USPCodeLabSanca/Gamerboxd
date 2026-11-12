@@ -81,8 +81,6 @@ def games():
 
     games = {
         "mario": _get_games("mario"),
-        "GTA": _get_games("GTA"),
-        "roblox": _get_games("roblox"),
     }
 
     return games

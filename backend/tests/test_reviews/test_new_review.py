@@ -47,7 +47,7 @@ new_reviews = [
     (base_review(time_played=-10000000), 400, TIME_PLAYED_INVALID_MSG),
 
     # Testes de quebra de regras de negócio pelo cliente
-    (base_review(game_id=1), 404, GAME_NOT_FOUND_MSG),
+    (base_review(game_id=0), 404, GAME_NOT_FOUND_MSG),
     (base_review(rating_num=-1.0), 422, RATING_NUM_INVALID_MSG),
     (base_review(rating_num=6.0), 422, RATING_NUM_INVALID_MSG),
     (base_review(rating_num=1.3), 422, RATING_NUM_INVALID_MSG),

@@ -70,8 +70,8 @@ def test_new_users(user, expected_status, expected_body):
         resp_duplicate = requests.post(url=BASE_URL_USERS, json=base_user(1))
         assert resp_duplicate.status_code == 200, resp_duplicate.json()
         assert resp_duplicate.cookies is not None, resp_duplicate.json()
-        #for c in resp_duplicate.cookies:
-        #    c.secure = False
+        for c in resp_duplicate.cookies:
+            c.secure = False
 
     response = requests.post(url=BASE_URL_USERS, json=user)
 
@@ -87,8 +87,8 @@ def test_new_users(user, expected_status, expected_body):
     if response.status_code == 200:
         assert "user_id" in response_json.keys()
         
-        #for c in response.cookies:
-        #    c.secure = False
+        for c in response.cookies:
+            c.secure = False
         resp_delete = requests.delete(BASE_URL_USERS, cookies=response.cookies)
         assert resp_delete.status_code == 200, resp_delete.json()
 
