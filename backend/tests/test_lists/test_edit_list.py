@@ -8,7 +8,7 @@ from .utils import (
     LIST_DESC_TOO_BIG_MSG, LIST_DESC_BLANK_MSG,
     LIST_PRIVACY_INVALID_MSG,
     LACK_OF_LIST_OWNERSHIP_MSG,
-    assert_game_in_list, assert_game_not_in_list, assert_privacy
+    assert_game_in_list, assert_game_not_in_list, assert_privacy, assert_save, assert_unsave
 )
 
 @pytest.mark.parametrize("field, new_value, expected_status, expected_body", [
@@ -105,3 +105,49 @@ def test_someone_elses_list_returns_403(users, create_list, edit_list_request):
     assert edit_response.status_code == 403, edit_response.json()
     assert edit_response.json() == LACK_OF_LIST_OWNERSHIP_MSG
 
+
+def test_edit_list_privacy_to_followed_removes_saves_from_non_followeds(
+    users, create_list, save_list_request, edit_list_request, follow_request
+):
+    owner = users("Alice")
+    followed_saver = users("Bernardo")
+    other_saver = users("Caua")
+
+    list_in = create_list(owner)
+
+    follow_response = follow_request(owner, followed_saver)
+    assert follow_response.status_code == 200, follow_response.json()
+
+    save_response_followed = save_list_request(followed_saver, list_in)
+    assert save_response_followed.status_code == 200, save_response_followed.json()
+
+    save_response_other = save_list_request(other_saver, list_in)
+    assert save_response_other.status_code == 200, save_response_other.json()
+
+    list_in.privacy = 20
+    response = edit_list_request(owner, asdict(list_in))
+
+    assert response.status_code == 200, response.json()
+    assert response.json()["privacy"] == 20
+    assert_save(followed_saver, list_in)
+    assert_unsave(other_saver, list_in)
+
+
+def test_edit_list_privacy_to_owner_removes_all_other_saves(users, create_list, save_list_request, edit_list_request):
+    """Alice cria uma lista, Bernardo e Cauã salvam ela, e depois Alice muda a privacidade da lista para apenas ela poder ver"""
+    owner = users("Alice")
+    savers = [users("Bernardo"), users("Caua")]
+    list_in = create_list(owner)
+
+    for saver in savers:
+        save_response = save_list_request(saver, list_in)
+        assert save_response.status_code == 200, save_response.json()
+
+    list_in.privacy = 40
+    response = edit_list_request(owner, asdict(list_in))
+
+    assert response.status_code == 200, response.json()
+    assert response.json()["privacy"] == 40
+
+    for saver in savers:
+        assert_unsave(saver, list_in)

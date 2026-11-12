@@ -96,18 +96,14 @@ async def DB_read_is_blocked(conn, user_id_blocker: str, user_id_blocked: str):
         WHERE b.blocker = $1 AND b.blocked = $2
     ''', user_id_blocker, user_id_blocked)
 
-
-
 @db_query
-async def DB_delete_likes_after_block(conn, user_id_liker: str, user_id_liked: str):
-    """Remove todos os likes que um usuário A deu nas reviews do usuário B"""
+async def DB_delete_saves_after_block(conn, user_id_saver: str, user_id_creator: str):
+    """Remove saves entre as listas dos usuários envolvidos no bloqueio."""
 
     await conn.execute('''
-        DELETE FROM ReviewLikes
+        DELETE FROM SavedLists
         WHERE usr = $1
-        AND review IN (
-            SELECT id
-            FROM Reviews
-            WHERE reviewer = $2
-        );
-    ''', user_id_liker, user_id_liked)
+          AND list IN (
+              SELECT id FROM Lists WHERE creator = $2
+          )
+    ''', user_id_saver, user_id_creator)
