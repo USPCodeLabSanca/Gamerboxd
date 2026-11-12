@@ -1,12 +1,7 @@
-import { motion, useTransform, useScroll } from "framer-motion";
+import { motion as Motion, useTransform, useScroll } from "framer-motion";
 import { useRef } from "react";
 import Card from "../../components/gameCard";
-import gtaImg from "../../assets/imgs/gta.png"
-import gowImg from "../../assets/imgs/ragnarok.png"
-import silksongImg from "../../assets/imgs/silksong.png"
-import rdr2Img from "../../assets/imgs/rdr2.jpg"
-import cyberpunkImg from "../../assets/imgs/cyberpunk2077.png"
-import clairImg from "../../assets/imgs/clair-obscure.png"
+import { useGames } from "../../hooks/useGames";
 
 
 export default function Catalogo() {
@@ -25,6 +20,8 @@ export default function Catalogo() {
 
 
 const HorizontalScrollCarousel = () => {
+    const { data } = useGames();
+    const cards = (data?.games ?? []).map((game) => ({id: game.game_id, title: game.title, url: game.picture}));
     const targetRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: targetRef,
@@ -46,63 +43,29 @@ const HorizontalScrollCarousel = () => {
             <div className="sticky top-0 flex h-screen flex-col items-start justify-center overflow-hidden">
 
                 {/* TEXTO 1 (Superior) */}
-                <motion.h1
+                <Motion.h1
                     style={{ x: xTextoCima }}
                     className="absolute top-32 left-10 md:left-40 md:top-16 text-white font-bold text-3xl md:text-5xl z-20"
                 >
                     Um catálogo com os jogos mais amados pela comunidade
-                </motion.h1>
+                </Motion.h1>
 
                 {/* CARROSSEL */}
-                <motion.div style={{ x: xCards }} className="flex gap-8 h-6/12 relative z-10 pl-10 md:pl-40">
+                <Motion.div style={{ x: xCards }} className="flex gap-8 h-6/12 relative z-10 pl-10 md:pl-40">
                     {cards.map((card) => {
                         return <Card game={card} status={false} key={card.id} className="w-48 md:w-64 shrink-0" />;
                     })} 
-                </motion.div>
+                </Motion.div>
 
                 {/* TEXTO 2 (Inferior) */}
-                <motion.h1
+                <Motion.h1
                     style={{ x: xTextoBaixo }}
                     className="absolute bottom-32 left-10 md:left-40 text-white font-bold text-3xl md:text-5xl z-20"
                 >
                     Para você interagir e compartilhar
-                </motion.h1>
+                </Motion.h1>
 
             </div>
         </section>
     );
 };
-
-
-const cards = [
-    {
-        url: gtaImg,
-        title: "Title 1",
-        id: 1,
-    },
-    {
-        url: gowImg,
-        title: "Title 2",
-        id: 2,
-    },
-    {
-        url: rdr2Img,
-        title: "Title 3",
-        id: 3,
-    },
-    {
-        url: silksongImg,
-        title: "Title 4",
-        id: 4,
-    },
-    {
-        url: cyberpunkImg,
-        title: "Title 5",
-        id: 5,
-    },
-    {
-        url: clairImg,
-        title: "Title 6",
-        id: 6,
-    },
-];

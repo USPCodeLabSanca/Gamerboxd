@@ -1,211 +1,125 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import Card from "../../components/gameCard";
 import Review from "../../components/gameReview";
 import List from "../../components/List";
 import ReviewModal from "../../components/ReviewModal";
+import { useMe } from "../../hooks/useAuth";
+import { useCreatedReviews, useReview } from "../../hooks/useReviews";
+import { getErrorMessage } from "../../api/errors";
+import { useGame, useGames } from "../../hooks/useGames";
 
-import gtaImg from "../../assets/imgs/gta.png";
-import gowImg from "../../assets/imgs/ragnarok.png";
-import silksongImg from "../../assets/imgs/silksong.png";
-import rdr2Img from "../../assets/imgs/rdr2.jpg";
-import cyberpunkImg from "../../assets/imgs/cyberpunk2077.png";
-import clairImg from "../../assets/imgs/clair-obscure.png";
 
 import list from "../../assets/icons/lista.svg";
-
-const mockGames = [
-  {
-    id: 1,
-    title: "GTA VI",
-    url: gtaImg,
-    jogou: true,
-    liked: true,
-    nota: 5,
-    complete: true,
-    avgNota: 4.7,
-    totalLikes: 4821,
-    totalReviews: 312,
-    genre: "Ação / Mundo Aberto",
-    year: 2025,
-  },
-  {
-    id: 2,
-    title: "God of War",
-    url: gowImg,
-    jogou: true,
-    liked: true,
-    nota: 5,
-    complete: true,
-    avgNota: 4.9,
-    totalLikes: 6103,
-    totalReviews: 540,
-    genre: "Ação / Aventura",
-    year: 2022,
-  },
-  {
-    id: 3,
-    title: "God of War II",
-    url: rdr2Img,
-    jogou: true,
-    liked: true,
-    nota: 5,
-    complete: true,
-    avgNota: 4.8,
-    totalLikes: 5200,
-    totalReviews: 480,
-    genre: "Ação / Aventura",
-    year: 2023,
-  },
-  {
-    id: 4,
-    title: "Silksong",
-    url: silksongImg,
-    jogou: true,
-    liked: true,
-    nota: 4.5,
-    complete: true,
-    avgNota: 4.5,
-    totalLikes: 3900,
-    totalReviews: 290,
-    genre: "Metroidvania",
-    year: 2024,
-  },
-  {
-    id: 5,
-    title: "Expedition 33",
-    url: clairImg,
-    jogou: true,
-    liked: true,
-    nota: 4.5,
-    complete: true,
-    avgNota: 4.6,
-    totalLikes: 2800,
-    totalReviews: 210,
-    genre: "RPG / Aventura",
-    year: 2025,
-  },
-  {
-    id: 6,
-    title: "Cyberpunk 2077",
-    url: cyberpunkImg,
-    jogou: true,
-    liked: true,
-    nota: 3.5,
-    complete: false,
-    avgNota: 4.1,
-    totalLikes: 7200,
-    totalReviews: 890,
-    genre: "RPG / Mundo Aberto",
-    year: 2020,
-  },
-];
-
-// Reviews mockados separados do jogo — futuramente virão de GET /games/:id/reviews
-const mockReviews = [
-  {
-    id: 1,
-    gameId: 1,
-    complete: false,
-    content:
-      "Esse jogo é incrível! A história é envolvente e os gráficos são de tirar o fôlego. Recomendo para todos os fãs de jogos de ação.",
-    author: { username: "Gamer123", avatar: "https://i.pravatar.cc/150?img=1" },
-  },
-  {
-    id: 2,
-    gameId: 1,
-    complete: false,
-    content:
-      "Melhor jogo da geração, sem dúvida. O mapa é enorme e cada detalhe foi cuidado com carinho.",
-    author: {
-      username: "Player456",
-      avatar: "https://i.pravatar.cc/150?img=2",
-    },
-  },
-  {
-    id: 3,
-    gameId: 1,
-    complete: true,
-    content:
-      "Divertido, mas esperava mais em termos de inovação. Vale muito a pena mesmo assim.",
-    author: {
-      username: "GameLover789",
-      avatar: "https://i.pravatar.cc/150?img=3",
-    },
-  },
-];
-
-
-const mockLists = [
-  {
-    id: 1,
-    name: "Melhores jogos de 2025",
-    author: "gamer123",
-    games: [mockGames[0], mockGames[1], mockGames[4]],
-  },
-  {
-    id: 2,
-    name: "Jogos que me fizeram chorar",
-    author: "player456",
-    games: [mockGames[1], mockGames[3], mockGames[2]],
-  },
-  {
-    id: 3,
-    name: "Open worlds imperdíveis",
-    author: "gamelover789",
-    games: [mockGames[0], mockGames[5], mockGames[2]],
-  },
-];
 
 // Adicione no topo do GamePage
 export default function GamePage() {
   const { id } = useParams();
-  const [game, setGame] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);       // <- novo
+  const navigate = useNavigate();
+  const gameQuery = useGame(id);
+  const game = gameQuery.data ? {
+    id: gameQuery.data.game_id,
+    title: gameQuery.data.title,
+    url: gameQuery.data.picture,
+    year: gameQuery.data.year,
+  } : null;
+  const session = useMe();
+  const me = session.data;
+  const reviews = useCreatedReviews(me?.user_id);
+  const existingReview = reviews.data?.pages.flatMap((page) => page.content).find((review) => review.game.game_id === Number(id));
+  const savedReview = useReview(existingReview?.review_id);
+  const lastPage = reviews.data?.pages.at(-1);
+  const searchComplete = reviews.isSuccess && !reviews.hasNextPage && !lastPage?.next_url;
+  const canReview = !!me && !reviews.isFetching && (existingReview ? savedReview.isSuccess : searchComplete);
+  const reviewLoading = session.isPending || (!!me && reviews.isPending) || reviews.isFetching || (!!existingReview && savedReview.isPending);
+  const [modal, setModal] = useState(null);
+  const [reviewMessage, setReviewMessage] = useState(null);
   const [wishlist, setWishlist] = useState(false);         // <- novo
   const [completo, setCompleto] = useState(false);         // <- novo
 
-  useEffect(() => {
-    const foundGame = mockGames.find((g) => g.id === Number(id));
-    setGame(foundGame);
-    const foundReviews = mockReviews.filter((r) => r.gameId === Number(id));
-    setReviews(foundReviews);
-  }, [id]);
+  function handleReview() {
+    if (session.isPending) {
+      setReviewMessage({gameId: Number(id), text: "Aguarde enquanto verificamos sua sessão."});
+    } else if (session.isError) {
+      setReviewMessage({gameId: Number(id), text: getErrorMessage(session.error)});
+      session.refetch();
+    } else if (!me) {
+      navigate("/login");
+    } else if (reviews.isError || savedReview.isError) {
+      setReviewMessage({gameId: Number(id), text: "Não foi possível verificar sua avaliação no servidor. Tente novamente em instantes."});
+      if (reviews.isError) reviews.refetch();
+      else savedReview.refetch();
+    } else if (!canReview) {
+      let text = "Não foi possível concluir a consulta das suas avaliações. Acesse seu perfil para conferir.";
+      if (reviews.hasNextPage) text = "Consulte as próximas avaliações abaixo antes de criar uma nova.";
+      else if (reviewLoading) text = "Aguarde enquanto consultamos sua avaliação.";
+      setReviewMessage({gameId: Number(id), text: text});
+    } else {
+      setReviewMessage(null);
+      setModal({gameId: Number(id), review: savedReview.data});
+    }
+  }
 
-  if (!game) return (
+  if (gameQuery.isPending) return (
     <div className="bg-linear-to-b from-cinza to-black min-h-screen flex items-center justify-center">
       <p className="text-white text-4xl">Carregando...</p>
     </div>
   );
 
+  if (gameQuery.isError || !game) return (
+    <div className="bg-linear-to-b from-cinza to-black min-h-screen flex flex-col items-center justify-center gap-4 text-white">
+      <p>Jogo não encontrado.</p>
+      <Link to="/games" className="text-roxo">Voltar ao catálogo</Link>
+    </div>
+  );
+
   return (
     <>
-      <ReviewModal
+      {modal?.gameId === Number(id) && me && <ReviewModal
         game={game}
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={(data) => console.log("Review enviada:", data)}
-      />
+        isOpen={true}
+        review={modal.review}
+        onClose={() => setModal(null)}
+      />}
       <div className="min-h-screen bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20 pb-5 grid grid-cols-6 grid-rows-2 gap-x-20">
         <GameHero
           game={game}
-          onAvaliar={() => setModalOpen(true)}
+          onAvaliar={handleReview}
+          reviewLoading={reviewLoading}
+          reviewMessage={reviewMessage?.gameId === Number(id) ? reviewMessage.text : null}
           wishlist={wishlist}
           onWishlist={() => setWishlist(w => !w)}
           completo={completo}
           onCompleto={() => setCompleto(c => !c)}
         />
         <Details game={game} />
-        <PopularReviews />
-        <GameLists game={game} />
+        <div className="col-span-4">
+          {me && reviews.isPending && <p className="text-white mt-10">Consultando suas avaliações...</p>}
+          {reviews.isError && <div className="mt-10 text-red-300">
+            <p role="alert">Não foi possível verificar sua avaliação. {getErrorMessage(reviews.error)}</p>
+            <button disabled={reviews.isFetching} onClick={() => reviews.refetch()}>Tentar novamente</button>
+          </div>}
+          {me && !existingReview && reviews.hasNextPage && <div className="mt-10 text-white">
+            <p>Para conferir se você já avaliou este jogo, consulte as próximas avaliações.</p>
+            <button disabled={reviews.isFetching} onClick={() => reviews.fetchNextPage()} className="text-roxo">
+              {reviews.isFetchingNextPage ? "Carregando..." : "Consultar próximas avaliações"}
+            </button>
+          </div>}
+          {me && !existingReview && reviews.isSuccess && !reviews.hasNextPage && lastPage?.next_url && <p role="alert" className="text-red-300 mt-10">
+            Não foi possível concluir a consulta das suas avaliações. <Link to={`/profile/${me.user_id}`} className="underline">Ver perfil</Link>
+          </p>}
+          {savedReview.isError && <p role="alert" className="text-red-300">{getErrorMessage(savedReview.error)}</p>}
+          {existingReview && <div className="mt-10"><Review review={existingReview} gameClassName="w-28" /></div>}
+          <PopularReviews game={game} />
+        </div>
+        <GameLists />
       </div>
     </>
   );
 }
 
-function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto }) {
+function GameHero({ reviewLoading, reviewMessage, game, onAvaliar, wishlist, onWishlist, completo, onCompleto }) {
   return (
     <div className="flex flex-row items-center self-center gap-4 h-[50%] relative col-span-4 row-span-1">
       <div className="w-[30%]">
@@ -214,18 +128,21 @@ function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto 
       <div className="flex flex-col gap-4">
         <h1 className="text-white text-5xl font-bold">{game.title}</h1>
         <div className="flex flex-row gap-4 text-white">
-          <p>Ano</p>
-          <p>Empresa</p>
+          <p>{game.year}</p>
         </div>
         <p className="text-white">Sinopse</p>
         <div className="flex flex-row items-center justify-center gap-4 text-white font-semibold absolute bottom-0">
 
           <button
             onClick={onAvaliar}
+            aria-busy={reviewLoading}
+            aria-describedby={reviewMessage ? "review-feedback" : undefined}
             className="w-40 h-10 py-2 bg-roxo/80 hover:bg-roxo rounded-sm shadow-md cursor-pointer transition-colors"
           >
             AVALIE
           </button>
+
+          {reviewMessage && <p id="review-feedback" role="alert" className="absolute top-full left-0 mt-2 text-sm text-red-300 font-normal">{reviewMessage}</p>}
 
           <button
             onClick={onWishlist}
@@ -256,7 +173,7 @@ function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto 
   );
 }
 
-function PopularReviews() {
+function PopularReviews({ game }) {
   const animatedLink =
     "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
 
@@ -302,7 +219,7 @@ function PopularReviews() {
       <div className="flex flex-col gap-6 mt-4">
         {reviews.map((review) => {
           return (
-            <Review key={review.id} review={review} game={mockGames[0]} gameClassName="w-28" />
+            <Review key={review.id} review={review} game={game} gameClassName="w-28" />
           );
         })}
       </div>
@@ -335,20 +252,18 @@ function Details({game}) {
       <div className="bg-neutral-700 p-4 rounded-b-lg text-white">
         {isSelected[0] && (
           <div>
-            <p><strong>Gênero:</strong> {game.genre}</p>
+            <p><strong>Gênero:</strong> Não informado</p>
             <p><strong>Ano de lançamento:</strong> {game.year}</p>
-            <p><strong>Jogadores:</strong> 1</p>
-            <p><strong>Linguagens:</strong> Português, Inglês</p>
           </div>
         )}
         {isSelected[1] && (
           <div>
-            <p>Plataformas: PC, PS5, Xbox Series X</p>
+            <p>Plataformas: não informadas</p>
           </div>
         )}
         {isSelected[2] && (
           <div>
-            <p>Studio: Rockstar Games</p>
+            <p>Studio: não informado</p>
           </div>
         )}
       </div>  
@@ -356,7 +271,32 @@ function Details({game}) {
   )
 }
 
-function GameLists({ game }) {
+function GameLists() {
+  const { data } = useGames();
+  if (!data) return null;
+  const games = data.games.map((game) => ({id: game.game_id, title: game.title, url: game.picture}));
+  const mockLists = [
+    {
+      id: 1,
+      name: "Melhores jogos de 2025",
+      author: "gamer123",
+      games: [games[0], games[1], games[4]],
+    },
+    {
+      id: 2,
+      name: "Jogos que me fizeram chorar",
+      author: "player456",
+      games: [games[1], games[3], games[2]],
+    },
+    {
+      id: 3,
+      name: "Open worlds imperdíveis",
+      author: "gamelover789",
+      games: [games[0], games[5], games[2]],
+    },
+  ];
+
+
   const animatedLink =
     "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
 

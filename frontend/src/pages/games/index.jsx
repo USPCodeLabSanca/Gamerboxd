@@ -1,23 +1,35 @@
 import React, { useState } from "react";
 import Card from "../../components/gameCard";
 import Review from "../../components/gameReview";
-import gtaImg from "../../assets/imgs/gta.png"
-import gowImg from "../../assets/imgs/ragnarok.png"
-import silksongImg from "../../assets/imgs/silksong.png"
-import rdr2Img from "../../assets/imgs/rdr2.jpg"
-import cyberpunkImg from "../../assets/imgs/cyberpunk2077.png"
-import clairImg from "../../assets/imgs/clair-obscure.png"
+import { useGames } from "../../hooks/useGames";
 
 export default function Games() {
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const query = useGames(search, page);
+    const games = (query.data?.games ?? []).map((game) => ({id: game.game_id, title: game.title, url: game.picture}));
+
+    function handleSearch(value) {
+        setSearch(value);
+        setPage(1);
+    }
+
     return (
         <div className="bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20">
             <div className="flex flex-row items-center justify-between">
                 <Filter />
-                <Search />
+                <Search value={search} onChange={handleSearch} />
             </div>
             <div className="flex flex-col">
-                <PopularGames games={smallGames}/>
-                <PopularReviews />
+                {query.isPending && <p className="text-white mt-10">Carregando jogos...</p>}
+                {query.data?.count === 0 && <p className="text-white mt-10">Nenhum jogo encontrado.</p>}
+                {games.length > 0 && <PopularGames games={games} />}
+                <div className="flex gap-6 text-white mt-6">
+                    <button disabled={page === 1 || query.isFetching} onClick={() => setPage(page - 1)}>Anterior</button>
+                    <span>Página {page}</span>
+                    <button disabled={!query.data || query.data.count < 20 || query.isFetching} onClick={() => setPage(page + 1)}>Próxima</button>
+                </div>
+                {games.length > 0 && <PopularReviews game={games[0]} />}
             </div>
         </div>
     );
@@ -57,12 +69,14 @@ function Filter () {
     )
 }
 
-function Search (){
+function Search ({value, onChange}){
     return (
         <div>
             <input 
                 type="text" 
                 placeholder="Buscar"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
                 className="bg-white/80 rounded-2xl px-4 py-2"
                 ></input>
         </div>
@@ -85,11 +99,11 @@ function PopularGames ({games}) {
             {/* O TABULEIRO (Grid Principal de 5 Colunas) */}
             <div className="grid grid-cols-6 gap-6 w-full">
                 <div className="col-span-2 row-span-2 mt-2">
-                    <Card game={games[0]} status={true}/>
+                    <Card game={games[0]} status={false}/>
                 </div>
                 {games.map((game) => {
                     return (
-                       <Card key={game.id} game={game} status={true}/>
+                       <Card key={game.id} game={game} status={false}/>
                     )
                 })}
 
@@ -99,7 +113,7 @@ function PopularGames ({games}) {
     )
 }
 
-function PopularReviews () {
+function PopularReviews ({game}) {
 
     const animatedLink = "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl"
 
@@ -120,21 +134,10 @@ function PopularReviews () {
             <div className="flex flex-col gap-6 mt-4">
                 {reviews.map((review) => {
                     return (
-                        <Review key={review.id} review={review} game={smallGames[0]} gameClassName="w-40" />
+                        <Review key={review.id} review={review} game={game} gameClassName="w-40" />
                     )
                 })}
             </div>
         </div>
     )
 }
-
-const smallGames = [
-        { id: 1, title: "GTA VI", url: gtaImg, jogou: true, liked: true, nota: 5, complete: true    },
-        { id: 2, title: "God of War", url: gowImg, jogou: true, liked: true, nota: 5, complete: true },
-        { id: 3, title: "God of War II", url: rdr2Img, jogou: true, liked: true, nota: 5, complete: true },
-        { id: 4, title: "Silksong Small", url: silksongImg, jogou: true, liked: true, nota: 4.5, complete: true },
-        { id: 5, title: "Expedition 33", url: clairImg, jogou: true, liked: true, nota: 4.5, complete: true },
-        { id: 6, title: "Expedition 33 II", url: cyberpunkImg, jogou: true, liked: true, nota: 3.5, complete: true },
-        { id: 7, title: "Expedition 33 II", url: cyberpunkImg, jogou: true, liked: true, nota: 3.5, complete: true },
-        { id: 8, title: "Expedition 33 II", url: cyberpunkImg, jogou: true, liked: true, nota: 3.5, complete: true },
-    ];
