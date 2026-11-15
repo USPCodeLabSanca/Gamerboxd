@@ -24,11 +24,10 @@ export default function Features() {
             />
 
             <motion.div
-                className="flex flex-col items-center justify-center mb-16 z-10"
+                className="flex flex-col items-center justify-center mb-16 z-10 px-4"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                
             >
                 <span className="text-roxo font-bold tracking-widest uppercase text-sm mb-3">
                     Funcionalidades
@@ -42,7 +41,7 @@ export default function Features() {
             </motion.div>
 
             <motion.div
-                className="z-10 w-full flex justify-center"
+                className="z-10 w-full flex justify-center px-4"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
@@ -74,18 +73,16 @@ function SideTabs() {
                 description="Mostre para a comunidade quais jogos você já jogou e construa seu histórico."
                 badge="Biblioteca"
             >
-                {/* Preview: grid de capas de jogos */}
-                <div className="mt-4 flex flex-row gap-2 items-end justify-center">
+                <div className="mt-4 flex flex-row gap-2 items-end justify-center w-full flex-nowrap">
                     {[gowImg, gtaImg, gowImg, gtaImg].map((img, i) => (
                         <div
                             key={i}
-                            className="rounded-lg overflow-hidden border border-white/10"
-                            
+                            className="w-14 h-20 sm:w-16 sm:h-24 md:w-24 md:h-36 shrink-0 rounded-lg overflow-hidden border border-white/10"
                         >
                             <img src={img} alt="" className="w-full h-full object-cover" />
                         </div>
                     ))}
-                    <span className="text-xs text-gray-500 pb-1 ml-1">+143</span>
+                    <span className="text-xs text-gray-500 pb-1 ml-1 whitespace-nowrap">+143</span>
                 </div>
             </TabPanel>
         ),
@@ -97,10 +94,9 @@ function SideTabs() {
                 description="Dê uma nota para seus jogos e veja como sua coleção se compara."
                 badge="Avaliação"
             >
-                {/* Preview: cards com score */}
-                <div className="mt-4 flex flex-row gap-3 items-center justify-center">
+                <div className="mt-4 flex flex-row gap-4 items-start justify-start md:justify-center w-full overflow-x-auto scrollbar-hide snap-x pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {cards.map((card) => (
-                        <div key={card.id} className="flex flex-col items-center gap-1">
+                        <div key={card.id} className="shrink-0 snap-center scale-[0.85] md:scale-100 origin-top h-[320px] md:h-auto">
                             <Card game={card} status={true} />
                         </div>
                     ))}
@@ -115,8 +111,7 @@ function SideTabs() {
                 description="Descreva como foi sua experiência com os jogos que você jogou."
                 badge="Reviews"
             >
-                {/* Preview: review card mockup */}
-                <div className="mt-4 w-full rounded-xl border border-white/10 bg-white/5 p-3 text-left">
+                <div className="mt-4 w-full rounded-xl border border-white/10 bg-white/5 p-4 text-left">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="w-6 h-6 rounded-full bg-roxo/40 flex items-center justify-center text-xs text-white font-bold">V</div>
                         <span className="text-xs text-gray-300 font-medium">Você</span>
@@ -140,8 +135,7 @@ function SideTabs() {
                 description="Mostre quais desafios você superou e os jogos que conseguiu completar 100%."
                 badge="Conquistas"
             >
-                {/* Preview: barra de progresso */}
-                <div className="mt-4 w-full space-y-2">
+                <div className="mt-4 w-full space-y-3">
                     {[
                         { name: "God of War", pct: 100 },
                         { name: "GTA V",      pct: 78  },
@@ -171,10 +165,9 @@ function SideTabs() {
                 description="Destaque aqueles jogos inesquecíveis que moram no seu coração."
                 badge="Top picks"
             >
-                {/* Preview: grid de favoritos com coração */}
-                <div className="mt-4 flex flex-row gap-2 items-center justify-center">
+                <div className="mt-4 flex flex-row gap-2 items-center justify-center flex-nowrap">
                     {[gowImg, gtaImg, gowImg].map((img, i) => (
-                        <div key={i} className="relative rounded-lg overflow-hidden border border-white/10 aspect-[4:5]">
+                        <div key={i} className="relative w-14 h-20 sm:w-16 sm:h-24 md:w-24 md:h-32 shrink-0 rounded-lg overflow-hidden border border-white/10">
                             <img src={img} alt="" className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
                             <span className="absolute bottom-1 right-1 text-xs">❤️</span>
@@ -191,14 +184,13 @@ function SideTabs() {
                 description="Registre sua jornada diária, conquistas e os momentos mais épicos das suas gameplays."
                 badge="Registro"
             >
-                {/* Preview: entradas do diário */}
-                <div className="mt-4 w-full space-y-2">
+                <div className="mt-4 w-full space-y-3">
                     {[
                         { date: "Hoje",      text: "Finalmente derrotei o Kratos no modo difícil 🔥" },
                         { date: "Ontem",     text: "Comecei o NG+ de Elden Ring..." },
                     ].map(({ date, text }) => (
                         <div key={date} className="flex gap-2 items-start text-xs text-gray-400">
-                            <span className="text-roxo font-medium min-w-9">{date}</span>
+                            <span className="text-roxo font-medium min-w-[40px]">{date}</span>
                             <span className="leading-relaxed">{text}</span>
                         </div>
                     ))}
@@ -213,14 +205,13 @@ function SideTabs() {
                 description="Crie listas personalizadas para organizar seu backlog, franquias ou recomendações."
                 badge="Curadoria"
             >
-                {/* Preview: listas */}
-                <div className="mt-4 w-full space-y-2">
+                <div className="mt-4 w-full space-y-3">
                     {[
                         { name: "🎯 Backlog 2025",           count: 12 },
                         { name: "🏆 Melhores de todos os tempos", count: 8  },
                         { name: "👫 Para jogar com amigos",  count: 5  },
                     ].map(({ name, count }) => (
-                        <div key={name} className="flex justify-between items-center text-xs text-gray-400 border-b border-white/5 pb-1.5">
+                        <div key={name} className="flex justify-between items-center text-xs text-gray-400 border-b border-white/5 pb-2">
                             <span>{name}</span>
                             <span className="text-roxo font-medium">{count} jogos</span>
                         </div>
@@ -231,39 +222,38 @@ function SideTabs() {
     };
 
     return (
-        <div className="w-11/12 max-w-4xl border border-white/10 rounded-2xl bg-dark-card flex flex-row shadow-2xl shadow-black/60 overflow-hidden">
+        <div className="w-full max-w-4xl border border-white/10 rounded-2xl bg-dark-card flex flex-col md:flex-row shadow-2xl shadow-black/60 overflow-hidden">
 
-            {/* Coluna de tabs */}
-            <div className="w-5/12 md:w-4/12 py-5 px-3 flex flex-col gap-1 border-r border-white/5">
+            {/* Menu Lateral/Topo */}
+            <div className="w-full md:w-4/12 p-3 md:py-5 flex flex-row md:flex-col gap-2 border-b md:border-b-0 md:border-r border-white/5 overflow-x-auto scrollbar-hide snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`
-                            group flex items-center gap-3
-                            w-full px-3 py-2.5 rounded-xl text-left
-                            transition-all duration-200 cursor-pointer
+                            group flex items-center gap-2 md:gap-3 shrink-0 snap-start
+                            px-4 py-2 md:px-3 md:py-2.5 rounded-xl md:rounded-l-xl md:rounded-r-none text-left
+                            transition-all duration-200 cursor-pointer border-l-2
                             ${activeTab === tab.id
-                                ? "bg-roxo/10 border-l-2 border-roxo text-roxo"
-                                : "border-l-2 border-transparent text-gray-400 hover:text-white hover:bg-white/5"
+                                ? "bg-roxo/20 text-roxo border-transparent md:bg-roxo/10 md:border-roxo"
+                                : "bg-white/5 text-gray-400 border-transparent md:bg-transparent md:hover:bg-white/5 md:hover:text-white"
                             }
                         `}
                     >
-                        {/* Ícone inline na tab */}
                         <div className={`
-                            w-7 h-7 rounded-lg flex items-center justify-center shrink-0
+                            w-6 h-6 md:w-7 md:h-7 rounded-lg flex items-center justify-center shrink-0
                             transition-colors duration-200 text-sm
                             ${activeTab === tab.id ? "bg-roxo/20" : "bg-white/5 group-hover:bg-white/10"}
                         `}>
-                            <img src={tab.icon} alt="" className="w-4 h-4 opacity-80" />
+                            <img src={tab.icon} alt="" className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-80" />
                         </div>
-                        <span className="font-semibold text-sm">{tab.label}</span>
+                        <span className="font-semibold text-xs md:text-sm whitespace-nowrap">{tab.label}</span>
                     </button>
                 ))}
             </div>
 
-            {/* Painel de conteúdo */}
-            <div className="flex-1 relative overflow-hidden">
+            {/* Painel de conteúdo -> Diminuí o min-h para 360px no mobile para não sobrar tanto espaço preto */}
+            <div className="flex-1 relative overflow-hidden h-auto min-h-[360px] md:min-h-[400px]">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
@@ -281,28 +271,26 @@ function SideTabs() {
     );
 }
 
-/* Componente reutilizável para cada painel */
 function TabPanel({ icon, title, description, badge, children }) {
     return (
         <div className="flex flex-col h-full text-white">
-            {/* Badge */}
-            <span className="self-start text-xs font-semibold tracking-widest uppercase text-roxo border border-roxo/30 bg-roxo/10 rounded-full px-3 py-0.5 mb-4">
+            <span className="self-start text-[10px] md:text-xs font-semibold tracking-widest uppercase text-roxo border border-roxo/30 bg-roxo/10 rounded-full px-3 py-0.5 mb-4">
                 {badge}
             </span>
 
-            {/* Ícone + título */}
             <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-roxo/15 border border-roxo/20 flex items-center justify-center shrink-0">
-                    <img src={icon} alt="" className="w-5 h-5" />
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-roxo/15 border border-roxo/20 flex items-center justify-center shrink-0">
+                    <img src={icon} alt="" className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <h4 className="font-bold text-2xl">{title}</h4>
+                <h4 className="font-bold text-xl md:text-2xl">{title}</h4>
             </div>
 
-            {/* Descrição */}
-            <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
+            <p className="text-gray-400 text-xs md:text-sm leading-relaxed mb-4">{description}</p>
 
-            {/* Slot para preview contextual */}
-            {children}
+            {/* C celular o conteúdo fica embaixo do texto, no desktop vai pra baixo) */}
+            <div className="md:mt-auto">
+                {children}
+            </div>
         </div>
     );
 }
@@ -326,4 +314,4 @@ const cards = [
         complete: false,
         id: 2,
     },
-];
+]
