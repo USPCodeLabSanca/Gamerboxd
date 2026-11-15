@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main", "refactor/backend" ]
   pull_request:
-    branches: [ "main", "refactore/backend" ]
+    branches: [ "main", "refactor/backend" ]
 
 jobs:
   build-test-and-lint-frontend:
