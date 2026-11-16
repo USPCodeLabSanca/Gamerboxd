@@ -2,7 +2,7 @@ import pytest
 import requests
 
 from ..utils import BASE_URL_USERS
-from .utils import USERNAME_IN_USE_MSG, USERNAME_WRONG_LENGTH_MSG, EMAIL_IN_USE_MSG, INVALID_EMAIL_MSG
+from .utils import USERNAME_IN_USE_MSG, USERNAME_WRONG_LENGTH_MSG, USERNAME_HAS_INVALID_CHARS, EMAIL_IN_USE_MSG, INVALID_EMAIL_MSG
 
 SUCCESS_CREATING_MSG = {"message": "Conta criada com sucesso!", "user_id": "abc"}
 
@@ -32,30 +32,33 @@ new_users = [
     # Testes de erros do usuário na hora de criar conta
     (base_user(2, username = "u2"), 400, USERNAME_WRONG_LENGTH_MSG),        # username muito curto
     (base_user(3, username = "user3"*20), 400, USERNAME_WRONG_LENGTH_MSG),  # username muito longo
-    (base_user(4, username = "user1"), 409, USERNAME_IN_USE_MSG("user1")),  # username já está em uso
+    (base_user(4, username = "user4️⃣"), 400, USERNAME_HAS_INVALID_CHARS),   # username com caracter proibido
+    (base_user(5, username = "user@5"), 400, USERNAME_HAS_INVALID_CHARS),   # username com caracter proibido
+    (base_user(6, username = "user&6"), 400, USERNAME_HAS_INVALID_CHARS),   # username com caracter proibido
+    (base_user(7, username = "user1"), 409, USERNAME_IN_USE_MSG("user1")),  # username já está em uso
 
-    (base_user(5, email = "user5"), 400, INVALID_EMAIL_MSG),                                # email inválido
-    (base_user(6, email = "user1@gmail.com"), 409, EMAIL_IN_USE_MSG("user1@gmail.com")),    # email já em uso
+    (base_user(8, email = "user8"), 400, INVALID_EMAIL_MSG),                                # email inválido
+    (base_user(9, email = "user1@gmail.com"), 409, EMAIL_IN_USE_MSG("user1@gmail.com")),    # email já em uso
 
-    (base_user(7, password = "User7!"), 400, PWD_WRONG_LENGTH_MSG),          # senha muito curta
-    (base_user(8, password = "User8!" * 11), 400, PWD_WRONG_LENGTH_MSG),     # senha muito longa
-    (base_user(9, password ="UserUser!"), 400, PWD_WITHOUT_NUM_MSG),         # senha não tem digito
-    (base_user(10, password = "UserUser10"), 400, PWD_WITHOUT_SYMB_MSG),     # senha não tem símbolo
-    (base_user(11, password = "useruser11!"), 400, PWD_WITHOUT_CAP_MSG),     # senha não tem letra maiuscula
-    (base_user(12, password = "USERUSAER12!"), 400, PWD_WITHOUT_CAP_MSG),    # senha não tem letra minuscula
+    (base_user(10, password = "User7!"), 400, PWD_WRONG_LENGTH_MSG),          # senha muito curta
+    (base_user(11, password = "User8!" * 11), 400, PWD_WRONG_LENGTH_MSG),     # senha muito longa
+    (base_user(12, password ="UserUser!"), 400, PWD_WITHOUT_NUM_MSG),         # senha não tem digito
+    (base_user(13, password = "UserUser10"), 400, PWD_WITHOUT_SYMB_MSG),     # senha não tem símbolo
+    (base_user(14, password = "useruser11!"), 400, PWD_WITHOUT_CAP_MSG),     # senha não tem letra maiuscula
+    (base_user(15, password = "USERUSAER12!"), 400, PWD_WITHOUT_CAP_MSG),    # senha não tem letra minuscula
 
     # Testes de schema inválido/mal formatado - tipos errados
-    (base_user(13, username = 13), 422, None),
-    (base_user(14, username = None), 422, None),
-    (base_user(15, email = 17), 422, None),
-    (base_user(16, email = None), 422, None),
-    (base_user(17, password = 15), 422, None),
-    (base_user(18, password = None), 422, None),
+    (base_user(16, username = 13), 422, None),
+    (base_user(17, username = None), 422, None),
+    (base_user(18, email = 17), 422, None),
+    (base_user(19, email = None), 422, None),
+    (base_user(20, password = 15), 422, None),
+    (base_user(21, password = None), 422, None),
 
     # Testes de schema inválido/mal formatado - campo faltando
-    ({k: v for k, v in base_user(19).items() if k != "username"}, 422, None),
-    ({k: v for k, v in base_user(20).items() if k != "email"}, 422, None),
-    ({k: v for k, v in base_user(21).items() if k != "password"}, 422, None),
+    ({k: v for k, v in base_user(22).items() if k != "username"}, 422, None),
+    ({k: v for k, v in base_user(23).items() if k != "email"}, 422, None),
+    ({k: v for k, v in base_user(24).items() if k != "password"}, 422, None),
 
     # Vazio
     ({}, 422, None)
