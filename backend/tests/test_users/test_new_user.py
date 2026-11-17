@@ -1,15 +1,15 @@
-from .utils import *
+import pytest
+import requests
 
+from ..utils import BASE_URL_USERS
+from .utils import USERNAME_IN_USE_MSG, USERNAME_WRONG_LENGTH_MSG, EMAIL_IN_USE_MSG, INVALID_EMAIL_MSG
 
 SUCCESS_CREATING_MSG = {"message": "Conta criada com sucesso!", "user_id": "abc"}
-
-INVALID_EMAIL_MSG = {"message": "Email inválido!"}
-EMAIL_IN_USE_MSG = lambda email: {"message": f'O email "{email}" já está sendo utilizado!'}
 
 PWD_WRONG_LENGTH_MSG = {"message": "A senha deve conter entre 8 a 64 caracteres!"}
 PWD_WITHOUT_NUM_MSG = {"message": "A senha deve conter pelo menos um número!"}
 PWD_WITHOUT_SYMB_MSG = {"message": "A senha deve conter pelo menos um símbolo!"}
-PWD_WITHOU_CAP_MSG = {"message": "A senha deve conter pelo menos uma letra minúscula e uma letra maiúscula!"}
+PWD_WITHOUT_CAP_MSG = {"message": "A senha deve conter pelo menos uma letra minúscula e uma letra maiúscula!"}
 
 
 def base_user(num: int, **overrides):
@@ -37,12 +37,12 @@ new_users = [
     (base_user(5, email = "user5"), 400, INVALID_EMAIL_MSG),                                # email inválido
     (base_user(6, email = "user1@gmail.com"), 409, EMAIL_IN_USE_MSG("user1@gmail.com")),    # email já em uso
 
-    (base_user(7, password = "User7!"), 400, PWD_WRONG_LENGTH_MSG),         # senha muito curta
-    (base_user(8, password = "User8!" * 11), 400, PWD_WRONG_LENGTH_MSG),    # senha muito longa
-    (base_user(9, password ="UserUser!"), 400, PWD_WITHOUT_NUM_MSG),        # senha não tem digito
-    (base_user(10, password = "UserUser10"), 400, PWD_WITHOUT_SYMB_MSG),    # senha não tem símbolo
-    (base_user(11, password = "useruser11!"), 400, PWD_WITHOU_CAP_MSG),     # senha não tem letra maiuscula
-    (base_user(12, password = "USERUSAER12!"), 400, PWD_WITHOU_CAP_MSG),    # senha não tem letra minuscula
+    (base_user(7, password = "User7!"), 400, PWD_WRONG_LENGTH_MSG),          # senha muito curta
+    (base_user(8, password = "User8!" * 11), 400, PWD_WRONG_LENGTH_MSG),     # senha muito longa
+    (base_user(9, password ="UserUser!"), 400, PWD_WITHOUT_NUM_MSG),         # senha não tem digito
+    (base_user(10, password = "UserUser10"), 400, PWD_WITHOUT_SYMB_MSG),     # senha não tem símbolo
+    (base_user(11, password = "useruser11!"), 400, PWD_WITHOUT_CAP_MSG),     # senha não tem letra maiuscula
+    (base_user(12, password = "USERUSAER12!"), 400, PWD_WITHOUT_CAP_MSG),    # senha não tem letra minuscula
 
     # Testes de schema inválido/mal formatado - tipos errados
     (base_user(13, username = 13), 422, None),
@@ -62,7 +62,7 @@ new_users = [
 ]
 
 
-@pytest.mark.parametrize("user,expected_status,expected_body", new_users)
+@pytest.mark.parametrize("user, expected_status, expected_body", new_users)
 def test_new_users(user, expected_status, expected_body):
 
     # Força a duplicidade para testes de conflito

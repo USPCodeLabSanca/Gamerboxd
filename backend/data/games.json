@@ -1,0 +1,2882 @@
+{
+  "total": 411,
+  "games": [
+    {
+      "game_id": 1,
+      "title": "New Super Mario Bros. Wii",
+      "release_date": "2009-11-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co21tj.jpg",
+      "relevancy": 414
+    },
+    {
+      "game_id": 2,
+      "title": "Minecraft",
+      "release_date": "2011-11-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8fu7.jpg",
+      "relevancy": 500
+    },
+    {
+      "game_id": 3,
+      "title": "Grand Theft Auto V",
+      "release_date": "2013-09-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2lbd.jpg",
+      "relevancy": 499
+    },
+    {
+      "game_id": 4,
+      "title": "The Witcher 3: Wild Hunt",
+      "release_date": "2015-05-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaarl.jpg",
+      "relevancy": 487
+    },
+    {
+      "game_id": 5,
+      "title": "Red Dead Redemption 2",
+      "release_date": "2018-10-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1q1f.jpg",
+      "relevancy": 492
+    },
+    {
+      "game_id": 6,
+      "title": "Elden Ring",
+      "release_date": "2022-02-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.jpg",
+      "relevancy": 485
+    },
+    {
+      "game_id": 7,
+      "title": "The Legend of Zelda: Breath of the Wild",
+      "release_date": "2017-03-03",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.jpg",
+      "relevancy": 498
+    },
+    {
+      "game_id": 8,
+      "title": "Mario Kart 8 Deluxe",
+      "release_date": "2017-04-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co213p.jpg",
+      "relevancy": 490
+    },
+    {
+      "game_id": 9,
+      "title": "Terraria",
+      "release_date": "2011-05-16",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaamg.jpg",
+      "relevancy": 483
+    },
+    {
+      "game_id": 10,
+      "title": "Stardew Valley",
+      "release_date": "2016-02-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa93h.jpg",
+      "relevancy": 488
+    },
+    {
+      "game_id": 11,
+      "title": "The Elder Scrolls V: Skyrim",
+      "release_date": "2011-11-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocs1l.jpg",
+      "relevancy": 489
+    },
+    {
+      "game_id": 12,
+      "title": "Baldur's Gate 3",
+      "release_date": "2023-08-03",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co670h.jpg",
+      "relevancy": 484
+    },
+    {
+      "game_id": 13,
+      "title": "Tetris",
+      "release_date": "1984-06-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co53x2.jpg",
+      "relevancy": 495
+    },
+    {
+      "game_id": 14,
+      "title": "Super Mario Bros.",
+      "release_date": "1985-09-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6pib.jpg",
+      "relevancy": 494
+    },
+    {
+      "game_id": 15,
+      "title": "The Legend of Zelda",
+      "release_date": "1986-02-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1uii.jpg",
+      "relevancy": 400
+    },
+    {
+      "game_id": 16,
+      "title": "Metroid",
+      "release_date": "1986-08-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9rib.jpg",
+      "relevancy": 392
+    },
+    {
+      "game_id": 17,
+      "title": "Final Fantasy",
+      "release_date": "1987-12-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2xv8.jpg",
+      "relevancy": 411
+    },
+    {
+      "game_id": 18,
+      "title": "Mega Man 2",
+      "release_date": "1988-12-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5x42.jpg",
+      "relevancy": 110
+    },
+    {
+      "game_id": 19,
+      "title": "Castlevania III: Dracula's Curse",
+      "release_date": "1989-12-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coba2s.jpg",
+      "relevancy": 113
+    },
+    {
+      "game_id": 20,
+      "title": "Sonic the Hedgehog",
+      "release_date": "1991-06-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8ubt.jpg",
+      "relevancy": 471
+    },
+    {
+      "game_id": 21,
+      "title": "Street Fighter II",
+      "release_date": "1991-02-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co55et.jpg",
+      "relevancy": 410
+    },
+    {
+      "game_id": 22,
+      "title": "The Legend of Zelda: A Link to the Past",
+      "release_date": "1991-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3vzn.jpg",
+      "relevancy": 399
+    },
+    {
+      "game_id": 23,
+      "title": "Super Mario World",
+      "release_date": "1990-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8lo8.jpg",
+      "relevancy": 422
+    },
+    {
+      "game_id": 24,
+      "title": "Chrono Trigger",
+      "release_date": "1995-03-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3plw.jpg",
+      "relevancy": 220
+    },
+    {
+      "game_id": 25,
+      "title": "Super Mario 64",
+      "release_date": "1996-06-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co721v.jpg",
+      "relevancy": 479
+    },
+    {
+      "game_id": 26,
+      "title": "Pokemon Red/Blue",
+      "release_date": "1996-02-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co5pi4.jpg",
+      "relevancy": 493
+    },
+    {
+      "game_id": 27,
+      "title": "Resident Evil",
+      "release_date": "1996-03-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobvjk.jpg",
+      "relevancy": 438
+    },
+    {
+      "game_id": 28,
+      "title": "Tomb Raider",
+      "release_date": "1996-10-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3hfx.jpg",
+      "relevancy": 369
+    },
+    {
+      "game_id": 29,
+      "title": "GoldenEye 007",
+      "release_date": "1997-08-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa2kn.jpg",
+      "relevancy": 165
+    },
+    {
+      "game_id": 30,
+      "title": "Final Fantasy VII",
+      "release_date": "1997-01-31",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobny6.jpg",
+      "relevancy": 441
+    },
+    {
+      "game_id": 31,
+      "title": "Age of Empires",
+      "release_date": "1997-10-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1zsh.jpg",
+      "relevancy": 297
+    },
+    {
+      "game_id": 32,
+      "title": "Half-Life",
+      "release_date": "1998-11-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7zzj.jpg",
+      "relevancy": 451
+    },
+    {
+      "game_id": 33,
+      "title": "The Legend of Zelda: Ocarina of Time",
+      "release_date": "1998-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3nnx.jpg",
+      "relevancy": 461
+    },
+    {
+      "game_id": 34,
+      "title": "StarCraft",
+      "release_date": "1998-03-31",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9n6m.jpg",
+      "relevancy": 301
+    },
+    {
+      "game_id": 35,
+      "title": "Baldur's Gate",
+      "release_date": "1998-12-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coati0.jpg",
+      "relevancy": 442
+    },
+    {
+      "game_id": 36,
+      "title": "Metal Gear Solid",
+      "release_date": "1998-09-03",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobpak.jpg",
+      "relevancy": 425
+    },
+    {
+      "game_id": 37,
+      "title": "Super Smash Bros.",
+      "release_date": "1999-01-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2tso.jpg",
+      "relevancy": 419
+    },
+    {
+      "game_id": 38,
+      "title": "Tony Hawk's Pro Skater 2",
+      "release_date": "2000-09-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5xve.jpg",
+      "relevancy": 312
+    },
+    {
+      "game_id": 39,
+      "title": "The Sims",
+      "release_date": "2000-02-04",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8j9a.jpg",
+      "relevancy": 449
+    },
+    {
+      "game_id": 40,
+      "title": "Diablo II",
+      "release_date": "2000-06-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3gfq.jpg",
+      "relevancy": 302
+    },
+    {
+      "game_id": 41,
+      "title": "Deus Ex",
+      "release_date": "2000-06-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocc3x.jpg",
+      "relevancy": 9
+    },
+    {
+      "game_id": 42,
+      "title": "Counter-Strike",
+      "release_date": "2000-11-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coc32b.jpg",
+      "relevancy": 454
+    },
+    {
+      "game_id": 43,
+      "title": "Grand Theft Auto III",
+      "release_date": "2001-10-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2lb8.jpg",
+      "relevancy": 473
+    },
+    {
+      "game_id": 44,
+      "title": "Halo: Combat Evolved",
+      "release_date": "2001-11-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2r2r.jpg",
+      "relevancy": 387
+    },
+    {
+      "game_id": 45,
+      "title": "Super Smash Bros. Melee",
+      "release_date": "2001-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co21yv.jpg",
+      "relevancy": 417
+    },
+    {
+      "game_id": 46,
+      "title": "Animal Crossing",
+      "release_date": "2001-04-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3wmn.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 47,
+      "title": "Ico",
+      "release_date": "2001-09-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3r78.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 48,
+      "title": "The Elder Scrolls III: Morrowind",
+      "release_date": "2002-05-01",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2knd.jpg",
+      "relevancy": 28
+    },
+    {
+      "game_id": 49,
+      "title": "Metroid Prime",
+      "release_date": "2002-11-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3w4w.jpg",
+      "relevancy": 390
+    },
+    {
+      "game_id": 50,
+      "title": "Warcraft III: Reign of Chaos",
+      "release_date": "2002-07-03",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1xuq.jpg",
+      "relevancy": 298
+    },
+    {
+      "game_id": 51,
+      "title": "Grand Theft Auto: Vice City",
+      "release_date": "2002-10-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2lbb.jpg",
+      "relevancy": 472
+    },
+    {
+      "game_id": 52,
+      "title": "The Legend of Zelda: The Wind Waker",
+      "release_date": "2002-12-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3ohz.jpg",
+      "relevancy": 397
+    },
+    {
+      "game_id": 53,
+      "title": "Call of Duty",
+      "release_date": "2003-10-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2n19.jpg",
+      "relevancy": 456
+    },
+    {
+      "game_id": 54,
+      "title": "Star Wars: Knights of the Old Republic",
+      "release_date": "2003-07-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1tmz.jpg",
+      "relevancy": 36
+    },
+    {
+      "game_id": 55,
+      "title": "Prince of Persia: The Sands of Time",
+      "release_date": "2003-11-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4t8l.jpg",
+      "relevancy": 36
+    },
+    {
+      "game_id": 56,
+      "title": "Beyond Good & Evil",
+      "release_date": "2003-11-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2n6b.jpg",
+      "relevancy": 36
+    },
+    {
+      "game_id": 57,
+      "title": "World of Warcraft",
+      "release_date": "2004-11-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2l7z.jpg",
+      "relevancy": 453
+    },
+    {
+      "game_id": 58,
+      "title": "Half-Life 2",
+      "release_date": "2004-11-16",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1nmw.jpg",
+      "relevancy": 450
+    },
+    {
+      "game_id": 59,
+      "title": "Grand Theft Auto: San Andreas",
+      "release_date": "2004-10-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2lb9.jpg",
+      "relevancy": 475
+    },
+    {
+      "game_id": 60,
+      "title": "Metal Gear Solid 3: Snake Eater",
+      "release_date": "2004-11-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5ei5.jpg",
+      "relevancy": 41
+    },
+    {
+      "game_id": 61,
+      "title": "Resident Evil 4",
+      "release_date": "2005-01-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2wk8.jpg",
+      "relevancy": 439
+    },
+    {
+      "game_id": 62,
+      "title": "God of War",
+      "release_date": "2005-03-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3ddc.jpg",
+      "relevancy": 430
+    },
+    {
+      "game_id": 63,
+      "title": "Shadow of the Colossus",
+      "release_date": "2005-10-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1ozz.jpg",
+      "relevancy": 47
+    },
+    {
+      "game_id": 64,
+      "title": "Guitar Hero",
+      "release_date": "2005-11-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wa0.jpg",
+      "relevancy": 47
+    },
+    {
+      "game_id": 65,
+      "title": "The Elder Scrolls IV: Oblivion",
+      "release_date": "2006-03-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8fpz.jpg",
+      "relevancy": 53
+    },
+    {
+      "game_id": 66,
+      "title": "Gears of War",
+      "release_date": "2006-11-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8rkr.jpg",
+      "relevancy": 53
+    },
+    {
+      "game_id": 67,
+      "title": "Wii Sports",
+      "release_date": "2006-11-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3vge.jpg",
+      "relevancy": 476
+    },
+    {
+      "game_id": 68,
+      "title": "Bully",
+      "release_date": "2006-10-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocd6z.jpg",
+      "relevancy": 53
+    },
+    {
+      "game_id": 69,
+      "title": "Okami",
+      "release_date": "2006-04-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3mpk.jpg",
+      "relevancy": 12
+    },
+    {
+      "game_id": 70,
+      "title": "The Legend of Zelda: Twilight Princess",
+      "release_date": "2006-11-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3w1h.jpg",
+      "relevancy": 398
+    },
+    {
+      "game_id": 71,
+      "title": "BioShock",
+      "release_date": "2007-08-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2mli.jpg",
+      "relevancy": 377
+    },
+    {
+      "game_id": 72,
+      "title": "Portal",
+      "release_date": "2007-10-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coay61.jpg",
+      "relevancy": 433
+    },
+    {
+      "game_id": 73,
+      "title": "Call of Duty 4: Modern Warfare",
+      "release_date": "2007-11-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2adc.jpg",
+      "relevancy": 458
+    },
+    {
+      "game_id": 74,
+      "title": "Assassin's Creed",
+      "release_date": "2007-11-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rrw.jpg",
+      "relevancy": 375
+    },
+    {
+      "game_id": 75,
+      "title": "Mass Effect",
+      "release_date": "2007-11-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1x7o.jpg",
+      "relevancy": 379
+    },
+    {
+      "game_id": 76,
+      "title": "Super Mario Galaxy",
+      "release_date": "2007-11-01",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co21ro.jpg",
+      "relevancy": 421
+    },
+    {
+      "game_id": 77,
+      "title": "Rock Band",
+      "release_date": "2007-11-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co20bb.jpg",
+      "relevancy": 59
+    },
+    {
+      "game_id": 78,
+      "title": "Fallout 3",
+      "release_date": "2008-10-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1ycw.jpg",
+      "relevancy": 382
+    },
+    {
+      "game_id": 79,
+      "title": "Left 4 Dead",
+      "release_date": "2008-11-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1qrm.jpg",
+      "relevancy": 65
+    },
+    {
+      "game_id": 80,
+      "title": "Dead Space",
+      "release_date": "2008-10-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2g7w.jpg",
+      "relevancy": 65
+    },
+    {
+      "game_id": 81,
+      "title": "Braid",
+      "release_date": "2008-08-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co25ni.jpg",
+      "relevancy": 3
+    },
+    {
+      "game_id": 82,
+      "title": "LittleBigPlanet",
+      "release_date": "2008-10-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4p0f.jpg",
+      "relevancy": 65
+    },
+    {
+      "game_id": 83,
+      "title": "Super Smash Bros. Brawl",
+      "release_date": "2008-01-31",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co221w.jpg",
+      "relevancy": 416
+    },
+    {
+      "game_id": 84,
+      "title": "Portal 2",
+      "release_date": "2011-04-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rs4.jpg",
+      "relevancy": 432
+    },
+    {
+      "game_id": 85,
+      "title": "Batman: Arkham Asylum",
+      "release_date": "2009-08-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1voj.jpg",
+      "relevancy": 251
+    },
+    {
+      "game_id": 86,
+      "title": "Demon's Souls",
+      "release_date": "2009-02-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co27sk.jpg",
+      "relevancy": 363
+    },
+    {
+      "game_id": 87,
+      "title": "Uncharted 2: Among Thieves",
+      "release_date": "2009-10-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1tnb.jpg",
+      "relevancy": 366
+    },
+    {
+      "game_id": 88,
+      "title": "League of Legends",
+      "release_date": "2009-10-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coc99o.jpg",
+      "relevancy": 455
+    },
+    {
+      "game_id": 89,
+      "title": "Angry Birds",
+      "release_date": "2009-12-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4adm.jpg",
+      "relevancy": 342
+    },
+    {
+      "game_id": 90,
+      "title": "Limbo",
+      "release_date": "2010-07-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1qrs.jpg",
+      "relevancy": 2
+    },
+    {
+      "game_id": 91,
+      "title": "Red Dead Redemption",
+      "release_date": "2010-05-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2lcv.jpg",
+      "relevancy": 426
+    },
+    {
+      "game_id": 92,
+      "title": "Super Mario Galaxy 2",
+      "release_date": "2010-05-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co21tl.jpg",
+      "relevancy": 271
+    },
+    {
+      "game_id": 93,
+      "title": "Mass Effect 2",
+      "release_date": "2010-01-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co20ac.jpg",
+      "relevancy": 380
+    },
+    {
+      "game_id": 94,
+      "title": "StarCraft II: Wings of Liberty",
+      "release_date": "2010-07-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1tnn.jpg",
+      "relevancy": 300
+    },
+    {
+      "game_id": 95,
+      "title": "Fallout: New Vegas",
+      "release_date": "2010-10-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1u60.jpg",
+      "relevancy": 383
+    },
+    {
+      "game_id": 96,
+      "title": "Super Meat Boy",
+      "release_date": "2010-10-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co86cz.jpg",
+      "relevancy": 76
+    },
+    {
+      "game_id": 97,
+      "title": "Amnesia: The Dark Descent",
+      "release_date": "2010-09-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1qq5.jpg",
+      "relevancy": 76
+    },
+    {
+      "game_id": 98,
+      "title": "Dark Souls",
+      "release_date": "2011-09-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1x78.jpg",
+      "relevancy": 437
+    },
+    {
+      "game_id": 99,
+      "title": "Batman: Arkham City",
+      "release_date": "2011-10-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1voh.jpg",
+      "relevancy": 252
+    },
+    {
+      "game_id": 100,
+      "title": "The Binding of Isaac",
+      "release_date": "2011-09-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1qll.jpg",
+      "relevancy": 82
+    },
+    {
+      "game_id": 101,
+      "title": "Fez",
+      "release_date": "2012-04-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rd9.jpg",
+      "relevancy": 1
+    },
+    {
+      "game_id": 102,
+      "title": "Journey",
+      "release_date": "2012-03-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob9lk.jpg",
+      "relevancy": 283
+    },
+    {
+      "game_id": 103,
+      "title": "Hotline Miami",
+      "release_date": "2012-10-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vqp.jpg",
+      "relevancy": 89
+    },
+    {
+      "game_id": 104,
+      "title": "Far Cry 3",
+      "release_date": "2012-11-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vpd.jpg",
+      "relevancy": 371
+    },
+    {
+      "game_id": 105,
+      "title": "Dishonored",
+      "release_date": "2012-10-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coabgu.jpg",
+      "relevancy": 89
+    },
+    {
+      "game_id": 106,
+      "title": "XCOM: Enemy Unknown",
+      "release_date": "2012-10-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co29i2.jpg",
+      "relevancy": 292
+    },
+    {
+      "game_id": 107,
+      "title": "Borderlands 2",
+      "release_date": "2012-09-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9ba3.jpg",
+      "relevancy": 303
+    },
+    {
+      "game_id": 108,
+      "title": "Papers, Please",
+      "release_date": "2013-08-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vep.jpg",
+      "relevancy": 92
+    },
+    {
+      "game_id": 109,
+      "title": "The Last of Us",
+      "release_date": "2013-06-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7f.jpg",
+      "relevancy": 482
+    },
+    {
+      "game_id": 110,
+      "title": "BioShock Infinite",
+      "release_date": "2013-03-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2n12.jpg",
+      "relevancy": 376
+    },
+    {
+      "game_id": 111,
+      "title": "Dota 2",
+      "release_date": "2013-07-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cod313.jpg",
+      "relevancy": 402
+    },
+    {
+      "game_id": 112,
+      "title": "The Stanley Parable",
+      "release_date": "2013-10-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rc9.jpg",
+      "relevancy": 281
+    },
+    {
+      "game_id": 113,
+      "title": "Payday 2",
+      "release_date": "2013-08-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaaqu.jpg",
+      "relevancy": 92
+    },
+    {
+      "game_id": 114,
+      "title": "The Legend of Zelda: A Link Between Worlds",
+      "release_date": "2013-11-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3p0j.jpg",
+      "relevancy": 393
+    },
+    {
+      "game_id": 115,
+      "title": "Super Mario 3D World",
+      "release_date": "2013-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob8wi.jpg",
+      "relevancy": 275
+    },
+    {
+      "game_id": 116,
+      "title": "Dark Souls II",
+      "release_date": "2014-03-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobysr.jpg",
+      "relevancy": 261
+    },
+    {
+      "game_id": 117,
+      "title": "Hearthstone",
+      "release_date": "2014-03-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1sh2.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 118,
+      "title": "Mario Kart 8",
+      "release_date": "2014-05-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co213q.jpg",
+      "relevancy": 415
+    },
+    {
+      "game_id": 119,
+      "title": "Five Nights at Freddy's",
+      "release_date": "2014-08-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8het.jpg",
+      "relevancy": 346
+    },
+    {
+      "game_id": 120,
+      "title": "Shovel Knight",
+      "release_date": "2014-06-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobaa7.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 121,
+      "title": "The Sims 4",
+      "release_date": "2014-09-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3h3l.jpg",
+      "relevancy": 448
+    },
+    {
+      "game_id": 122,
+      "title": "Alien: Isolation",
+      "release_date": "2014-10-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vzu.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 123,
+      "title": "Dragon Age: Inquisition",
+      "release_date": "2014-11-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvy.jpg",
+      "relevancy": 352
+    },
+    {
+      "game_id": 124,
+      "title": "Bloodborne",
+      "release_date": "2015-03-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob99l.jpg",
+      "relevancy": 436
+    },
+    {
+      "game_id": 125,
+      "title": "Undertale",
+      "release_date": "2015-09-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob1t2.jpg",
+      "relevancy": 359
+    },
+    {
+      "game_id": 126,
+      "title": "Rocket League",
+      "release_date": "2015-07-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocyri.jpg",
+      "relevancy": 405
+    },
+    {
+      "game_id": 127,
+      "title": "Fallout 4",
+      "release_date": "2015-11-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1yc6.jpg",
+      "relevancy": 385
+    },
+    {
+      "game_id": 128,
+      "title": "Metal Gear Solid V: The Phantom Pain",
+      "release_date": "2015-09-01",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1v85.jpg",
+      "relevancy": 424
+    },
+    {
+      "game_id": 129,
+      "title": "Life Is Strange",
+      "release_date": "2015-01-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r8e.jpg",
+      "relevancy": 290
+    },
+    {
+      "game_id": 130,
+      "title": "Ori and the Blind Forest",
+      "release_date": "2015-03-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1y41.jpg",
+      "relevancy": 279
+    },
+    {
+      "game_id": 131,
+      "title": "Cities: Skylines",
+      "release_date": "2015-03-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaas0.jpg",
+      "relevancy": 322
+    },
+    {
+      "game_id": 132,
+      "title": "Dying Light",
+      "release_date": "2015-01-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co65yq.jpg",
+      "relevancy": 107
+    },
+    {
+      "game_id": 133,
+      "title": "Splatoon",
+      "release_date": "2015-05-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob8ra.jpg",
+      "relevancy": 107
+    },
+    {
+      "game_id": 134,
+      "title": "Xenoblade Chronicles X",
+      "release_date": "2015-04-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coavor.jpg",
+      "relevancy": 107
+    },
+    {
+      "game_id": 135,
+      "title": "Overwatch",
+      "release_date": "2016-05-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rcb.jpg",
+      "relevancy": 447
+    },
+    {
+      "game_id": 136,
+      "title": "Doom",
+      "release_date": "2016-05-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1nc7.jpg",
+      "relevancy": 431
+    },
+    {
+      "game_id": 137,
+      "title": "Dark Souls III",
+      "release_date": "2016-03-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob9ed.jpg",
+      "relevancy": 266
+    },
+    {
+      "game_id": 138,
+      "title": "Inside",
+      "release_date": "2016-06-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/y3a1qpmys1a6njhi100a.jpg",
+      "relevancy": 117
+    },
+    {
+      "game_id": 139,
+      "title": "The Witness",
+      "release_date": "2016-01-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3hih.jpg",
+      "relevancy": 117
+    },
+    {
+      "game_id": 140,
+      "title": "Pokemon Go",
+      "release_date": "2016-07-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9gmb.webp",
+      "relevancy": 478
+    },
+    {
+      "game_id": 141,
+      "title": "Uncharted 4: A Thief's End",
+      "release_date": "2016-05-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7h.jpg",
+      "relevancy": 368
+    },
+    {
+      "game_id": 142,
+      "title": "Civilization VI",
+      "release_date": "2016-10-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaaqr.jpg",
+      "relevancy": 295
+    },
+    {
+      "game_id": 143,
+      "title": "The Last Guardian",
+      "release_date": "2016-12-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co271e.jpg",
+      "relevancy": 117
+    },
+    {
+      "game_id": 144,
+      "title": "Final Fantasy XV",
+      "release_date": "2016-11-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6nz1.jpg",
+      "relevancy": 413
+    },
+    {
+      "game_id": 145,
+      "title": "Hollow Knight",
+      "release_date": "2017-02-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobfzp.jpg",
+      "relevancy": 434
+    },
+    {
+      "game_id": 146,
+      "title": "PlayerUnknown's Battlegrounds",
+      "release_date": "2017-12-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaam4.webp",
+      "relevancy": 126
+    },
+    {
+      "game_id": 147,
+      "title": "Horizon Zero Dawn",
+      "release_date": "2017-02-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2una.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 148,
+      "title": "Super Mario Odyssey",
+      "release_date": "2017-10-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1mxf.jpg",
+      "relevancy": 459
+    },
+    {
+      "game_id": 149,
+      "title": "Cuphead",
+      "release_date": "2017-09-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co62ao.jpg",
+      "relevancy": 280
+    },
+    {
+      "game_id": 150,
+      "title": "Nier: Automata",
+      "release_date": "2017-02-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5pcj.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 151,
+      "title": "Fortnite",
+      "release_date": "2017-07-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5ztm.jpg",
+      "relevancy": 496
+    },
+    {
+      "game_id": 152,
+      "title": "Assassin's Creed Origins",
+      "release_date": "2017-10-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rbe.jpg",
+      "relevancy": 374
+    },
+    {
+      "game_id": 153,
+      "title": "Monster Hunter: World",
+      "release_date": "2018-01-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rst.jpg",
+      "relevancy": 258
+    },
+    {
+      "game_id": 154,
+      "title": "Super Smash Bros. Ultimate",
+      "release_date": "2018-12-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2255.jpg",
+      "relevancy": 477
+    },
+    {
+      "game_id": 155,
+      "title": "Celeste",
+      "release_date": "2018-01-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob9dh.jpg",
+      "relevancy": 358
+    },
+    {
+      "game_id": 156,
+      "title": "Dead Cells",
+      "release_date": "2018-08-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7jfv.jpg",
+      "relevancy": 278
+    },
+    {
+      "game_id": 157,
+      "title": "Among Us",
+      "release_date": "2018-06-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6kqt.jpg",
+      "relevancy": 445
+    },
+    {
+      "game_id": 158,
+      "title": "Marvel's Spider-Man",
+      "release_date": "2018-09-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r77.jpg",
+      "relevancy": 365
+    },
+    {
+      "game_id": 159,
+      "title": "Assassin's Creed Odyssey",
+      "release_date": "2018-10-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2nul.jpg",
+      "relevancy": 373
+    },
+    {
+      "game_id": 160,
+      "title": "Detroit: Become Human",
+      "release_date": "2018-05-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocot9.jpg",
+      "relevancy": 289
+    },
+    {
+      "game_id": 161,
+      "title": "Apex Legends",
+      "release_date": "2019-02-04",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocqh2.jpg",
+      "relevancy": 404
+    },
+    {
+      "game_id": 162,
+      "title": "Sekiro: Shadows Die Twice",
+      "release_date": "2019-03-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2a23.jpg",
+      "relevancy": 362
+    },
+    {
+      "game_id": 163,
+      "title": "Resident Evil 2",
+      "release_date": "2019-01-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1ir3.jpg",
+      "relevancy": 262
+    },
+    {
+      "game_id": 164,
+      "title": "Disco Elysium",
+      "release_date": "2019-10-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1sfj.jpg",
+      "relevancy": 357
+    },
+    {
+      "game_id": 165,
+      "title": "Fire Emblem: Three Houses",
+      "release_date": "2019-07-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1n8t.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 166,
+      "title": "Luigi's Mansion 3",
+      "release_date": "2019-10-31",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co22a9.jpg",
+      "relevancy": 237
+    },
+    {
+      "game_id": 167,
+      "title": "Control",
+      "release_date": "2019-08-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2evj.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 168,
+      "title": "Death Stranding",
+      "release_date": "2019-11-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocsvh.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 169,
+      "title": "The Outer Worlds",
+      "release_date": "2019-10-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2eew.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 170,
+      "title": "Call of Duty: Modern Warfare",
+      "release_date": "2019-10-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rsg.jpg",
+      "relevancy": 306
+    },
+    {
+      "game_id": 171,
+      "title": "Animal Crossing: New Horizons",
+      "release_date": "2020-03-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3wls.jpg",
+      "relevancy": 481
+    },
+    {
+      "game_id": 172,
+      "title": "The Last of Us Part II",
+      "release_date": "2020-06-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5ziw.jpg",
+      "relevancy": 427
+    },
+    {
+      "game_id": 173,
+      "title": "Hades",
+      "release_date": "2020-09-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob9kr.jpg",
+      "relevancy": 360
+    },
+    {
+      "game_id": 174,
+      "title": "Doom Eternal",
+      "release_date": "2020-03-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3p5n.jpg",
+      "relevancy": 162
+    },
+    {
+      "game_id": 175,
+      "title": "Cyberpunk 2077",
+      "release_date": "2020-12-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaih8.jpg",
+      "relevancy": 444
+    },
+    {
+      "game_id": 176,
+      "title": "Ghost of Tsushima",
+      "release_date": "2020-07-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2crj.jpg",
+      "relevancy": 162
+    },
+    {
+      "game_id": 177,
+      "title": "Microsoft Flight Simulator",
+      "release_date": "2020-08-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2dqk.jpg",
+      "relevancy": 162
+    },
+    {
+      "game_id": 178,
+      "title": "Genshin Impact",
+      "release_date": "2020-09-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_original/coa9dy.webp",
+      "relevancy": 403
+    },
+    {
+      "game_id": 179,
+      "title": "Fall Guys",
+      "release_date": "2020-08-04",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa7cs.jpg",
+      "relevancy": 341
+    },
+    {
+      "game_id": 180,
+      "title": "It Takes Two",
+      "release_date": "2021-03-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobvya.jpg",
+      "relevancy": 340
+    },
+    {
+      "game_id": 181,
+      "title": "Resident Evil Village",
+      "release_date": "2021-05-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coab9q.jpg",
+      "relevancy": 267
+    },
+    {
+      "game_id": 182,
+      "title": "Forza Horizon 5",
+      "release_date": "2021-11-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3ofx.jpg",
+      "relevancy": 246
+    },
+    {
+      "game_id": 183,
+      "title": "Metroid Dread",
+      "release_date": "2021-10-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co935n.jpg",
+      "relevancy": 388
+    },
+    {
+      "game_id": 184,
+      "title": "Psychonauts 2",
+      "release_date": "2021-08-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob7mx.jpg",
+      "relevancy": 169
+    },
+    {
+      "game_id": 185,
+      "title": "Ratchet & Clank: Rift Apart",
+      "release_date": "2021-06-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2str.jpg",
+      "relevancy": 169
+    },
+    {
+      "game_id": 186,
+      "title": "Halo Infinite",
+      "release_date": "2021-12-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2dto.jpg",
+      "relevancy": 386
+    },
+    {
+      "game_id": 187,
+      "title": "Returnal",
+      "release_date": "2021-04-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3wc1.jpg",
+      "relevancy": 169
+    },
+    {
+      "game_id": 188,
+      "title": "Monster Hunter Rise",
+      "release_date": "2021-03-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3uzk.jpg",
+      "relevancy": 256
+    },
+    {
+      "game_id": 189,
+      "title": "God of War Ragnarök",
+      "release_date": "2022-11-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coba3d.jpg",
+      "relevancy": 428
+    },
+    {
+      "game_id": 190,
+      "title": "Horizon Forbidden West",
+      "release_date": "2022-02-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2gvu.jpg",
+      "relevancy": 177
+    },
+    {
+      "game_id": 191,
+      "title": "Stray",
+      "release_date": "2022-07-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4tt2.jpg",
+      "relevancy": 177
+    },
+    {
+      "game_id": 192,
+      "title": "Vampire Survivors",
+      "release_date": "2022-10-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4bzv.jpg",
+      "relevancy": 277
+    },
+    {
+      "game_id": 193,
+      "title": "Marvel's Midnight Suns",
+      "release_date": "2022-12-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3ofr.jpg",
+      "relevancy": 177
+    },
+    {
+      "game_id": 194,
+      "title": "Xenoblade Chronicles 3",
+      "release_date": "2022-07-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4ocq.jpg",
+      "relevancy": 177
+    },
+    {
+      "game_id": 195,
+      "title": "Cult of the Lamb",
+      "release_date": "2022-08-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobbwj.jpg",
+      "relevancy": 177
+    },
+    {
+      "game_id": 196,
+      "title": "Overwatch 2",
+      "release_date": "2022-10-04",
+      "picture": "https://m.media-amazon.com/images/M/MV5BOGMxODVmNDgtZGE1Yy00Y2VlLTk3ZTMtYzU5YTcxODhiNzMxXkEyXkFqcGc@._V1_.jpg",
+      "relevancy": 177
+    },
+    {
+      "game_id": 197,
+      "title": "Call of Duty: Modern Warfare II",
+      "release_date": "2022-10-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4sbw.jpg",
+      "relevancy": 305
+    },
+    {
+      "game_id": 198,
+      "title": "Hogwarts Legacy",
+      "release_date": "2023-02-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaav6.jpg",
+      "relevancy": 443
+    },
+    {
+      "game_id": 199,
+      "title": "The Legend of Zelda: Tears of the Kingdom",
+      "release_date": "2023-05-12",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5vmg.jpg",
+      "relevancy": 460
+    },
+    {
+      "game_id": 200,
+      "title": "Alan Wake 2",
+      "release_date": "2023-10-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6jar.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 201,
+      "title": "Super Mario Bros. Wonder",
+      "release_date": "2023-10-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6nnl.jpg",
+      "relevancy": 420
+    },
+    {
+      "game_id": 202,
+      "title": "Marvel's Spider-Man 2",
+      "release_date": "2023-10-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobg1k.jpg",
+      "relevancy": 364
+    },
+    {
+      "game_id": 203,
+      "title": "Lethal Company",
+      "release_date": "2023-10-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5ive.jpg",
+      "relevancy": 268
+    },
+    {
+      "game_id": 204,
+      "title": "Dave the Diver",
+      "release_date": "2023-06-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocdlv.jpg",
+      "relevancy": 273
+    },
+    {
+      "game_id": 205,
+      "title": "Street Fighter 6",
+      "release_date": "2023-06-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9wxo.jpg",
+      "relevancy": 409
+    },
+    {
+      "game_id": 206,
+      "title": "Resident Evil 4 (2023)",
+      "release_date": "2023-03-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co6bo0.jpg",
+      "relevancy": 269
+    },
+    {
+      "game_id": 207,
+      "title": "Armored Core VI: Fires of Rubicon",
+      "release_date": "2023-08-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coc408.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 208,
+      "title": "Starfield",
+      "release_date": "2023-09-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co39vv.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 209,
+      "title": "The Finals",
+      "release_date": "2023-12-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/cod6ev.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 210,
+      "title": "Palworld",
+      "release_date": "2024-01-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7n02.jpg",
+      "relevancy": 263
+    },
+    {
+      "game_id": 211,
+      "title": "Helldivers 2",
+      "release_date": "2024-02-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coabbf.jpg",
+      "relevancy": 260
+    },
+    {
+      "game_id": 212,
+      "title": "Super Metroid",
+      "release_date": "1994-03-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5osy.jpg",
+      "relevancy": 391
+    },
+    {
+      "game_id": 213,
+      "title": "Yoshi's Island",
+      "release_date": "1995-08-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_original/co2kn9.webp",
+      "relevancy": 222
+    },
+    {
+      "game_id": 214,
+      "title": "EarthBound",
+      "release_date": "1994-08-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6v07.jpg",
+      "relevancy": 221
+    },
+    {
+      "game_id": 215,
+      "title": "Secret of Mana",
+      "release_date": "1993-08-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2u6w.jpg",
+      "relevancy": 218
+    },
+    {
+      "game_id": 216,
+      "title": "Suikoden II",
+      "release_date": "1998-12-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1y6a.jpg",
+      "relevancy": 217
+    },
+    {
+      "game_id": 217,
+      "title": "Vagrant Story",
+      "release_date": "2000-02-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2rso.jpg",
+      "relevancy": 9
+    },
+    {
+      "game_id": 218,
+      "title": "Parasite Eve",
+      "release_date": "1998-03-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4pup.jpg",
+      "relevancy": 166
+    },
+    {
+      "game_id": 219,
+      "title": "Xenogears",
+      "release_date": "1998-02-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobxj4.jpg",
+      "relevancy": 216
+    },
+    {
+      "game_id": 220,
+      "title": "Planescape: Torment",
+      "release_date": "1999-12-12",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3ggb.jpg",
+      "relevancy": 215
+    },
+    {
+      "game_id": 221,
+      "title": "System Shock 2",
+      "release_date": "1999-08-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4bak.jpg",
+      "relevancy": 213
+    },
+    {
+      "game_id": 222,
+      "title": "Thief: The Dark Project",
+      "release_date": "1998-11-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co22ne.jpg",
+      "relevancy": 212
+    },
+    {
+      "game_id": 223,
+      "title": "Unreal Tournament",
+      "release_date": "1999-11-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1i2j.jpg",
+      "relevancy": 211
+    },
+    {
+      "game_id": 224,
+      "title": "Quake III Arena",
+      "release_date": "1999-12-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1ybj.jpg",
+      "relevancy": 210
+    },
+    {
+      "game_id": 225,
+      "title": "EverQuest",
+      "release_date": "1999-03-16",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6k7i.jpg",
+      "relevancy": 209
+    },
+    {
+      "game_id": 226,
+      "title": "Homeworld",
+      "release_date": "1999-09-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coc6i8.jpg",
+      "relevancy": 207
+    },
+    {
+      "game_id": 227,
+      "title": "Age of Empires II",
+      "release_date": "1999-09-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_original/co55xo.webp",
+      "relevancy": 296
+    },
+    {
+      "game_id": 228,
+      "title": "Command & Conquer: Red Alert 2",
+      "release_date": "2000-10-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coar4c.jpg",
+      "relevancy": 206
+    },
+    {
+      "game_id": 229,
+      "title": "Baldur's Gate II: Shadows of Amn",
+      "release_date": "2000-09-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co71yr.jpg",
+      "relevancy": 9
+    },
+    {
+      "game_id": 230,
+      "title": "The Legend of Zelda: Majora's Mask",
+      "release_date": "2000-04-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3pah.jpg",
+      "relevancy": 396
+    },
+    {
+      "game_id": 231,
+      "title": "Perfect Dark",
+      "release_date": "2000-05-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co77xv.jpg",
+      "relevancy": 205
+    },
+    {
+      "game_id": 232,
+      "title": "Jet Set Radio",
+      "release_date": "2000-06-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobxjl.jpg",
+      "relevancy": 182
+    },
+    {
+      "game_id": 233,
+      "title": "Crazy Taxi",
+      "release_date": "1999-02-01",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7jt6.jpg",
+      "relevancy": 159
+    },
+    {
+      "game_id": 234,
+      "title": "Tony Hawk's Pro Skater 3",
+      "release_date": "2001-10-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6ss7.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 235,
+      "title": "Gran Turismo 3: A-Spec",
+      "release_date": "2001-04-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5xru.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 236,
+      "title": "Advance Wars",
+      "release_date": "2001-09-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob9nu.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 237,
+      "title": "Max Payne",
+      "release_date": "2001-07-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co926i.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 238,
+      "title": "Silent Hill 2",
+      "release_date": "2001-09-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2vyg.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 239,
+      "title": "Jak and Daxter: The Precursor Legacy",
+      "release_date": "2001-12-03",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1w7q.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 240,
+      "title": "Ikaruga",
+      "release_date": "2001-12-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1qjb.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 241,
+      "title": "Rez",
+      "release_date": "2001-11-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobyl9.jpg",
+      "relevancy": 19
+    },
+    {
+      "game_id": 242,
+      "title": "Kingdom Hearts",
+      "release_date": "2002-03-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co30zf.jpg",
+      "relevancy": 247
+    },
+    {
+      "game_id": 243,
+      "title": "Mafia: The City of Lost Heaven",
+      "release_date": "2002-08-29",
+      "picture": "https://m.media-amazon.com/images/M/MV5BZGVlNzgwMWItZGU4Zi00ZWQ0LWJmZjctZGM2NmNlZmVmNmE3XkEyXkFqcGc@._V1_.jpg",
+      "relevancy": 28
+    },
+    {
+      "game_id": 244,
+      "title": "Neverwinter Nights",
+      "release_date": "2002-06-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1t13.jpg",
+      "relevancy": 28
+    },
+    {
+      "game_id": 245,
+      "title": "Medal of Honor: Allied Assault",
+      "release_date": "2002-01-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7nlr.jpg",
+      "relevancy": 28
+    },
+    {
+      "game_id": 246,
+      "title": "Battlefield 1942",
+      "release_date": "2002-09-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1xb2.jpg",
+      "relevancy": 28
+    },
+    {
+      "game_id": 247,
+      "title": "Tom Clancy's Splinter Cell",
+      "release_date": "2002-11-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co95ri.jpg",
+      "relevancy": 28
+    },
+    {
+      "game_id": 248,
+      "title": "The Sims 2",
+      "release_date": "2004-09-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3dm5.jpg",
+      "relevancy": 254
+    },
+    {
+      "game_id": 249,
+      "title": "Fable",
+      "release_date": "2004-09-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2q4c.jpg",
+      "relevancy": 41
+    },
+    {
+      "game_id": 250,
+      "title": "Rome: Total War",
+      "release_date": "2004-09-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1zt9.jpg",
+      "relevancy": 41
+    },
+    {
+      "game_id": 251,
+      "title": "Katamari Damacy",
+      "release_date": "2004-03-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co67mq.jpg",
+      "relevancy": 111
+    },
+    {
+      "game_id": 252,
+      "title": "Burnout 3: Takedown",
+      "release_date": "2004-09-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1y53.jpg",
+      "relevancy": 87
+    },
+    {
+      "game_id": 253,
+      "title": "Paper Mario: The Thousand-Year Door",
+      "release_date": "2004-07-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co25us.jpg",
+      "relevancy": 69
+    },
+    {
+      "game_id": 254,
+      "title": "Viewtiful Joe",
+      "release_date": "2003-06-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6nqo.jpg",
+      "relevancy": 36
+    },
+    {
+      "game_id": 255,
+      "title": "Psychonauts",
+      "release_date": "2005-04-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob7ms.jpg",
+      "relevancy": 43
+    },
+    {
+      "game_id": 256,
+      "title": "Killer7",
+      "release_date": "2005-06-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobw10.jpg",
+      "relevancy": 47
+    },
+    {
+      "game_id": 257,
+      "title": "Civilization IV",
+      "release_date": "2005-10-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rjp.webp",
+      "relevancy": 294
+    },
+    {
+      "game_id": 258,
+      "title": "Guild Wars",
+      "release_date": "2005-04-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coay80.jpg",
+      "relevancy": 47
+    },
+    {
+      "game_id": 259,
+      "title": "Dragon Quest VIII",
+      "release_date": "2004-11-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_original/co7vf2.webp",
+      "relevancy": 250
+    },
+    {
+      "game_id": 260,
+      "title": "Mario Kart DS",
+      "release_date": "2005-11-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob9rx.jpg",
+      "relevancy": 264
+    },
+    {
+      "game_id": 261,
+      "title": "Ōkami",
+      "release_date": "2006-04-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3mpk.jpg",
+      "relevancy": 53
+    },
+    {
+      "game_id": 262,
+      "title": "Company of Heroes",
+      "release_date": "2006-09-12",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2ht7.jpg",
+      "relevancy": 7
+    },
+    {
+      "game_id": 263,
+      "title": "The Legend of Zelda: Phantom Hourglass",
+      "release_date": "2007-06-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3ocu.jpg",
+      "relevancy": 272
+    },
+    {
+      "game_id": 264,
+      "title": "Crackdown",
+      "release_date": "2007-02-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1w65.jpg",
+      "relevancy": 59
+    },
+    {
+      "game_id": 265,
+      "title": "S.T.A.L.K.E.R.: Shadow of Chernobyl",
+      "release_date": "2007-03-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa4s4.jpg",
+      "relevancy": 6
+    },
+    {
+      "game_id": 266,
+      "title": "Team Fortress 2",
+      "release_date": "2007-10-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6rzl.jpg",
+      "relevancy": 308
+    },
+    {
+      "game_id": 267,
+      "title": "Crysis",
+      "release_date": "2007-11-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2on1.jpg",
+      "relevancy": 59
+    },
+    {
+      "game_id": 268,
+      "title": "The Orange Box",
+      "release_date": "2007-10-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2yez.jpg",
+      "relevancy": 307
+    },
+    {
+      "game_id": 269,
+      "title": "Patapon",
+      "release_date": "2007-12-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobe8f.jpg",
+      "relevancy": 59
+    },
+    {
+      "game_id": 270,
+      "title": "No More Heroes",
+      "release_date": "2007-12-06",
+      "picture": "https://m.media-amazon.com/images/M/MV5BYzNhODIxZTQtZTdkZC00ZTZkLThlN2YtZDhhMTVmMTAyMTAwXkEyXkFqcGc@._V1_.jpg",
+      "relevancy": 59
+    },
+    {
+      "game_id": 271,
+      "title": "Valkyria Chronicles",
+      "release_date": "2008-04-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/bvmjjiorjpcclmdorauw.jpg",
+      "relevancy": 65
+    },
+    {
+      "game_id": 272,
+      "title": "Persona 4",
+      "release_date": "2008-07-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1u07.jpg",
+      "relevancy": 354
+    },
+    {
+      "game_id": 273,
+      "title": "Dead Space 2",
+      "release_date": "2011-01-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co715m.jpg",
+      "relevancy": 82
+    },
+    {
+      "game_id": 274,
+      "title": "F.E.A.R.",
+      "release_date": "2005-10-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1utk.jpg",
+      "relevancy": 47
+    },
+    {
+      "game_id": 275,
+      "title": "Mirror's Edge",
+      "release_date": "2008-11-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5gbw.jpg",
+      "relevancy": 5
+    },
+    {
+      "game_id": 276,
+      "title": "Left 4 Dead 2",
+      "release_date": "2009-11-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1y2f.jpg",
+      "relevancy": 309
+    },
+    {
+      "game_id": 277,
+      "title": "Dragon Age: Origins",
+      "release_date": "2009-11-03",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2mvs.jpg",
+      "relevancy": 353
+    },
+    {
+      "game_id": 278,
+      "title": "Dawn of War II",
+      "release_date": "2009-02-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3lu2.webp",
+      "relevancy": 71
+    },
+    {
+      "game_id": 279,
+      "title": "Plants vs. Zombies",
+      "release_date": "2009-05-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co70j6.jpg",
+      "relevancy": 343
+    },
+    {
+      "game_id": 280,
+      "title": "Bayonetta",
+      "release_date": "2009-10-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8nf4.jpg",
+      "relevancy": 71
+    },
+    {
+      "game_id": 281,
+      "title": "Forza Motorsport 3",
+      "release_date": "2009-10-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co91qf.jpg",
+      "relevancy": 240
+    },
+    {
+      "game_id": 282,
+      "title": "L.A. Noire",
+      "release_date": "2011-05-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2ldn.jpg",
+      "relevancy": 82
+    },
+    {
+      "game_id": 283,
+      "title": "Saints Row: The Third",
+      "release_date": "2011-11-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2634.jpg",
+      "relevancy": 82
+    },
+    {
+      "game_id": 284,
+      "title": "Deus Ex: Human Revolution",
+      "release_date": "2011-08-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rd2.jpg",
+      "relevancy": 82
+    },
+    {
+      "game_id": 285,
+      "title": "The Witcher 2: Assassins of Kings",
+      "release_date": "2011-05-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wy4.jpg",
+      "relevancy": 381
+    },
+    {
+      "game_id": 286,
+      "title": "Dead Island",
+      "release_date": "2011-09-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3lym.jpg",
+      "relevancy": 82
+    },
+    {
+      "game_id": 287,
+      "title": "Rayman Origins",
+      "release_date": "2011-11-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1v7k.jpg",
+      "relevancy": 82
+    },
+    {
+      "game_id": 288,
+      "title": "The Walking Dead: Season Two",
+      "release_date": "2013-12-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2k36.jpg",
+      "relevancy": 92
+    },
+    {
+      "game_id": 289,
+      "title": "Far Cry 4",
+      "release_date": "2014-11-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2npa.jpg",
+      "relevancy": 370
+    },
+    {
+      "game_id": 290,
+      "title": "Middle-earth: Shadow of Mordor",
+      "release_date": "2014-09-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co20pd.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 291,
+      "title": "Darkest Dungeon",
+      "release_date": "2016-01-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaaw2.jpg",
+      "relevancy": 117
+    },
+    {
+      "game_id": 292,
+      "title": "The Talos Principle",
+      "release_date": "2014-12-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rb5.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 293,
+      "title": "Alien Swarm",
+      "release_date": "2010-07-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2sj5.jpg",
+      "relevancy": 76
+    },
+    {
+      "game_id": 294,
+      "title": "The Crew",
+      "release_date": "2014-12-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2jtc.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 295,
+      "title": "Until Dawn",
+      "release_date": "2015-08-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2s5q.jpg",
+      "relevancy": 107
+    },
+    {
+      "game_id": 296,
+      "title": "Splatoon 2",
+      "release_date": "2017-07-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob8r9.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 297,
+      "title": "Persona 5",
+      "release_date": "2016-09-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1r76.jpg",
+      "relevancy": 356
+    },
+    {
+      "game_id": 298,
+      "title": "Firewatch",
+      "release_date": "2016-02-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob1ts.jpg",
+      "relevancy": 288
+    },
+    {
+      "game_id": 299,
+      "title": "The Banner Saga",
+      "release_date": "2014-01-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co27ah.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 300,
+      "title": "Divinity: Original Sin",
+      "release_date": "2014-06-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2axn.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 301,
+      "title": "Divinity: Original Sin 2",
+      "release_date": "2017-09-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1y5v.jpg",
+      "relevancy": 351
+    },
+    {
+      "game_id": 302,
+      "title": "Thumper",
+      "release_date": "2016-10-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1z4e.jpg",
+      "relevancy": 117
+    },
+    {
+      "game_id": 303,
+      "title": "Nioh",
+      "release_date": "2017-02-07",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co20xg.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 304,
+      "title": "Prey",
+      "release_date": "2017-05-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9aoh.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 305,
+      "title": "What Remains of Edith Finch",
+      "release_date": "2017-04-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1rbj.jpg",
+      "relevancy": 286
+    },
+    {
+      "game_id": 306,
+      "title": "Night in the Woods",
+      "release_date": "2017-01-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4ovg.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 307,
+      "title": "Injustice 2",
+      "release_date": "2017-05-16",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1xym.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 308,
+      "title": "Tekken 7",
+      "release_date": "2015-03-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobq31.jpg",
+      "relevancy": 407
+    },
+    {
+      "game_id": 309,
+      "title": "Divinity: Original Sin 2 - Definitive Edition",
+      "release_date": "2018-08-31",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1y5o.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 310,
+      "title": "A Way Out",
+      "release_date": "2018-03-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vca.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 311,
+      "title": "Frostpunk",
+      "release_date": "2018-04-24",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coar27.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 312,
+      "title": "Subnautica",
+      "release_date": "2018-01-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa938.jpg",
+      "relevancy": 339
+    },
+    {
+      "game_id": 313,
+      "title": "Into the Breach",
+      "release_date": "2018-02-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2gjp.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 314,
+      "title": "Return of the Obra Dinn",
+      "release_date": "2018-10-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co27j9.jpg",
+      "relevancy": 284
+    },
+    {
+      "game_id": 315,
+      "title": "Gris",
+      "release_date": "2018-12-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1qv5.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 316,
+      "title": "Tetris Effect",
+      "release_date": "2018-11-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kfy.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 317,
+      "title": "Forza Horizon 4",
+      "release_date": "2018-10-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2e1a.jpg",
+      "relevancy": 244
+    },
+    {
+      "game_id": 318,
+      "title": "Dragon Ball FighterZ",
+      "release_date": "2018-01-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1nih.jpg",
+      "relevancy": 255
+    },
+    {
+      "game_id": 319,
+      "title": "Octopath Traveler",
+      "release_date": "2018-07-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocj93.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 320,
+      "title": "The Messenger",
+      "release_date": "2018-08-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cob1th.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 321,
+      "title": "Katana ZERO",
+      "release_date": "2019-04-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1isp.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 322,
+      "title": "Outer Wilds",
+      "release_date": "2019-05-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co65ac.jpg",
+      "relevancy": 285
+    },
+    {
+      "game_id": 323,
+      "title": "Slay the Spire",
+      "release_date": "2019-01-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1iyf.jpg",
+      "relevancy": 349
+    },
+    {
+      "game_id": 324,
+      "title": "Baba Is You",
+      "release_date": "2019-03-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2hqt.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 325,
+      "title": "A Plague Tale: Innocence",
+      "release_date": "2019-05-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1lat.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 326,
+      "title": "Sayonara Wild Hearts",
+      "release_date": "2019-09-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2gx1.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 327,
+      "title": "The Legend of Zelda: Link's Awakening",
+      "release_date": "1993-06-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co3nnt.jpg",
+      "relevancy": 394
+    },
+    {
+      "game_id": 328,
+      "title": "Pokemon Gold/Silver",
+      "release_date": "1999-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4yy8.webp",
+      "relevancy": 468
+    },
+    {
+      "game_id": 329,
+      "title": "Pokemon Ruby/Sapphire",
+      "release_date": "2002-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co1zhq.jpg",
+      "relevancy": 466
+    },
+    {
+      "game_id": 330,
+      "title": "Pokemon Diamond/Pearl",
+      "release_date": "2006-09-28",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_original/cob6em.webp",
+      "relevancy": 465
+    },
+    {
+      "game_id": 331,
+      "title": "Pokemon Black/White",
+      "release_date": "2010-09-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co1z21.jpg",
+      "relevancy": 464
+    },
+    {
+      "game_id": 332,
+      "title": "Pokemon X/Y",
+      "release_date": "2013-10-12",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1z8y.webp",
+      "relevancy": 462
+    },
+    {
+      "game_id": 333,
+      "title": "Pokemon Sun/Moon",
+      "release_date": "2016-11-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co3co8.jpg",
+      "relevancy": 274
+    },
+    {
+      "game_id": 334,
+      "title": "Pokemon Sword/Shield",
+      "release_date": "2019-11-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa2k2.webp",
+      "relevancy": 467
+    },
+    {
+      "game_id": 335,
+      "title": "Pokemon Scarlet/Violet",
+      "release_date": "2022-11-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co5shr.jpg",
+      "relevancy": 470
+    },
+    {
+      "game_id": 336,
+      "title": "Kirby Super Star",
+      "release_date": "1996-03-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4qyi.jpg",
+      "relevancy": 226
+    },
+    {
+      "game_id": 337,
+      "title": "Kirby and the Forgotten Land",
+      "release_date": "2022-03-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4yjz.jpg",
+      "relevancy": 227
+    },
+    {
+      "game_id": 338,
+      "title": "Donkey Kong Country 2: Diddy's Kong Quest",
+      "release_date": "1995-11-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co217m.jpg",
+      "relevancy": 224
+    },
+    {
+      "game_id": 339,
+      "title": "Donkey Kong Country: Tropical Freeze",
+      "release_date": "2014-02-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wf2.jpg",
+      "relevancy": 223
+    },
+    {
+      "game_id": 340,
+      "title": "Pikmin",
+      "release_date": "2001-10-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6nqg.jpg",
+      "relevancy": 233
+    },
+    {
+      "game_id": 341,
+      "title": "Pikmin 2",
+      "release_date": "2004-04-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5y6q.jpg",
+      "relevancy": 229
+    },
+    {
+      "game_id": 342,
+      "title": "Pikmin 3",
+      "release_date": "2013-07-13",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1p9e.jpg",
+      "relevancy": 228
+    },
+    {
+      "game_id": 343,
+      "title": "Luigi's Mansion",
+      "release_date": "2001-09-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wr1.jpg",
+      "relevancy": 238
+    },
+    {
+      "game_id": 344,
+      "title": "WarioWare, Inc.: Mega Microgame$!",
+      "release_date": "2003-03-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9paw.jpg",
+      "relevancy": 36
+    },
+    {
+      "game_id": 345,
+      "title": "Rhythm Heaven",
+      "release_date": "2006-08-03",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobx93.jpg",
+      "relevancy": 53
+    },
+    {
+      "game_id": 346,
+      "title": "Professor Layton and the Curious Village",
+      "release_date": "2007-02-15",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coc6k5.jpg",
+      "relevancy": 239
+    },
+    {
+      "game_id": 347,
+      "title": "Ghost Trick: Phantom Detective",
+      "release_date": "2010-06-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2yj9.jpg",
+      "relevancy": 241
+    },
+    {
+      "game_id": 348,
+      "title": "Phoenix Wright: Ace Attorney",
+      "release_date": "2001-10-12",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5w3h.jpg",
+      "relevancy": 245
+    },
+    {
+      "game_id": 349,
+      "title": "Danganronpa: Trigger Happy Havoc",
+      "release_date": "2010-11-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1n1w.jpg",
+      "relevancy": 243
+    },
+    {
+      "game_id": 350,
+      "title": "Zero Escape: Nine Hours, Nine Persons, Nine Doors",
+      "release_date": "2009-12-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co4hsz.jpg",
+      "relevancy": 71
+    },
+    {
+      "game_id": 351,
+      "title": "The House in Fata Morgana",
+      "release_date": "2010-12-31",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co23cn.jpg",
+      "relevancy": 76
+    },
+    {
+      "game_id": 352,
+      "title": "Doki Doki Literature Club!",
+      "release_date": "2017-09-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6p5e.jpg",
+      "relevancy": 345
+    },
+    {
+      "game_id": 353,
+      "title": "Inscryption",
+      "release_date": "2021-10-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co401c.jpg",
+      "relevancy": 347
+    },
+    {
+      "game_id": 354,
+      "title": "Balatro",
+      "release_date": "2024-02-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9f4g.jpg",
+      "relevancy": 348
+    },
+    {
+      "game_id": 355,
+      "title": "Animal Well",
+      "release_date": "2024-05-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4hdh.jpg",
+      "relevancy": 201
+    },
+    {
+      "game_id": 356,
+      "title": "Cocoon",
+      "release_date": "2023-09-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4v2z.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 357,
+      "title": "Chants of Sennaar",
+      "release_date": "2023-09-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9mjo.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 358,
+      "title": "The Talos Principle 2",
+      "release_date": "2023-11-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6jbl.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 359,
+      "title": "Sea of Stars",
+      "release_date": "2023-08-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co215b.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 360,
+      "title": "Dredge",
+      "release_date": "2023-03-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9kyk.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 361,
+      "title": "Hi-Fi Rush",
+      "release_date": "2023-01-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6219.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 362,
+      "title": "Lies of P",
+      "release_date": "2023-09-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6lxr.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 363,
+      "title": "Remnant II",
+      "release_date": "2023-07-25",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6lnp.jpg",
+      "relevancy": 190
+    },
+    {
+      "game_id": 364,
+      "title": "Warhammer 40,000: Space Marine 2",
+      "release_date": "2024-09-09",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5vab.jpg",
+      "relevancy": 235
+    },
+    {
+      "game_id": 365,
+      "title": "Tekken 8",
+      "release_date": "2024-01-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7lbb.jpg",
+      "relevancy": 408
+    },
+    {
+      "game_id": 366,
+      "title": "Like a Dragon: Infinite Wealth",
+      "release_date": "2024-01-26",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8356.jpg",
+      "relevancy": 201
+    },
+    {
+      "game_id": 367,
+      "title": "Persona 3 Reload",
+      "release_date": "2024-02-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coc4jz.jpg",
+      "relevancy": 257
+    },
+    {
+      "game_id": 368,
+      "title": "Unicorn Overlord",
+      "release_date": "2024-03-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7310.jpg",
+      "relevancy": 201
+    },
+    {
+      "game_id": 369,
+      "title": "Prince of Persia: The Lost Crown",
+      "release_date": "2024-01-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6lli.jpg",
+      "relevancy": 201
+    },
+    {
+      "game_id": 370,
+      "title": "Thank Goodness You're Here!",
+      "release_date": "2024-08-01",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6yyq.jpg",
+      "relevancy": 201
+    },
+    {
+      "game_id": 371,
+      "title": "UFO 50",
+      "release_date": "2024-09-18",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co24v0.jpg",
+      "relevancy": 201
+    },
+    {
+      "game_id": 372,
+      "title": "Satisfactory",
+      "release_date": "2024-09-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8tfy.jpg",
+      "relevancy": 324
+    },
+    {
+      "game_id": 373,
+      "title": "Factorio",
+      "release_date": "2020-08-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1tfy.jpg",
+      "relevancy": 326
+    },
+    {
+      "game_id": 374,
+      "title": "RimWorld",
+      "release_date": "2018-10-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaaqj.jpg",
+      "relevancy": 325
+    },
+    {
+      "game_id": 375,
+      "title": "Oxygen Not Included",
+      "release_date": "2019-07-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7ugt.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 376,
+      "title": "Kerbal Space Program",
+      "release_date": "2015-04-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co26n5.jpg",
+      "relevancy": 319
+    },
+    {
+      "game_id": 377,
+      "title": "Euro Truck Simulator 2",
+      "release_date": "2012-10-19",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7et5.jpg",
+      "relevancy": 323
+    },
+    {
+      "game_id": 378,
+      "title": "American Truck Simulator",
+      "release_date": "2016-02-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1mw8.jpg",
+      "relevancy": 117
+    },
+    {
+      "game_id": 379,
+      "title": "Planet Coaster",
+      "release_date": "2016-11-17",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8y08.jpg",
+      "relevancy": 320
+    },
+    {
+      "game_id": 380,
+      "title": "Planet Zoo",
+      "release_date": "2019-11-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8zii.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 381,
+      "title": "Two Point Hospital",
+      "release_date": "2018-08-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co235d.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 382,
+      "title": "RollerCoaster Tycoon",
+      "release_date": "1999-03-31",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2r6q.jpg",
+      "relevancy": 172
+    },
+    {
+      "game_id": 383,
+      "title": "Football Manager 2024",
+      "release_date": "2023-11-06",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co73z1.jpg",
+      "relevancy": 315
+    },
+    {
+      "game_id": 384,
+      "title": "FIFA 23",
+      "release_date": "2022-09-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4zw5.jpg",
+      "relevancy": 318
+    },
+    {
+      "game_id": 385,
+      "title": "NBA 2K24",
+      "release_date": "2023-09-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co8m0s.jpg",
+      "relevancy": 317
+    },
+    {
+      "game_id": 386,
+      "title": "WWE 2K24",
+      "release_date": "2024-03-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7nta.jpg",
+      "relevancy": 232
+    },
+    {
+      "game_id": 387,
+      "title": "Tony Hawk's Pro Skater 1 + 2",
+      "release_date": "2020-09-04",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co25u7.jpg",
+      "relevancy": 311
+    },
+    {
+      "game_id": 388,
+      "title": "Gran Turismo 7",
+      "release_date": "2022-03-04",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2g84.jpg",
+      "relevancy": 314
+    },
+    {
+      "game_id": 389,
+      "title": "Forza Motorsport",
+      "release_date": "2023-10-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6lzd.jpg",
+      "relevancy": 249
+    },
+    {
+      "game_id": 390,
+      "title": "F1 23",
+      "release_date": "2023-06-16",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6g3a.jpg",
+      "relevancy": 234
+    },
+    {
+      "game_id": 391,
+      "title": "Trackmania",
+      "release_date": "2020-07-01",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobh9g.jpg",
+      "relevancy": 162
+    },
+    {
+      "game_id": 392,
+      "title": "Need for Speed: Most Wanted",
+      "release_date": "2005-11-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6b1g.jpg",
+      "relevancy": 313
+    },
+    {
+      "game_id": 393,
+      "title": "Burnout Paradise",
+      "release_date": "2008-01-22",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co28p7.jpg",
+      "relevancy": 65
+    },
+    {
+      "game_id": 394,
+      "title": "SSX 3",
+      "release_date": "2003-10-20",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa2it.jpg",
+      "relevancy": 36
+    },
+    {
+      "game_id": 395,
+      "title": "F1 2020",
+      "release_date": "2020-07-10",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2kts.jpg",
+      "relevancy": 230
+    },
+    {
+      "game_id": 396,
+      "title": "This War of Mine",
+      "release_date": "2014-11-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co4ktl.jpg",
+      "relevancy": 99
+    },
+    {
+      "game_id": 397,
+      "title": "Don't Starve",
+      "release_date": "2013-04-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1qqw.jpg",
+      "relevancy": 328
+    },
+    {
+      "game_id": 398,
+      "title": "Don't Starve Together",
+      "release_date": "2016-04-21",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaaqp.jpg",
+      "relevancy": 329
+    },
+    {
+      "game_id": 399,
+      "title": "Valheim",
+      "release_date": "2021-02-02",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cocygu.jpg",
+      "relevancy": 337
+    },
+    {
+      "game_id": 400,
+      "title": "The Forest",
+      "release_date": "2014-05-30",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobf9x.jpg",
+      "relevancy": 332
+    },
+    {
+      "game_id": 401,
+      "title": "Sons of the Forest",
+      "release_date": "2023-02-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/cobyfc.jpg",
+      "relevancy": 331
+    },
+    {
+      "game_id": 402,
+      "title": "Green Hell",
+      "release_date": "2019-09-05",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co9d3h.jpg",
+      "relevancy": 152
+    },
+    {
+      "game_id": 403,
+      "title": "Project Zomboid",
+      "release_date": "2013-11-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co7kod.jpg",
+      "relevancy": 334
+    },
+    {
+      "game_id": 404,
+      "title": "DayZ",
+      "release_date": "2013-12-16",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coaaqs.jpg",
+      "relevancy": 330
+    },
+    {
+      "game_id": 405,
+      "title": "Rust",
+      "release_date": "2013-12-11",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coajjj.jpg",
+      "relevancy": 336
+    },
+    {
+      "game_id": 406,
+      "title": "ARK: Survival Evolved",
+      "release_date": "2017-08-29",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co493k.jpg",
+      "relevancy": 335
+    },
+    {
+      "game_id": 407,
+      "title": "Conan Exiles",
+      "release_date": "2018-05-08",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/coa90l.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 408,
+      "title": "Grounded",
+      "release_date": "2022-09-27",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5d1l.jpg",
+      "relevancy": 177
+    },
+    {
+      "game_id": 409,
+      "title": "Raft",
+      "release_date": "2018-05-23",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1xdc.jpg",
+      "relevancy": 138
+    },
+    {
+      "game_id": 410,
+      "title": "The Long Dark",
+      "release_date": "2017-08-01",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1vga.jpg",
+      "relevancy": 126
+    },
+    {
+      "game_id": 411,
+      "title": "Subnautica: Below Zero",
+      "release_date": "2021-05-14",
+      "picture": "https://images.igdb.com/igdb/image/upload/t_cover_big/co39ve.jpg",
+      "relevancy": 169
+    }
+  ]
+}

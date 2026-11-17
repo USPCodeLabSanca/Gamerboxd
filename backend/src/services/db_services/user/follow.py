@@ -1,5 +1,6 @@
-from models.schemas.user import *
-from utils import *
+from ....models.schemas.user import User
+from ....utils.utils import db_query
+from ....utils import pagination as pag
 
 
 @db_query
@@ -22,12 +23,12 @@ async def DB_delete_follow(conn, user_id_follower: str, user_id_followed: str):
     ''', user_id_follower, user_id_followed)
 
 
-async def _DB_read_user_follow_page(conn, user_id: str, page_query: PageQuery, owner_col: str, other_col: str):
+async def _DB_read_user_follow_page(conn, user_id: str, page_query: pag.PageQuery, owner_col: str, other_col: str):
     """Lê uma página de seguidores/seguidos do usuário"""
 
     async with conn.transaction():
 
-        clauses = PageClauses(
+        clauses = pag.PageClauses(
             basic_conditions = [(f"f.{other_col} = $1", user_id)],
             table_alias="f",
             col2=owner_col,
@@ -35,7 +36,7 @@ async def _DB_read_user_follow_page(conn, user_id: str, page_query: PageQuery, o
         )
 
         # Conta quantos seguidores/seguidos correspondem a busca
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, True)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
         total_followers = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Follows f
@@ -44,7 +45,7 @@ async def _DB_read_user_follow_page(conn, user_id: str, page_query: PageQuery, o
         ''', *params)
 
         # Pega uma página de seguidores/seguidos
-        where, order_by, cursor_cols, params = build_where(clauses, page_query, False)
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT u.id, u.username, u.pfp,
             {cursor_cols}
@@ -60,24 +61,24 @@ async def _DB_read_user_follow_page(conn, user_id: str, page_query: PageQuery, o
     
         followers = [User(user_id=r["id"], username=r["username"], pfp=r["pfp"]) for r in rows]
 
-        return PageResult(
+        return pag.PageResult(
             total=total_followers,
             page_len=len(rows),
             content=followers,
             current_url=page_query.cursor,
-            next_url=encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 
         
 @db_query
-async def DB_read_user_followings(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_followings(conn, user_id: str, page_query: pag.PageQuery):
     """Lê uma página de seguidos pelo usuário. Filtra por follower, mostra followed"""
 
     return await _DB_read_user_follow_page(conn, user_id, page_query, "followed", "follower")
     
 
 @db_query
-async def DB_read_user_followers(conn, user_id: str, page_query: PageQuery):
+async def DB_read_user_followers(conn, user_id: str, page_query: pag.PageQuery):
     """Lê uma página de seguidores do usuário"""
 
     return await _DB_read_user_follow_page(conn, user_id, page_query, "follower", "followed")
