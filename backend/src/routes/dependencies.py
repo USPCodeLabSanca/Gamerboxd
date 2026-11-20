@@ -82,10 +82,10 @@ async def review_is_owned_by_auth(review_id: str, user_id: str = Depends(require
     return review_id
 
 
-def get_key(request: Request):
+def get_jwt_config(request: Request):
     """Retorna a chave para codificar/decodificar jwts"""
 
-    return request.app.state.jwt_key
+    return request.app.state.jwt_config
 
 
 def get_rawg(request: Request):

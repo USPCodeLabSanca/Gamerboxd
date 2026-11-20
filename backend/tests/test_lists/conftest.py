@@ -22,7 +22,7 @@ def create_list():
         )
 
         create_response = requests.post(BASE_URL_LISTS, json=asdict(list_in), cookies=cookies)
-        assert create_response.status_code == 200, create_response.json()
+        assert create_response.status_code == 200, user.cookies
         list_id = create_response.json()["list_id"]
         list_in.list_id = list_id
 

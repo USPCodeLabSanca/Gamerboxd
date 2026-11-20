@@ -1,12 +1,13 @@
 from datetime import datetime, timezone
+from fastapi import Request
 from jose import jwt
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from ..services.security_services import encode_token, decode_token
+from ..services.security_services import add_cookie, decode_token
 
 
 class SetUserLoginStateMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
+    async def dispatch(self, request: Request, call_next):
         """Avalia e armazena o status do login do usuário no request.state"""
 
         # Avalia o usuário e armazena o seu status no request.state
@@ -22,29 +23,31 @@ class SetUserLoginStateMiddleware(BaseHTTPMiddleware):
 
         # Se o status do usuário for login expirado, renova o login dele antes de devolver a resposta
         if needs_new_token:
-            key = request.app.state.jwt_key
-            new_token = encode_token(user_id, 10, key)
-            response.set_cookie("access-token", new_token)
+            response = add_cookie(response, request.app.state.jwt_config, "access-token", user_id)
 
         return response
     
-    def assess_user(self, request):
+    def assess_user(self, request: Request):
         """Avalia o estado do usuário a partir dos cookies da requisição"""
 
         user_cookies = request.cookies
 
         # Verifica se o usuário tem os 2 tokens de autenticação
-        if ("access-token" not in user_cookies) or ("refresh-token" not in user_cookies):
+        if any(standard_cookie not in request.cookies for standard_cookie in ["access-token", "refresh-token"]):
             return None, False
         
-        key = request.app.state.jwt_key
+        key = request.app.state.jwt_config["key"]
 
         try:
             # Recupera os tokens de autenticação do usuário
-            decoded_access_token = decode_token(user_cookies, "access-token", key)
-            decoded_refresh_token = decode_token(user_cookies, "refresh-token", key)
+            claims = {
+                "issuer": request.app.state.jwt_config["iss"],
+                "audience": request.app.state.jwt_config["aud"]
+            }
+            decoded_access_token = decode_token(user_cookies["access-token"], key, **claims)
+            decoded_refresh_token = decode_token(user_cookies["refresh-token"], key, **claims)
 
-        except jwt.JWTError:
+        except jwt.JWTError as e:
             return None, False
         
         now = datetime.now(tz=timezone.utc)
@@ -58,9 +61,10 @@ class SetUserLoginStateMiddleware(BaseHTTPMiddleware):
         needs_new_token = self.is_token_expired(decoded_access_token, now)
 
         return user_id, needs_new_token
-    
+
+
     def is_token_expired(self, token, now):
-        """Verifica a data de vencimento de um token"""
+        """Verifica se um token expirou"""
         
         token_exp = datetime.fromtimestamp(token["exp"], tz=timezone.utc)
         return (token_exp < now)

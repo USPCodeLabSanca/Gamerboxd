@@ -1,17 +1,17 @@
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from ..models.schemas.user import UserNew, UserDetails, UserEdit
 from ..models.schemas.list import ListNew
 from ..services.security_services import (
-    encrypt_password,
+    hash_password,
     is_user_insertion_valid,
     is_user_update_valid,
     is_username_valid,
     is_password_valid,
     is_email_valid,
     is_bio_valid,
-    encode_token,
+    add_cookie,
     classify_relationship,
     resolve_user_clearence
 )
@@ -26,21 +26,19 @@ user_router = APIRouter(prefix="/users", tags=["user"])
 
 
 @user_router.post("")
-async def new_user(user: UserNew, conn = Depends(dep.get_conn), key = Depends(dep.get_key)):
+async def new_user(user: UserNew, conn = Depends(dep.get_conn), jwt_config = Depends(dep.get_jwt_config)):
     """Cria uma nova conta de usuário. Ao criar a conta, 2 listas padrão são geradas (Favoritos e Completados)"""
 
     async with conn.transaction():
         user = await is_user_insertion_valid(conn, user)# Validação do username, email e senha
-        user.password = encrypt_password(user.password) # Hashing da senha  
+        user.password = hash_password(user.password) # Hashing da senha  
         new_user_id = await DB_create_user(conn, user)  # Adiciona ao DB
         await _first_lists(new_user_id, conn)           # Cria e salva as listas de favoritos e de completados
 
     # Loga o usuário
     response = JSONResponse({"message":"Conta criada com sucesso!", "user_id": new_user_id})
-    new_access_token = encode_token(new_user_id, 10, key)
-    new_refresh_token = encode_token(new_user_id, 720, key)
-    response.set_cookie("access-token", new_access_token, samesite="strict", secure=True, httponly=True)
-    response.set_cookie("refresh-token", new_refresh_token, samesite="strict", secure=True, httponly=True)
+    response = add_cookie(response, jwt_config, "access-token", new_user_id)
+    response = add_cookie(response, jwt_config, "refresh-token", new_user_id)
     
     return response
 

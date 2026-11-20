@@ -1,8 +1,8 @@
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from ..models.schemas.user import UserAuth
-from ..services.security_services import passwords_match, encode_token
+from ..services.security_services import passwords_match, add_cookie
 from ..services.db_services.user import DB_read_user_column
 from ..utils import errors as err
 from . import dependencies as dep
@@ -12,7 +12,7 @@ auth_router = APIRouter(prefix= "/auth", tags=["auth"])
 
 
 @auth_router.post("/login")
-async def login(user: UserAuth, conn = Depends(dep.get_conn), key = Depends(dep.get_key)):
+async def login(user: UserAuth, conn = Depends(dep.get_conn), jwt_config = Depends(dep.get_jwt_config)):
     """Autentica o usuário com email ou username e senha"""
 
     user_id = await DB_read_user_column(conn, "id", username=user.email_or_username, email=user.email_or_username)
@@ -25,12 +25,9 @@ async def login(user: UserAuth, conn = Depends(dep.get_conn), key = Depends(dep.
     if not passwords_match(stored_password, user.password):
         raise err.QueryError(400, "Usuário ou senha incorretos")
 
-    new_access_token = encode_token(user_id, 10, key)
-    new_refresh_token = encode_token(user_id, 720, key)
-
     response = JSONResponse({"message":"Login feito com sucesso!", "user_id": user_id})
-    response.set_cookie("access-token", new_access_token, samesite="lax", secure=True, httponly=True)
-    response.set_cookie("refresh-token", new_refresh_token, samesite="lax", secure=True, httponly=True)
+    response = add_cookie(response, jwt_config, "access-token", user_id)
+    response = add_cookie(response, jwt_config, "refresh-token", user_id)
     
     return response
 
