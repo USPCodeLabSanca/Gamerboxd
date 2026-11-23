@@ -57,8 +57,10 @@ class LifespanConfig():
 
                 setattr(self, key.lower(), parsed_value)
 
-        if self.load_games not in ["all", "skip", "new"]:
-            raise ValueError(f'O campo LOAD_GAMES tem que ser "all", "skip" ou "new"! Veio "{self.load_games}"')
+        #if self.load_games not in ["all", "skip", "new"]:
+        #    raise ValueError(f'O campo LOAD_GAMES tem que ser "all", "skip" ou "new"! Veio "{self.load_games}"')
+
+        self.load_games = "skip"
 
 
     async def create_database(self, conn): 

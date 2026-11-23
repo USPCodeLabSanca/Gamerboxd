@@ -1,8 +1,8 @@
-from fastapi import Depends, APIRouter, Request
+from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
 from ..models.schemas.user import UserAuth
-from ..services.security_services import passwords_match, add_cookie
+from ..services.security_services import passwords_match, add_cookie, remove_cookie
 from ..services.db_services.user import DB_read_user_column
 from ..utils import errors as err
 from . import dependencies as dep
@@ -33,12 +33,12 @@ async def login(user: UserAuth, conn = Depends(dep.get_conn), jwt_config = Depen
 
 
 @auth_router.delete("/login")
-async def logout():
+async def logout(jwt_config = Depends(dep.get_jwt_config)):
     """Encerra a sessão do usuário removendo os cookies de autenticação"""
 
     response = JSONResponse({"message": "Logout feito com sucesso!"})
-    response.delete_cookie("refresh-token", secure=True, httponly=True, samesite="strict")
-    response.delete_cookie("access-token", secure=True, httponly=True, samesite="strict")
+    response = remove_cookie(response, jwt_config, "refresh-token")
+    response = remove_cookie(response, jwt_config, "access-token")
 
     return response
 

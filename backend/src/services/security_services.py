@@ -55,22 +55,30 @@ def add_cookie(response: Response, jwt_config: dict, name: str, user_id: str):
         "iss": jwt_config["iss"],
         "aud": jwt_config["aud"]
     }
- 
-    key = jwt_config["key"]
-
-    new_token = encode_token(key, claims)
-    secure = jwt_config["secure"]
 
     response.set_cookie(
-        name,
-        new_token,
-        secure=secure,
-        httponly=True,
-        samesite="strict",
-        max_age = int(60 * jwt_config[name + "_exp"]) if "refresh" in name else None
+        key = name,
+        value = encode_token(jwt_config["key"], claims),
+        secure = jwt_config["secure"],
+        httponly = True,
+        samesite = "strict",
+        max_age  =  int(60 * jwt_config[name + "_exp"]) if "refresh" in name else None
     ) 
 
     return response 
+
+
+def remove_cookie(response: Response, jwt_config: dict, name: str):
+    """Remove um cookie da resposta HTTP"""
+
+    response.delete_cookie(
+        key=name,
+        secure=jwt_config["secure"],
+        httponly=True,
+        samesite="strict"
+    )
+
+    return response
 
 
 def encode_token(key: str, claims: dict):

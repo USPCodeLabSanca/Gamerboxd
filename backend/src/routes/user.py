@@ -13,7 +13,8 @@ from ..services.security_services import (
     is_bio_valid,
     add_cookie,
     classify_relationship,
-    resolve_user_clearence
+    resolve_user_clearence,
+    remove_cookie
 )
 from ..services.db_services.user import *
 from ..services.db_services.list import DB_create_list, DB_create_list_save, DB_read_user_basic_lists
@@ -91,14 +92,14 @@ async def validate_bio(bio: str):
 
 
 @user_router.delete("")
-async def delete_user(conn = Depends(dep.get_conn), user_id = Depends(dep.require_login)):
+async def delete_user(conn = Depends(dep.get_conn), user_id = Depends(dep.require_login), jwt_config = Depends(dep.get_jwt_config)):
     """Remove permanentemente a conta do usuário autenticado"""
 
     await DB_delete_user(conn, user_id)
 
     response = JSONResponse({"message":"Conta deletada com sucesso!"})
-    response.delete_cookie("refresh-token", secure=True, httponly=True, samesite="strict")
-    response.delete_cookie("access-token", secure=True, httponly=True, samesite="strict")
+    response = remove_cookie(response, jwt_config, "refresh-token")
+    response = remove_cookie(response, jwt_config, "access-token")
     
     return response
 

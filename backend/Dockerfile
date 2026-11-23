@@ -14,4 +14,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 USER appuser
 
-CMD ["fastapi", "run", "src/main.py"]
+CMD ["fastapi", "run", "src/main.py", "--host", "0.0.0.0", "--port", "8000"]
