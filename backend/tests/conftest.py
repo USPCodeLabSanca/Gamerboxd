@@ -4,7 +4,7 @@ import os
 import pytest
 import requests
 
-load_dotenv("../.env")
+load_dotenv()
 os.environ["BASE_URL"] = os.getenv("BACK_URL")
 
 from .utils import (
