@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import json
 from pydantic import BaseModel
 from fastapi import Query
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from .utils import escape_like, is_isoformat, op_to_dir, col_name
 
@@ -82,29 +83,30 @@ def build_where(page_clauses: PageClauses, param_queries: PageQuery, count: bool
     return where, order_by, cols_for_cursor, params
 
 
-def convert_cursors_to_paths(page_result: PageResult, current_path: str):
-    """Converte os cursores do page_result de encoded strs para paths de rota"""
+def convert_cursors_to_urls(page_result: PageResult, current_url: str):
+    """Converte os cursores do page_result de encoded strs para urls completas"""
 
-    start_index = current_path.find("cursor=")
+    next_url = None
 
-    # Primeira busca (cursor não existe, então só colocar no final)
-    if start_index == -1:
-        query_char = "&" if "?" in current_path else "?"
-        next_path = current_path + query_char + "cursor=" + page_result.next_url if page_result.next_url is not None else None
+    if page_result.next_url is not None:
+        # Faz parsing da URL
+        parsed_url = urlparse(current_url)
 
-    # Outra busca (cursor veio de uma busca passada)
-    else:
-        start_index += len("cursor=")
+        # Preserva os demais parâmetros, remove o cursor
+        query_params = [
+            (key, value)
+            for key, value in parse_qsl(parsed_url.query, keep_blank_values=True)
+            if key != "cursor"
+        ]
 
-        # Acha o que tiver depois do query parameter "cursor"
-        end_index = current_path[start_index:].find("&")
+        # Adiciona o novo cursor
+        query_params.append(("cursor", page_result.next_url))
 
-        start_of_path = current_path[:start_index]
-        end_of_path = current_path[start_index + end_index:] if end_index != -1 else ""
+        # Faz unparsing da URL com o novo cursor
+        next_url = urlunparse(parsed_url._replace(query=urlencode(query_params)))
 
-        next_path = start_of_path + page_result.next_url + end_of_path if page_result.next_url is not None else None
-
-    page_result.current_url = current_path
-    page_result.next_url = next_path
+    # Atualiza a url
+    page_result.current_url = current_url
+    page_result.next_url = next_url
 
     return page_result
