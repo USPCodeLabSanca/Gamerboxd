@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery} from '@tanstack/react-query';
 import { blockUser, deleteProfile, editProfile, followUser, getBlocks, getFollowers, getFollowings, getUser, unblockUser, unfollowUser } from '../services/userService';
 
 export function useGetUser(userId) {
@@ -27,7 +27,10 @@ export function useDeleteProfile() {
 
     return useMutation({
         mutationFn: () => deleteProfile(),
-        onSuccess: () => queryClient.setQueryData(['me'], null)
+        onSuccess: () => {
+            queryClient.setQueryData(['me'], null);
+            queryClient.removeQueries({queryKey: ['user'], exact: false})
+        }
     })
 }
 
@@ -36,7 +39,11 @@ export function useFollowUser(userId) {
 
     return useMutation({
         mutationFn: () => followUser(userId),
-        onSuccess: () => queryClient.invalidateQueries({queryKey: ['user', userId]})
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user'] });
+            queryClient.invalidateQueries({ queryKey: ['followings'] });
+            queryClient.invalidateQueries({ queryKey: ['followers'] });
+        }
     })
 }
 
@@ -45,24 +52,47 @@ export function useUnfollowUser(userId) {
 
     return useMutation({
         mutationFn: () => unfollowUser(userId),
-        onSuccess: () => queryClient.invalidateQueries({queryKey: ['user', userId]})
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user'] });
+            queryClient.invalidateQueries({ queryKey: ['followings'] });
+            queryClient.invalidateQueries({ queryKey: ['followers'] });
+        }
     })
 }
 
-export function useGetFollowers(userId) {
-    return useQuery({
-        queryKey: ['followers'],
-        queryFn: getFollowers,
+export function useGetFollowers(userId, filters = {}) {
+    return useInfiniteQuery({
+        queryKey: ['followers', userId, filters],
+        queryFn: ({ pageParam }) =>
+            getFollowers(userId, {
+                ...filters,
+                nextUrl: pageParam
+            }),
+        initialPageParam: null,
+        getNextPageParam: (lastPage) => {
+            return lastPage.next_url ?? undefined;
+        },
         retry: false,
-    })
+        enabled: !!userId,
+    });
 }
 
-export function useGetFollowing() {
-    return useQuery({
-        queryKey: ['followings'],
-        queryFn: getFollowings,
+
+export function useGetFollowings(userId, filters = {}) {
+    return useInfiniteQuery({
+        queryKey: ['followings', userId, filters],
+        queryFn: ({ pageParam }) =>
+            getFollowings(userId, {
+                ...filters,
+                nextUrl: pageParam
+            }),
+        initialPageParam: null,
+        getNextPageParam: (lastPage) => {
+            return lastPage.next_url ?? undefined;
+        },
         retry: false,
-    })
+        enabled: !!userId,
+    });
 }
 
 export function useBlockUser(userId) {
@@ -70,8 +100,11 @@ export function useBlockUser(userId) {
 
     return useMutation({
         mutationFn: () => blockUser(userId),
-        onSuccess: () => queryClient.invalidateQueries({queryKey:['user']})
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey:['user']});
+            queryClient.invalidateQueries({queryKey:['blocks']});
+        }
+    });
 }
 
 export function useUnblockUser(userId) {
@@ -79,14 +112,26 @@ export function useUnblockUser(userId) {
 
     return useMutation({
         mutationFn: () => unblockUser(userId),
-        onSuccess: () => queryClient.invalidateQueries({queryKey: ['user']})
-    })
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey:['user']});
+            queryClient.invalidateQueries({queryKey:['blocks']});
+        }
+    });
 }
 
-export function useGetBlocks() {
-    return useQuery({
-        queryKey: ['blocks'],
-        queryFn: getBlocks,
+
+export function useGetBlocks(filters = {}) {
+    return useInfiniteQuery({
+        queryKey: ['blocks', filters],
+        queryFn: ({ pageParam }) =>
+            getBlocks({
+                ...filters,
+                nextUrl: pageParam
+            }),
+        initialPageParam: null,
+        getNextPageParam: (lastPage) => {
+            return lastPage.next_url ?? undefined;
+        },
         retry: false,
-    })
+    });
 }
