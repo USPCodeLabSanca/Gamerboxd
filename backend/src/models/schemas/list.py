@@ -18,7 +18,7 @@ class ListNew(List):
 
 class ListEdit(List):
     """Dados das listas ao editar"""
-    list_id: str
+    description: str | None
 
 
 class ListOutOverview(BaseModel):
@@ -29,6 +29,7 @@ class ListOutOverview(BaseModel):
     saves_count: int                        # Quantos pessoas salvaram a lista
     cover_picture: str | None               # URL de uma imagem de game que pertence à lista
     rel: int | None = None                  # Relacionamento de quem está vendo a lista com a lista
+    privacy: int                            # Privacidade da lista
 
 
 class ListOutComplete(List):

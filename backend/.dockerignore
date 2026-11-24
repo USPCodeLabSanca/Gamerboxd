@@ -1,0 +1,18 @@
+# Virtual enviroments
+.venv
+
+# Docker & Documentation
+Dockerfile
+.dockerignore
+**/*.md
+docs/
+*/.env.example
+
+# Python Cache & Artifacts
+__pycache__/
+*.pyc
+
+# Testing & Linting Caches
+tests/
+.pytest_cache
+

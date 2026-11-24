@@ -17,6 +17,8 @@ BLOCKED_BY_USER_MSG = "O usuário está tentando ver detalhes da conta de algué
 USER_BLOCKED_OTHER_MSG = "Não é possível ver detalhes de um usuário antes de desbloqueá-lo!"
 LACK_OF_USER_PERMISSION_MSG = "O usuário não tem permissão para ver estes detalhes!"
 
+GAME_NOT_FOUND_MSG = "Game não encontrado!"
+
 class QueryError(Exception):
     """Erro genérico"""
 

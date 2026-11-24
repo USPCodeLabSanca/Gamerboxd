@@ -18,5 +18,6 @@ class GameComplete(GameOverview):
 
 class GamesOut(BaseModel):
     """Lista de games"""
+    total: int
     count: int
     games: list[GameComplete | GameOverview]
