@@ -38,7 +38,7 @@ async def DB_read_user_has_saved_list(conn, list_id: str, user_id: str):
 @db_query
 async def DB_delete_list_saves_after_privacy_change(conn, list_id: str, user_id: str, new_privacy: int):
     """Deleta os saves de uma lista que não podem mais ser salvos após mudança de privacidade"""
-    if new_privacy == 20:
+    if new_privacy == RelationshipStatus.FOLLOWED:
         await conn.execute('''
             DELETE FROM SavedLists AS sl
             WHERE sl.list = $1
@@ -51,7 +51,7 @@ async def DB_delete_list_saves_after_privacy_change(conn, list_id: str, user_id:
               )
         ''', list_id, user_id)
 
-    elif new_privacy == 40:
+    elif new_privacy == RelationshipStatus.OWNER:
         await conn.execute('''
             DELETE FROM SavedLists
             WHERE list = $1 AND usr <> $2

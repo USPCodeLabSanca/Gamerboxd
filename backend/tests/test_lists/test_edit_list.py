@@ -124,11 +124,11 @@ def test_edit_list_privacy_to_followed_removes_saves_from_non_followeds(
     save_response_other = save_list_request(other_saver, list_in)
     assert save_response_other.status_code == 200, save_response_other.json()
 
-    list_in.privacy = 20
+    list_in.privacy = Clearence.FOLLOWED
     response = edit_list_request(owner, asdict(list_in))
 
     assert response.status_code == 200, response.json()
-    assert response.json()["privacy"] == 20
+    assert response.json()["privacy"] == Clearence.FOLLOWED
     assert_save(followed_saver, list_in)
     assert_unsave(other_saver, list_in)
 
@@ -143,11 +143,11 @@ def test_edit_list_privacy_to_owner_removes_all_other_saves(users, create_list, 
         save_response = save_list_request(saver, list_in)
         assert save_response.status_code == 200, save_response.json()
 
-    list_in.privacy = 40
+    list_in.privacy = Clearence.OWNER
     response = edit_list_request(owner, asdict(list_in))
 
     assert response.status_code == 200, response.json()
-    assert response.json()["privacy"] == 40
+    assert response.json()["privacy"] == Clearence.OWNER
 
     for saver in savers:
         assert_unsave(saver, list_in)
