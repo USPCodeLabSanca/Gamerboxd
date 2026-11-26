@@ -54,9 +54,12 @@ TABLES = {
                 id INTEGER PRIMARY KEY,
                 title VARCHAR(50) NOT NULL,
                 picture TEXT,
+                relevancy INTEGER NOT NULL,
                 year INTEGER
             )
-        '''
+        ''',
+
+        '''CREATE INDEX IF NOT EXISTS idx_relevancy_title ON Games (relevancy DESC, title ASC)'''
     ],
     
 

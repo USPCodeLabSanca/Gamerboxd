@@ -13,17 +13,20 @@ class UserAuth(BaseModel):
     password: str
 
 
-class UserIn(BaseModel):
+class UserNew(BaseModel):
     """Dados básicos para criar uma conta"""
     username: str
     email: str
     password: str
 
 
-class UserEdit(User):
+class UserEdit(BaseModel):
     """Dados básicos para editar uma conta"""
+    username: str
+    bio: str | None
     email: str
-    bio: str | None = None
+    banner: str | None
+    pfp: str | None
 
 
 class UserOut(User):

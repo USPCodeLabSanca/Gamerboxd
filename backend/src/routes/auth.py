@@ -1,35 +1,36 @@
 from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 
-from models.schemas import UserAuth
-from services.security_services import passwords_match, encode_token
-from services.db_services.user import DB_read_user_column
-from utils import *
+from ..models.schemas.user import UserAuth
+from ..services.security_services import passwords_match, encode_token
+from ..services.db_services.user import DB_read_user_column
+from ..utils import errors as err
+from . import dependencies as dep
 
 
 auth_router = APIRouter(prefix= "/auth", tags=["auth"])
 
 
 @auth_router.post("/login")
-async def login(user: UserAuth, conn = Depends(get_conn), key = Depends(get_key)):
+async def login(user: UserAuth, conn = Depends(dep.get_conn), key = Depends(dep.get_key)):
     """Autentica o usuário com email ou username e senha"""
 
     user_id = await DB_read_user_column(conn, "id", username=user.email_or_username, email=user.email_or_username)
 
     if user_id is None:
-        raise QueryError(400, "Usuário ou senha incorretos")
+        raise err.QueryError(400, "Usuário ou senha incorretos")
 
     stored_password = await DB_read_user_column(conn, "password", user_id=user_id)
 
     if not passwords_match(stored_password, user.password):
-        raise QueryError(400, "Usuário ou senha incorretos")
+        raise err.QueryError(400, "Usuário ou senha incorretos")
 
     new_access_token = encode_token(user_id, 10, key)
     new_refresh_token = encode_token(user_id, 720, key)
 
     response = JSONResponse({"message":"Login feito com sucesso!", "user_id": user_id})
-    response.set_cookie("access-token", new_access_token, samesite="strict", secure=True, httponly=True)
-    response.set_cookie("refresh-token", new_refresh_token, samesite="strict", secure=True, httponly=True)
+    response.set_cookie("access-token", new_access_token, samesite="lax", secure=True, httponly=True)
+    response.set_cookie("refresh-token", new_refresh_token, samesite="lax", secure=True, httponly=True)
     
     return response
 
@@ -46,7 +47,7 @@ async def logout():
 
 
 @auth_router.get("/me")
-async def who_am_i(user_id: str = Depends(require_login), conn = Depends(get_conn)):
+async def who_am_i(user_id: str = Depends(dep.require_login), conn = Depends(dep.get_conn)):
     """Envia o user_id do usuário de volta para o frontend"""
 
     user_email = await DB_read_user_column(conn, column="email", user_id=user_id)

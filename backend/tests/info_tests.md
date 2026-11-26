@@ -259,7 +259,7 @@ O pytest tem uma CLI bem fácil de usar. Para rodar:
 - Um único test_, use o comando `pytest path/to/test_name_of_file.py::test_name_of_function`
 - Os tests_ em modo verboso (mais detalhado sobre o que está dando certo e errado), use o comando `pytest -v`
 
-O pytest também possui uma feature chamada hooks, que permite que customize melhor esses comandos para a ssua aplicação em específico.
+O pytest também possui uma feature chamada hooks, que permite que customize melhor esses comandos para a sua aplicação em específico.
 
 ---
 ### Últimas dicas

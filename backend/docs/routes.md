@@ -28,9 +28,9 @@ Algumas regras e noções para se atentar são:
 
 - **cursor**: Para a primeira busca, o cursor vai como null, pois o ponto de referência dos dados é zero. Para buscas subsequentes, ele vai ser uma string gerada e devolvida completamente pelo backend.
 
-- **search**: Cada rota vai ter um "propósito" diferente para o search. Por exemplo, na rota de buscar os seguidores de um usuário, o search vai ser o username de um usuário. Já na rota de buscar as listas criadas de alguém, o search vai ser o nome da lista.
+- **search**: Cada rota vai ter um "propósito" diferente para o search. Por exemplo, na rota de buscar os seguidores de um usuário, o search vai ser o username de um usuário, já na rota de buscar as listas criadas de alguém, o search vai ser o nome da lista.
 
-- **order**: Quando o valor de order for null, cada rota tem um valor padrão que irá assumir. Além disso, cada rota vai ter seu próprio conjunto de ordenações aceitáveis. Por exemplo, para ordenar uma rota que busca listas, tem 6 ordens possíveis: pelo nome da lista alfabeticamente, pela data de criação da lista, pela data de última atualização da lista e o inverso de cada uma dessas. Já para uma rota que busca quem o usuário bloqueou, há apenas 4 ordens possíveis: pelo username dos usuários bloqueados alfabeticamente, pela data em que esses bloqueios foram estabelecidos e o inverso dessas. Por padrão, as ordens estão todas em modo crescente, o que siginifica que alfabeticamente para strings e do mais antigo primeiro para rotas de data. Para alterar o modo, é só colocar um "!" na frente do order. Exemplo: `/lists/game/d70d80d?page_size=30&order=created_at` retorna os games de uma lista mostrando primeiro os games adicionados há mais tempo, e `/lists/game/d70d80d?page_size=30&order=!created_at` retorna os mesmos games daquela lista, porém enviando primeiro os games mais recém adicionados.
+- **order**: Quando o valor de order for null, cada rota tem um valor padrão que irá assumir. Além disso, cada rota vai ter seu próprio conjunto de ordenações aceitáveis. Por exemplo, para ordenar uma rota que busca listas, tem 6 ordens possíveis: pelo nome da lista alfabeticamente, pela data de criação da lista, pela data de última atualização da lista e o inverso de cada uma dessas. Já para uma rota que busca quem o usuário bloqueou, há apenas 4 ordens possíveis: pelo username dos usuários bloqueados alfabeticamente, pela data em que esses bloqueios foram estabelecidos e o inverso dessas. Por padrão, as ordens estão todas em modo crescente, o que siginifica que alfabeticamente para strings e do mais antigo primeiro para rotas de data. Para alterar o modo, é só colocar um "!" na frente do order. Exemplo: `/lists/game/d70d80d?order=created_at` retorna os games de uma lista mostrando primeiro os games adicionados há mais tempo, e `/lists/game/d70d80d?order=!created_at` retorna os mesmos games daquela lista, porém enviando primeiro os games mais recém adicionados.
 
 
 ### Response body
@@ -109,9 +109,10 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
     "list_id": "string",                // Id único da lista
     "name": "string",                   // Nome da lista
     "creator": __USER__,                // Dados básicos do autor da lista
-    "saves_count": 0,             // Quantos usuários salvaram a lista, contando o save automatico do autor
+    "saves_count": 0,                   // Quantos usuários salvaram a lista, contando o save automatico do autor
     "cover_picture": "string" | null,   // Url para a imagem de algum game que pertence a lista
-    "rel": 0                            // Relacionamento entre o usuário visualizador e a lista
+    "rel": 0,                           // Relacionamento entre o usuário visualizador e a lista
+    "privacy": 0,                       // Privacidade da lista
 }
 ```
 - #### \_\_LIST_FULL\_\_
@@ -262,3 +263,10 @@ Todo erro descrito como `erros possíveis` ao longo das documentações das rota
 ```
 
 O HR (human readable) denota se a mensagem de erro pode ser mostrada ao usuário para explicar o problema que ocorreu. Caso não, é melhor mostrar uma tela padrão de erro.
+
+Alguns erros que não estão documentados nas rotas mas ainda podem aparecer são
+
+| Status | HR     | Causa                           |
+|--------|--------|---------------------------------|
+| `405`  | ❌     | Método HTTP não permitido       |
+| `504`  | ❌     | Timeout excedido (15 segunndos) |
