@@ -6,6 +6,9 @@ import Review from "../../components/gameReview";
 import List from "../../components/List";
 import ReviewModal from "../../components/ReviewModal";
 
+import { useGame } from "../../hooks/useGames";
+import { toCardGame } from "../../services/gameService";
+
 import gtaImg from "../../assets/imgs/gta.png";
 import gowImg from "../../assets/imgs/ragnarok.png";
 import silksongImg from "../../assets/imgs/silksong.png";
@@ -14,6 +17,7 @@ import cyberpunkImg from "../../assets/imgs/cyberpunk2077.png";
 import clairImg from "../../assets/imgs/clair-obscure.png";
 
 import list from "../../assets/icons/lista.svg";
+
 
 const mockGames = [
   {
@@ -158,25 +162,30 @@ const mockLists = [
   },
 ];
 
-// Adicione no topo do GamePage
 export default function GamePage() {
   const { id } = useParams();
-  const [game, setGame] = useState(null);
+  const { data, isLoading, isError } = useGame(id);
+  const game = data ? toCardGame(data) : null;
+
   const [reviews, setReviews] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);       // <- novo
-  const [wishlist, setWishlist] = useState(false);         // <- novo
-  const [completo, setCompleto] = useState(false);         // <- novo
+  const [modalOpen, setModalOpen] = useState(false);
+  const [wishlist, setWishlist] = useState(false);
+  const [completo, setCompleto] = useState(false);
 
   useEffect(() => {
-    const foundGame = mockGames.find((g) => g.id === Number(id));
-    setGame(foundGame);
     const foundReviews = mockReviews.filter((r) => r.gameId === Number(id));
     setReviews(foundReviews);
   }, [id]);
 
-  if (!game) return (
+  if (isLoading) return (
     <div className="bg-linear-to-b from-cinza to-black min-h-screen flex items-center justify-center">
       <p className="text-white text-4xl">Carregando...</p>
+    </div>
+  );
+
+  if (isError || !game) return (
+    <div className="bg-linear-to-b from-cinza to-black min-h-screen flex items-center justify-center">
+      <p className="text-white text-4xl">Jogo não encontrado</p>
     </div>
   );
 
@@ -198,7 +207,7 @@ export default function GamePage() {
           onCompleto={() => setCompleto(c => !c)}
         />
         <Details game={game} />
-        <PopularReviews />
+        <PopularReviews game={game} />
         <GameLists game={game} />
       </div>
     </>
@@ -214,7 +223,7 @@ function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto 
       <div className="flex flex-col gap-4">
         <h1 className="text-white text-5xl font-bold">{game.title}</h1>
         <div className="flex flex-row gap-4 text-white">
-          <p>Ano</p>
+          <p>{game.year}</p>
           <p>Empresa</p>
         </div>
         <p className="text-white">Sinopse</p>
@@ -256,7 +265,7 @@ function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto 
   );
 }
 
-function PopularReviews() {
+function PopularReviews({ game }) {
   const animatedLink =
     "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
 
@@ -302,7 +311,7 @@ function PopularReviews() {
       <div className="flex flex-col gap-6 mt-4">
         {reviews.map((review) => {
           return (
-            <Review key={review.id} review={review} game={mockGames[0]} gameClassName="w-28" />
+            <Review key={review.id} review={review} game={game} gameClassName="w-28" />
           );
         })}
       </div>
@@ -310,11 +319,11 @@ function PopularReviews() {
   );
 }
 
-function Details({game}) {
+function Details({ game }) {
   const [isSelected, setIsSelected] = useState(["Detalhes", "Plataformas", "Studio"].map((item) => item === "Detalhes"));
 
   return (
-    <div className = "col-span-2 row-span-1 self-center">
+    <div className="col-span-2 row-span-1 self-center">
       <div className="flex flex-row gap-4 mb-4">
         {["Detalhes", "Plataformas", "Studio"].map((item, index) => (
           <button
@@ -335,8 +344,8 @@ function Details({game}) {
       <div className="bg-neutral-700 p-4 rounded-b-lg text-white">
         {isSelected[0] && (
           <div>
-            <p><strong>Gênero:</strong> {game.genre}</p>
-            <p><strong>Ano de lançamento:</strong> {game.year}</p>
+            <p><strong>Gênero:</strong> {game.genre ?? "—"}</p>
+            <p><strong>Ano de lançamento:</strong> {game.year ?? "—"}</p>
             <p><strong>Jogadores:</strong> 1</p>
             <p><strong>Linguagens:</strong> Português, Inglês</p>
           </div>
@@ -351,7 +360,7 @@ function Details({game}) {
             <p>Studio: Rockstar Games</p>
           </div>
         )}
-      </div>  
+      </div>
     </div>
   )
 }
@@ -372,4 +381,3 @@ function GameLists({ game }) {
     </div>
   );
 }
-
