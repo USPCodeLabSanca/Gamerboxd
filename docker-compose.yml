@@ -1,0 +1,48 @@
+name: Gamerboxd
+
+services:
+  frontend:
+    build: 
+      context: ./frontend
+      target: production
+    ports:
+      - 5173:80
+    depends_on:
+      - backend
+    
+  backend:
+    build: 
+      context: ./backend
+      target: production
+      
+    environment:
+      DB_HOST: db
+    env_file:
+      - .env
+
+    ports:
+      - 8000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:18.7-alpine3.24
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+    environment:
+      POSTGRES_USER: ${VM_USER}
+      POSTGRES_PASSWORD: ${VM_PASS}
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+volumes:
+  pgdata:

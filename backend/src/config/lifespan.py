@@ -35,13 +35,14 @@ class LifespanConfig():
             "LOAD_GAMES"
         ]
 
-        for val in env_keys:
-            if val not in self.env.keys():
-                raise ValueError(f"Campo {val} faltando no .env!")
+        for key in env_keys:
+            if key not in self.env.keys():
+                raise ValueError(f"Campo {key} faltando no .env!")
 
-        for key, value in self.env.items():
-            val = int(value) if value.isdigit() else value
-            setattr(self, key.lower(), val)
+            else:
+                value = str(self.env[key])
+                parsed_value = int(value) if value.isdigit() else value
+                setattr(self, key.lower(), parsed_value)
 
         if self.load_games not in ["all", "skip", "new"]:
             raise ValueError('O campo LOAD_GAMES tem que ser "all", "skip" ou "new"!')
@@ -108,7 +109,8 @@ class LifespanConfig():
     async def load_games_into_db(self, conn):
         """Joga os games do JSON para a tabela de games"""
 
-        json_path = Path.cwd().parent / "data"
+        cwd = Path.cwd()
+        json_path = cwd.parent / "data" if cwd.name not in ["backend", "api"] else cwd / "data"
         games_json = [f for f in json_path.iterdir() if f.is_file() and f.suffix == ".json"][0]
 
         with open(games_json, "r", encoding="utf-8") as file:

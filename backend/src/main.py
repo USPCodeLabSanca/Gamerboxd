@@ -4,13 +4,14 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import os
 
 from .config import LifespanConfig
 from .middlewares import *
 from .routes import auth_router, game_router, list_router, review_router, user_router
 from .utils.errors import QueryError
 
-env = dotenv_values("../.env")
+env = {**dotenv_values(), **os.environ}
 
 lifespan = LifespanConfig(env)
 app = FastAPI(lifespan=lifespan)

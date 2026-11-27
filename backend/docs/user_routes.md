@@ -14,6 +14,10 @@
 - [POST `/users/block/{user_id}` — Bloquear usuário](#post-usersblockuser_id--bloquear-usuário)
 - [DELETE `/users/block/{user_id}` — Desbloquear usuário](#delete-usersblockuser_id--desbloquear-usuário)
 - [GET `/users/block` — Ver os bloqueados pelo usuário](#get-usersblock--ver-os-bloqueados-pelo-usuário)
+- [GET `/users/validate/username/{username}` — Validar um username ANTES de enviar para o backend](#get-usersvalidateusernameusername--validar-um-username-antes-de-enviar-para-o-backend)
+- [GET `/users/validate/email/{email}` — Validar um email ANTES de enviar para o backend](#get-usersvalidateemailemail--validar-um-email-antes-de-enviar-para-o-backend)
+- [GET `/users/validate/password/{password}` — Validar uma senha ANTES de enviar para o backend](#get-usersvalidatepasswordpassword--validar-uma-senha-antes-de-enviar-para-o-backend)
+- [GET `/users/validate/bio/{bio}` — Validar uma bio ANTES de enviar para o backend](#get-usersvalidatebiobio--validar-uma-bio-antes-de-enviar-para-o-backend)
 
 ---
  
@@ -38,8 +42,8 @@ Cria uma nova conta de usuário.
  
 | Campo      | Tipo   | Obrigatório | Regras                                            |
 |------------|--------|-------------| --------------------------------------------------|
-| `username` | string | ✅          | Entre 4 e 24 caracteres, não pode estar em uso    |
-| `email`    | string | ✅          | Formato de e-mail válido, não pode estar  |
+| `username` | string | ✅          | Entre 4 e 24 caracteres (Aa-Zz, 0-9, "-", "_", "."), não pode estar em uso    |
+| `email`    | string | ✅          | Formato de e-mail válido, não pode estar em uso  |
 | `password` | string | ✅          | Entre 8 e 64 caracteres, com ao menos: 1 maiúscula, 1 minúscula, 1 número e 1 símbolo |
 
 ### Resposta de Sucesso — `200`
@@ -110,7 +114,7 @@ Atualiza os dados do usuário autenticado.
  
 | Campo      | Tipo           | Obrigatório  | Regras                                            |
 |------------|----------------|--------------|---------------------------------------------------|
-| `username` | string,        | ✅           | Entre 4 e 24 caracteres, não pode estar em uso    |
+| `username` | string,        | ✅           | Entre 4 e 24 caracteres (Aa-Zz, 0-9, "-", "_", "."), não pode estar em uso     |
 | `email`    | string,        | ✅           | Formato de e-mail válido, não pode estar em uso   |
 | `bio`      | string, null   | ✅           | Até 280 caracteres, não pode ser só espaço vazios |
 | `pfp`      | string, null   | ✅           | Caminho da foto de perfil                         |
@@ -392,3 +396,118 @@ Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas *
 | `500`  | ❌     | Erro interno                    |
 
 ---
+
+## GET `/users/validate/username/{username}` — Validar um username ANTES de enviar para o backend
+ 
+Verifica se o username providenciado pelo usuário é válido para entrar/editar no DB
+
+**Regras e comportamentos:**
+- **Não requer login**.
+ 
+### Path Parameter
+ 
+| Parâmetro  | Tipo   | Descrição               | Regras a serem aplicadas                        |
+|------------|--------|-------------------------|-------------------------------------------------|
+| `username` | string | Username a ser validado | Entre 4 e 24 caracteres (Aa-Zz, 0-9, "-", "_", "."), não pode estar em uso   |
+
+ 
+### Resposta de Sucesso — `200`
+ 
+```json
+{"message":"Username válido!"}
+```
+ 
+### [Erros](./routes.md#erros) possíveis
+ 
+| Status | HR     | Causa                       |
+|--------|--------|-----------------------------|
+| `400`  | ✅     | Username muito curto/longo  |
+| `409`  | ✅     | Username já em uso          |
+| `500`  | ❌     | Erro interno                |
+
+---
+
+## GET `/users/validate/email/{email}` — Validar um email ANTES de enviar para o backend
+ 
+Verifica se o email providenciado pelo usuário é válido para entrar no DB
+
+**Regras e comportamentos:**
+- **Não requer login**.
+ 
+### Path Parameter
+ 
+| Parâmetro  | Tipo   | Descrição               | Regras a serem aplicadas                        |
+|------------|--------|-------------------------|-------------------------------------------------|
+| `email`    | string | Email a ser validado    | Formato de e-mail válido, não pode estar em uso |
+ 
+### Resposta de Sucesso — `200`
+ 
+```json
+{"message":"Email válido!"}
+```
+ 
+### [Erros](./routes.md#erros) possíveis
+ 
+| Status | HR     | Causa                       |
+|--------|--------|-----------------------------|
+| `400`  | ✅     | Formato inválido de email  |
+| `409`  | ✅     | Email já em uso          |
+| `500`  | ❌     | Erro interno                |
+
+---
+
+## GET `/users/validate/password/{password}` — Validar uma senha ANTES de enviar para o backend
+ 
+Verifica se a senha providenciada pelo usuário é válida para entrar no DB
+
+**Regras e comportamentos:**
+- **Não requer login**.
+ 
+### Path Parameter
+ 
+| Parâmetro  | Tipo   | Descrição                   | Regras a serem aplicadas                        |
+|------------|--------|-----------------------------|-------------------------------------------------|
+| `password` | string | Senha a ser validada  | Entre 8 e 64 caracteres, com ao menos: 1 maiúscula, 1 minúscula, 1 número e 1 símbolo |
+
+ 
+### Resposta de Sucesso — `200`
+ 
+```json
+{"message":"Senha válida!"}
+```
+ 
+### [Erros](./routes.md#erros) possíveis
+ 
+| Status | HR     | Causa                        |
+|--------|--------|------------------------------|
+| `400`  | ✅     | Senha fora do padrão         |
+| `500`  | ❌     | Erro interno                 |
+
+---
+
+## GET `/users/validate/bio/{bio}` — Validar uma bio ANTES de enviar para o backend
+ 
+Verifica se a bio providenciada pelo usuário é válida para entrar no DB
+
+**Regras e comportamentos:**
+- **Não requer login**.
+ 
+### Path Parameter
+ 
+| Parâmetro  | Tipo   | Descrição                   | Regras a serem aplicadas                        |
+|------------|--------|-----------------------------|-------------------------------------------------|
+| `bio` | string | Bio a ser validada  | Até 280 caractéres, não pode ser apenas espaço vazio |
+
+ 
+### Resposta de Sucesso — `200`
+ 
+```json
+{"message":"Bio válida!"}
+```
+ 
+### [Erros](./routes.md#erros) possíveis
+ 
+| Status | HR     | Causa                        |
+|--------|--------|------------------------------|
+| `400`  | ✅     | Bio muito longa, ou apenas "   " |
+| `500`  | ❌     | Erro interno                 |
