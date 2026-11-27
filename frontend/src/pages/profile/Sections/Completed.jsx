@@ -11,12 +11,12 @@ export default function Completed() {
             {/* Div com os jogos favoritos */}
             <div className="flex gap-4 items-center">
                 {/* Cada jogo seria um card, aqui só tem um exemplo */}
-                <div className="w-48 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
-                <div className="w-48 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
-                <div className="w-48 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
-                <div className="w-48 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
-                <div className="w-48 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
-                <div className="w-48 h-64 bg-gray-700 rounded-lg flex-shrink-0"></div>
+                <div className="w-48 h-64 bg-gray-700 rounded-lg shrink-0"></div>
+                <div className="w-48 h-64 bg-gray-700 rounded-lg shrink-0"></div>
+                <div className="w-48 h-64 bg-gray-700 rounded-lg shrink-0"></div>
+                <div className="w-48 h-64 bg-gray-700 rounded-lg shrink-0"></div>
+                <div className="w-48 h-64 bg-gray-700 rounded-lg shrink-0"></div>
+                <div className="w-48 h-64 bg-gray-700 rounded-lg shrink-0"></div>
             </div>
         </div>
     )
