@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import EditProfileModal from "../Sections/EditProfileModal";
+import ConnectionsModal from "./ConnectionsModal";
 import { User, Ellipsis, Ban } from "lucide-react";
 import { getErrorMessage } from "../../../api/errors";
 import {
@@ -11,10 +12,11 @@ import {
 export default function ProfileHeader({ user }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [blockMenuIsOpen, setBlockMenuIsOpen] = useState(false);
+  const [connectionsModal, setConnectionsModal] = useState(null);
 
   const stats = [
-    { label: "Seguidores", value: user.follower_count },
-    { label: "Seguindo", value: user.following_count },
+    { label: "Seguidores", value: user.follower_count, type: "followers" },
+    { label: "Seguindo", value: user.following_count, type: "followings" },
   ];
 
   const dono = user.rel === 40;
@@ -67,7 +69,7 @@ export default function ProfileHeader({ user }) {
         {/* Contêiner de Informações (Nome, Avatar e Stats) */}
         <div className="absolute bottom-0 w-full px-8 pb-4 flex items-end justify-between">
           {/* Lado Esquerdo: Avatar, Nome e Botão */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 bg-cinza/30 rounded-full px-6 py-2">
             {/* Avatar Circular */}
             <div className="w-24 h-24 rounded-full bg-[#4a4d5a] border-4 border-[#2c2c2c] flex items-center justify-center overflow-hidden z-10">
               {user.pfp ? (
@@ -169,16 +171,35 @@ export default function ProfileHeader({ user }) {
           </div>
 
           {/* Lado Direito: Estatísticas (Listas, Seguidores, Seguindo) */}
-          <div className="flex items-center gap-6 pb-2 pr-10 bg-cinza/30 rounded-full px-6 py-2">
+          <div
+            className="flex items-center gap-6 pb-2 pr-10
+                bg-cinza/30 rounded-full px-6 py-2"
+          >
             {stats.map((stat, index) => (
               <React.Fragment key={stat.label}>
-                <div className="flex flex-col items-center">
-                  <span className="font-bold text-white text-base leading-tight">
+                <button
+                  type="button"
+                  onClick={() => setConnectionsModal(stat.type)}
+                  className="group flex flex-col items-center
+                           cursor-pointer hover:bg-cinza/20 px-4 py-2 rounded-lg transition-colors"
+                >
+                  <span
+                    className="font-bold text-white text-base
+                                 leading-tight group-hover:text-roxo
+                                 transition-colors"
+                  >
                     {stat.value}
                   </span>
-                  <span className="text-gray-200 text-lg">{stat.label}</span>
-                </div>
-                {/* Linha vertical separadora (exceto no último item) */}
+
+                  <span
+                    className="text-gray-200 text-lg
+                                 group-hover:text-white
+                                 transition-colors"
+                  >
+                    {stat.label}
+                  </span>
+                </button>
+
                 {index < stats.length - 1 && (
                   <div className="w-px h-8 bg-gray-500" />
                 )}
@@ -203,6 +224,16 @@ export default function ProfileHeader({ user }) {
         <EditProfileModal
           user={user}
           onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
+
+      {connectionsModal && (
+        <ConnectionsModal
+          key={`${user.user_id}-${connectionsModal}`}
+          userId={user.user_id}
+          username={user.username}
+          initialTab={connectionsModal}
+          onClose={() => setConnectionsModal(null)}
         />
       )}
     </div>

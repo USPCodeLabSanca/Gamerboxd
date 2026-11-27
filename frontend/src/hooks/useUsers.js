@@ -114,7 +114,7 @@ export function useBlockUser(userId) {
 }
 
 export function useUnblockUser(userId) {
-    const queryClient = useQueryClient();s
+    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: () => unblockUser(userId),

@@ -67,7 +67,7 @@ export default function ProfilePage() {
       {/* pt-20 compensa a altura da Navbar caso ela seja "fixed" no topo */}
       <main className="flex-1 flex flex-col items-center w-full pt-20 pb-16">
         <section>
-          <ProfileHeader user={user} />
+          <ProfileHeader key={user_id} user={user} />
         </section>
         <section>
           <ProfileNavBar activeTab={activeTab} onTabChange={setActiveTab} />
