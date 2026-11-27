@@ -348,7 +348,7 @@ export default function UserLists() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 min-w-6xl">
       <EditListModal
         isOpen={modalOpen}
         onClose={() => {
@@ -361,7 +361,7 @@ export default function UserLists() {
 
       {/* Cabeçalho da seção + Controles de Filtro (Origem e Exibição) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-white/75 text-base font-medium">Suas Listas</h2>
+        <h2 className="text-white/75 text-xl font-medium">Suas Listas</h2>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Filtro 1: Origem */}

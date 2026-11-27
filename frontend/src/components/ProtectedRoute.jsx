@@ -1,12 +1,29 @@
-import {Navigate} from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { Outlet, Navigate } from "react-router-dom";
+import { useMe } from "../hooks/useAuth";
 
-export function ProtectedRoute({ children }) {
-    const { user, loading } = useAuth();
+export default function ProtectedRoute() {
 
-    if (loading) return <div>Carregando</div>;
+    const {data: user, isLoading, isError} = useMe();
 
-    if (!user) return <Navigate to="/login" replace />;
+    if (isLoading) {
+        return <div>Carregando...</div>;
+    }
 
-    return children;
+    if (isError) {
+        return (
+            <div className = "min-h-screen flex items-center justify-center bg-linear-to-b from-cinza to-black text-white font-semibold">
+                <div className = "bg-red-500 p-6 rounded-lg shadow-lg text-center">
+                    <p>Erro ao carregar informações do usuário</p>
+                    <p>Tente novamente daqui a pouco</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return <Outlet />;
+
 }

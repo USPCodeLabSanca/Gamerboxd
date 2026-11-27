@@ -1,7 +1,7 @@
 import { UserPlus, Gamepad2, Users } from "lucide-react";
-import registerPage from "../../assets/imgs/Register.png";
-import gamePage from "../../assets/imgs/Game.png";
-import reviewPage from "../../assets/imgs/Review.png";
+import registerPage from "../../assets/imgs/hornet_landscape.jpg";
+import gamePage from "../../assets/imgs/silksong.png";
+import reviewPage from "../../assets/imgs/rdr2.jpg";
 import { motion } from "framer-motion";
 
 
