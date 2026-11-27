@@ -13,3 +13,32 @@
   --color-cinza: #3e3e3e;
   --color-dark-card: #1A1A1A;
 }
+
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #836dff #252525;
+    scrollbar-gutter: stable;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #252525;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #836dff;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #9564d8;
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+}
