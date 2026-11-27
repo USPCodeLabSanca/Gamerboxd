@@ -19,7 +19,7 @@ export default function ReviewItem() {
                         <div>42M</div>
                         <div className='flex gap-1.5'>
                             {Array.from({ length:totalControls}).map((_, index) =>(
-                                <Gamepad2 className="text-[#836DFF]" />
+                                <Gamepad2 key={index} className="text-[#836DFF]" />
                                 ))}
                         </div>
                         
