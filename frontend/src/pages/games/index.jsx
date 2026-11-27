@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Card from "../../components/gameCard";
 import Review from "../../components/gameReview";
@@ -30,27 +30,23 @@ const getters = {
     rating: (g) => g.gamerboxd_rating ?? null,
     likes: (g) => g.like_count ?? null,
     reviews: (g) => g.review_count ?? null,
-    completed: (g) => g.completed_count ?? null,
 };
 
 
 const FILTERS = [
     { key: "year", name: "Ano", kind: "sort", options: [
-        { label: "Mais novos primeiro", value: "year:desc" },
-        { label: "Mais antigos primeiro", value: "year:asc" },
+        { label: "Mais novos", value: "year:desc" },
+        { label: "Mais antigos", value: "year:asc" },
     ] },
     { key: "rating", name: "Rating", kind: "sort", options: [
-        { label: "Melhores primeiro", value: "rating:desc" },
-        { label: "Piores primeiro", value: "rating:asc" },
+        { label: "Melhores", value: "rating:desc" },
+        { label: "Piores", value: "rating:asc" },
     ] },
     { key: "likes", name: "Curtidas", kind: "sort", options: [
-        { label: "Mais curtidos primeiro", value: "likes:desc" },
+        { label: "Mais curtidos", value: "likes:desc" },
     ] },
     { key: "reviews", name: "Avaliações", kind: "sort", options: [
-        { label: "Mais avaliados primeiro", value: "reviews:desc" },
-    ] },
-    { key: "completed", name: "Completados", kind: "sort", options: [
-        { label: "Mais completados primeiro", value: "completed:desc" },
+        { label: "Mais avaliados", value: "reviews:desc" },
     ] },
     { key: "decade", name: "Década", kind: "decade", options: [
         { label: "Anos 2020", value: 2020 },
@@ -135,7 +131,7 @@ export default function Games() {
 
     return (
         <div className="bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20 min-h-screen">
-            <div className="flex flex-row items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 <Filter
                     sort={sort}
                     decade={decade}
@@ -154,87 +150,151 @@ export default function Games() {
 
 function Filter({ sort, decade, onSort, onDecade, onClear, hasFilter }) {
     const [open, setOpen] = useState(null);
+    const barRef = useRef(null);
 
-    const idle = "bg-transparent hover:cursor-pointer hover:scale-105 hover:text-roxo transition-all relative overflow-hidden after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-0 after:h-0.5 duration-300 after:bg-roxo hover:after:w-full";
+    // fecha o menu ao clicar fora ou apertar Esc
+    useEffect(() => {
+        if (open === null) return;
+
+        const onDown = (e) => {
+            if (!barRef.current?.contains(e.target)) setOpen(null);
+        };
+        const onKey = (e) => {
+            if (e.key === "Escape") setOpen(null);
+        };
+
+        document.addEventListener("mousedown", onDown);
+        document.addEventListener("keydown", onKey);
+        return () => {
+            document.removeEventListener("mousedown", onDown);
+            document.removeEventListener("keydown", onKey);
+        };
+    }, [open]);
 
     const selectedOf = (filter) =>
         filter.kind === "decade" ? decade : (sort?.startsWith(`${filter.key}:`) ? sort : null);
 
     function pick(filter, value) {
         if (filter.kind === "decade") onDecade(value);
-        else onSort(value);   
+        else onSort(value);
         setOpen(null);
     }
 
+    const item = "flex h-full items-center gap-1.5 px-4 py-2 text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors duration-200";
+    const itemIdle = "text-white/80 hover:bg-white/10 hover:text-white";
+    const itemActive = "bg-roxo font-semibold text-white";
+
     return (
-        <div className="flex flex-row gap-2 items-center w-full">
-            <span className="text-white font-semibold text-2xl">Filtrar por:</span>
-            <div className="rounded-2xl text-white/80 px-4 py-2 min-w-min gap-2 flex flex-row items-center">
-                {FILTERS.map((filter) => {
-                    const selected = selectedOf(filter);
-                    const selectedLabel = filter.options.find((o) => o.value === selected)?.label;
+        <div ref={barRef} className="flex flex-wrap items-center gap-3">
+            <span className="text-sm text-white/60">Filtrar por</span>
 
-                    return (
-                        <div key={filter.key} className="relative">
-                            <button
-                                className={selected !== null ? "text-roxo scale-105" : idle}
-                                onClick={() => setOpen(open === filter.key ? null : filter.key)}
+            <div className="flex items-stretch divide-x divide-white/15 rounded-md bg-neutral-700/80 ring-1 ring-white/10">
+            {FILTERS.map((filter, i) => {
+                const selected = selectedOf(filter);
+                const isOpen = open === filter.key;
+
+                return (
+                    <div key={filter.key} className="relative">
+                        <button
+                            className={`${item} ${selected !== null ? itemActive : itemIdle} ${i === 0 ? "rounded-l-md" : ""} ${i === FILTERS.length - 1 ? "rounded-r-md" : ""}`}
+                            onClick={() => setOpen(isOpen ? null : filter.key)}
+                            aria-expanded={isOpen}
+                        >
+                            {filter.name}
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                                className={`h-3 w-3 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                             >
-                                {selectedLabel ? `${filter.name}: ${selectedLabel}` : filter.name}
-                            </button>
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </button>
 
-                            {open === filter.key && (
-                                <ul className="absolute z-20 mt-3 max-h-64 overflow-y-auto min-w-52 rounded-lg bg-neutral-800 py-1 shadow-lg">
-                                    {selected !== null && (
-                                        <li>
-                                            <button
-                                                className="w-full text-left px-4 py-2 text-sm text-white/60 hover:bg-roxo hover:text-white cursor-pointer"
-                                                onClick={() => pick(filter, null)}
-                                            >
-                                                Limpar
-                                            </button>
-                                        </li>
-                                    )}
-                                    {filter.options.map((o) => (
+                        {isOpen && (
+                            <ul className="absolute left-0 top-full z-30 mt-1 max-h-64 min-w-48 overflow-y-auto rounded-md bg-neutral-700/95 py-1 shadow-xl ring-1 ring-white/10 backdrop-blur">
+                                {filter.options.map((o) => {
+                                    const isSelected = o.value === selected;
+
+                                    return (
                                         <li key={o.value}>
                                             <button
-                                                className={`w-full text-left px-4 py-2 text-sm hover:bg-roxo hover:text-white cursor-pointer ${o.value === selected ? "text-roxo" : "text-white"}`}
+                                                className={`flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-2 text-left text-sm transition-colors hover:bg-roxo hover:text-white ${isSelected ? "bg-roxo font-semibold text-white" : "text-white"}`}
                                                 onClick={() => pick(filter, o.value)}
                                             >
                                                 {o.label}
+                                                {isSelected && (
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-4 w-4">
+                                                        <path d="M20 6 9 17l-5-5" />
+                                                    </svg>
+                                                )}
                                             </button>
                                         </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                    )
-                })}
+                                    );
+                                })}
 
-                {hasFilter && (
-                    <button onClick={onClear} className="text-sm text-white/60 hover:text-white cursor-pointer ml-2">
-                        Limpar filtros
-                    </button>
-                )}
+                                {selected !== null && (
+                                    <li className="mt-1 border-t border-white/15 pt-1">
+                                        <button
+                                            className="w-full cursor-pointer px-4 py-2 text-left text-sm text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                                            onClick={() => pick(filter, null)}
+                                        >
+                                            Limpar
+                                        </button>
+                                    </li>
+                                )}
+                            </ul>
+                        )}
+                    </div>
+                );
+            })}
             </div>
+
+            {hasFilter && (
+                <button
+                    onClick={onClear}
+                    className="flex cursor-pointer items-center gap-1.5 text-base font-medium text-white/80 transition-colors hover:text-white"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-4 w-4">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                    Limpar filtros
+                </button>
+            )}
         </div>
-    )
+    );
 }
 
 function Search({ value, onChange }) {
     return (
-        <div>
+        <label className="relative block">
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60"
+            >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+            </svg>
             <input
                 type="text"
                 placeholder="Buscar"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="bg-white/80 rounded-2xl px-4 py-2"
+                className="w-64 rounded-2xl bg-white/10 py-2 pl-9 pr-4 text-sm text-white placeholder-white/50 outline-none ring-1 ring-white/10 transition focus:ring-2 focus:ring-roxo"
             />
-        </div>
-    )
+        </label>
+    );
 }
-
 
 function GameCard({ game }) {
     return (
@@ -337,6 +397,28 @@ function GameGrid({ search = "", title, onBack }) {
     )
 }
 
+
+function activeFilterLabels(sort, decade) {
+    return FILTERS.flatMap((f) => {
+        const value = f.kind === "decade" ? decade : (sort?.startsWith(`${f.key}:`) ? sort : null);
+        if (value === null) return [];
+
+        return [{ name: f.name, label: f.options.find((o) => o.value === value)?.label }];
+    });
+}
+
+function ActiveFilters({ sort, decade }) {
+    return (
+        <span className="flex flex-wrap items-center gap-y-1">
+            {activeFilterLabels(sort, decade).map(({ label }, i) => (
+                <span key={label} className={i > 0 ? "ml-4 border-l border-white/20 pl-4" : ""}>
+                    {label}
+                </span>
+            ))}
+        </span>
+    );
+}
+
 function FilteredGrid({ search, sort, decade, onBack }) {
     const [page, setPage] = useState(1);
 
@@ -352,7 +434,7 @@ function FilteredGrid({ search, sort, decade, onBack }) {
 
     return (
         <GridView
-            title={isLoading ? "Carregando..." : `Jogos (${filtered.length})`}
+            title={<ActiveFilters sort={sort} decade={decade} />}
             onBack={onBack}
             games={games}
             page={page}
