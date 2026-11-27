@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useEditProfile } from '../../../hooks/useUsers';
-import { getErrorMessage } from '../../../api/errors';
+import { getErrorMessage } from '../../../api/errors'
+import { useEditProfile, useGetBlocks } from '../../../hooks/useUsers';
+import { avatarOptions, bannerOptions } from '../../../data/profilePresets';
 
 export default function EditProfileModal({ user, onClose }) {
-
   const editMutation = useEditProfile();
 
   const [form, setForm] = useState({
@@ -23,6 +23,20 @@ export default function EditProfileModal({ user, onClose }) {
     }));
   }
 
+  function handleSelectAvatar(url) {
+    setForm(prev => ({
+      ...prev,
+      pfp: url,
+    }));
+  }
+
+  function handleSelectBanner(url) {
+    setForm(prev => ({
+      ...prev,
+      banner: url,
+    }));
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
 
@@ -35,15 +49,10 @@ export default function EditProfileModal({ user, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-cinza rounded-2xl shadow-xl p-6 text-white custom-scrollbar">
 
-      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-cinza rounded-2xl shadow-xl p-6 text-white">
-
-        {/* Cabeçalho */}
         <div className="flex items-center justify-between mb-6">
-
-          <h2 className="text-2xl font-bold">
-            Editar perfil
-          </h2>
+          <h2 className="text-2xl font-bold">Editar perfil</h2>
 
           <button
             type="button"
@@ -52,18 +61,44 @@ export default function EditProfileModal({ user, onClose }) {
           >
             &times;
           </button>
-
         </div>
 
-        {/* Formulário */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+          {/* Preview do banner */}
+          <div className="relative w-full h-48 rounded-xl overflow-hidden bg-black/30">
+            {form.banner ? (
+              <img
+                src={form.banner}
+                alt="Preview do banner"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                Nenhum banner selecionado
+              </div>
+            )}
+
+            <div className="absolute bottom-4 left-4 w-20 h-20 rounded-full overflow-hidden border-4 border-[#2c2c2c] bg-[#4a4d5a]">
+              {form.pfp ? (
+                <img
+                  src={form.pfp}
+                  alt="Preview do avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+                  Avatar
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Username */}
           <div className="flex flex-col gap-1">
             <label htmlFor="username" className="text-sm font-medium">
               Username
             </label>
-
             <input
               id="username"
               name="username"
@@ -79,13 +114,13 @@ export default function EditProfileModal({ user, onClose }) {
             <label htmlFor="email" className="text-sm font-medium">
               Email
             </label>
-
             <input
               id="email"
               name="email"
               type="email"
               value={form.email}
               onChange={handleChange}
+              required
               className="w-full bg-black/30 border border-gray-600 rounded-lg px-3 py-2 outline-none focus:border-roxo"
             />
           </div>
@@ -95,7 +130,6 @@ export default function EditProfileModal({ user, onClose }) {
             <label htmlFor="bio" className="text-sm font-medium">
               Biografia
             </label>
-
             <textarea
               id="bio"
               name="bio"
@@ -107,38 +141,70 @@ export default function EditProfileModal({ user, onClose }) {
             />
           </div>
 
-          {/* Foto de perfil */}
-          <div className="flex flex-col gap-1">
-            <label htmlFor="pfp" className="text-sm font-medium">
-              URL da foto de perfil
-            </label>
+          {/* Escolha de avatar */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-lg font-semibold">Escolha um avatar</h3>
 
-            <input
-              id="pfp"
-              name="pfp"
-              type="url"
-              value={form.pfp}
-              onChange={handleChange}
-              className="w-full bg-black/30 border border-gray-600 rounded-lg px-3 py-2 outline-none focus:border-roxo"
-              placeholder="https://..."
-            />
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {avatarOptions.map((avatar) => {
+                const selected = form.pfp === avatar.url;
+
+                return (
+                  <button
+                    key={avatar.id}
+                    type="button"
+                    onClick={() => handleSelectAvatar(avatar.url)}
+                    className={`shrink-0 w-24 h-24 rounded-full overflow-hidden border-4 transition-all ${
+                      selected
+                        ? 'border-roxo scale-105'
+                        : 'border-transparent hover:border-gray-400'
+                    }`}
+                  >
+                    <img
+                      src={avatar.url}
+                      alt={avatar.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Banner */}
-          <div className="flex flex-col gap-1">
-            <label htmlFor="banner" className="text-sm font-medium">
-              URL do banner
-            </label>
+          {/* Escolha de banner */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-lg font-semibold">Escolha um banner</h3>
 
-            <input
-              id="banner"
-              name="banner"
-              type="url"
-              value={form.banner}
-              onChange={handleChange}
-              className="w-full bg-black/30 border border-gray-600 rounded-lg px-3 py-2 outline-none focus:border-roxo"
-              placeholder="https://..."
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {bannerOptions.map((banner) => {
+                const selected = form.banner === banner.url;
+
+                return (
+                  <button
+                    key={banner.id}
+                    type="button"
+                    onClick={() => handleSelectBanner(banner.url)}
+                    className={`rounded-xl overflow-hidden border-4 transition-all ${
+                      selected
+                        ? 'border-roxo scale-[1.02]'
+                        : 'border-transparent hover:border-gray-400'
+                    }`}
+                  >
+                    <img
+                      src={banner.url}
+                      alt={banner.name}
+                      className="w-full h-32 object-cover"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Usuário bloqueados */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-lg font-semibold">Usuários bloqueados</h3>
+
           </div>
 
           {/* Erro */}
@@ -150,7 +216,6 @@ export default function EditProfileModal({ user, onClose }) {
 
           {/* Botões */}
           <div className="flex justify-end gap-3 mt-4">
-
             <button
               type="button"
               onClick={onClose}
@@ -165,17 +230,11 @@ export default function EditProfileModal({ user, onClose }) {
               disabled={editMutation.isPending}
               className="px-4 py-2 rounded-lg bg-roxo hover:bg-roxo/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {editMutation.isPending
-                ? 'Salvando...'
-                : 'Salvar alterações'}
+              {editMutation.isPending ? 'Salvando...' : 'Salvar alterações'}
             </button>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
   );
 }

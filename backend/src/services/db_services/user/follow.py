@@ -93,13 +93,13 @@ async def DB_read_user_follows(conn, user_id: str):
         total_followers = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Follows f
-            WHERE f.follower = $1
+            WHERE f.followed = $1
         ''', user_id)
 
         total_followeds = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Follows f
-            WHERE f.followed = $1
+            WHERE f.follower = $1
         ''', user_id)
 
     return total_followers, total_followeds
