@@ -103,12 +103,14 @@ export function useBlockUser(userId) {
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey:['user']});
             queryClient.invalidateQueries({queryKey:['blocks']});
+            queryClient.invalidateQueries({queryKey:['followers']});
+            queryClient.invalidateQueries({queryKey:['followings']});
         }
     });
 }
 
 export function useUnblockUser(userId) {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient();s
 
     return useMutation({
         mutationFn: () => unblockUser(userId),
