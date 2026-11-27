@@ -100,11 +100,15 @@ export function useBlockUser(userId) {
 
     return useMutation({
         mutationFn: () => blockUser(userId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey:['user']});
-            queryClient.invalidateQueries({queryKey:['blocks']});
-            queryClient.invalidateQueries({queryKey:['followers']});
-            queryClient.invalidateQueries({queryKey:['followings']});
+        onSuccess: async () => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['user'] }),
+                queryClient.invalidateQueries({ queryKey: ['blocks'] }),
+                queryClient.invalidateQueries({ queryKey: ['followers'] }),
+                queryClient.invalidateQueries({ queryKey: ['followings'] }),
+                queryClient.invalidateQueries({ queryKey: ['listGames'] }),
+                queryClient.invalidateQueries({ queryKey: ['userReviews'] }),
+            ]);
         }
     });
 }
@@ -114,9 +118,15 @@ export function useUnblockUser(userId) {
 
     return useMutation({
         mutationFn: () => unblockUser(userId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey:['user']});
-            queryClient.invalidateQueries({queryKey:['blocks']});
+        onSuccess: async () => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['user'] }),
+                queryClient.invalidateQueries({ queryKey: ['blocks'] }),
+                queryClient.invalidateQueries({ queryKey: ['followers'] }),
+                queryClient.invalidateQueries({ queryKey: ['followings'] }),
+                queryClient.invalidateQueries({ queryKey: ['listGames'] }),
+                queryClient.invalidateQueries({ queryKey: ['userReviews'] }),
+            ]);
         }
     });
 }
