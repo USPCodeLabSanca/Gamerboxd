@@ -48,6 +48,7 @@ app.add_middleware(
 
 app.add_middleware(SetUserLoginStateMiddleware)
 app.add_middleware(TimeoutMiddleware)
+app.add_middleware(RateLimiter)
 
 app.include_router(auth_router)
 app.include_router(user_router)
