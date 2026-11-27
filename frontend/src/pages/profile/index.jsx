@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // Componentes já criados
 import Navbar from '../../components/Navbar'; // Ajuste o caminho conforme sua estrutura
@@ -7,8 +7,11 @@ import ProfileNavBar from './Sections/ProfileNavBar';
 import Favorites from './Sections/Favorites';
 import Completed from './Sections/Completed';
 import RecentReviews from './Sections/RecentReviews';
+import UserLists from './Sections/UserLists';
 
 export default function ProfilePage() {
+  const [activeTab, setActiveTab] = useState('jogos');
+
   return (
     // Container Mestre: Ocupa no mínimo a tela toda, fundo escuro, flex em coluna
     <div className="min-h-screen bg-[#2c2c2c] text-white flex flex-col font-sans">
@@ -23,16 +26,24 @@ export default function ProfilePage() {
         
             <section><ProfileHeader /></section>
 
-            <section><ProfileNavBar /></section>
+            <section>
+              <ProfileNavBar activeTab={activeTab} onTabChange={setActiveTab} />
+            </section>
 
-            {/* Jogos Favoritos */}
-            <section><Favorites /></section>
+            {activeTab === 'listas' ? (
+              <section><UserLists /></section>
+            ) : (
+              <>
+                {/* Jogos Favoritos */}
+                <section><Favorites /></section>
 
-            {/* Jogos Completados */}
-            <section><Completed /></section>
+                {/* Jogos Completados */}
+                <section><Completed /></section>
 
-            {/* Últimas Avaliações */}
-            <section><RecentReviews /></section>
+                {/* Últimas Avaliações */}
+                <section><RecentReviews /></section>
+              </>
+            )}
         </div>
       </main>
     </div>
