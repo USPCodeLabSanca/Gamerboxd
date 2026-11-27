@@ -64,7 +64,7 @@ export default function Social() {
 
             {/* Header */}
             <motion.div
-                className="flex flex-col items-center text-center mb-16"
+                className="flex flex-col items-center text-center mb-16 px-4"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeIn" }}
@@ -83,7 +83,6 @@ export default function Social() {
             {/* Stats */}
             <motion.div
                 className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl mb-16"
-
                 onViewportEnter={() => setStatsVisible(true)}
                 onViewportLeave={() => setStatsVisible(false)}
             >
@@ -98,7 +97,7 @@ export default function Social() {
                                 value={statsVisible ? stat.value : 0} 
                                 suffix={stat.suffix}
                                 trend={1}
-                                spinTiming ={{duration: 2000, easing: 'ease-out'}}
+                                spinTiming={{ duration: 2000, easing: 'ease-out' }}
                             />
                         </span>
                         <span className="text-gray-400 text-sm text-center mt-1">{stat.label}</span>
@@ -123,7 +122,7 @@ export default function Social() {
 
             {/* CTA final */}
             <motion.div
-                className="mt-20 w-full max-w-4xl bg-dark-card rounded-3xl p-12 flex flex-col items-center text-center border border-transparent hover:border-roxo/30 transition-colors duration-300"
+                className="mt-20 w-full max-w-4xl bg-dark-card rounded-3xl p-8 md:p-12 flex flex-col items-center text-center border border-transparent hover:border-roxo/30 transition-colors duration-300"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeIn" }}
@@ -135,7 +134,7 @@ export default function Social() {
                 <p className="text-gray-400 text-lg mb-8 max-w-md">
                     Crie agora sua conta e junte-se à maior rede social exclusiva para gamers do Brasil.
                 </p>
-                <Link to={"/register"} className="relative overflow-hidden bg-roxo px-10 py-4 rounded-2xl text-white font-bold text-lg after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-white/10 after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-all duration-300 hover:scale-105">
+                <Link to={"/register"} className="relative overflow-hidden bg-roxo px-8 md:px-10 py-4 rounded-2xl text-white font-bold text-base md:text-lg after:content-[''] after:absolute after:top-0 after:left-0 after:h-full after:w-0 after:bg-white/10 after:transition-all after:duration-300 hover:after:w-full cursor-pointer transition-all duration-300 hover:scale-105">
                     <span className="relative z-10">Criar conta grátis</span>
                 </Link>
                 <p className="text-gray-600 text-sm mt-4">
@@ -165,12 +164,12 @@ function ReviewCard({ review }) {
             {/* Ícones de status */}
             <div className="flex items-center gap-3 mb-3">
                 <GameScore score={review.score} />
-                <div className="flex gap-2 ml-auto">
+                <div className="flex gap-2 ml-auto shrink-0">
                     {review.liked && (
-                        <Heart size={14} className="text-red-500 fill-red-500" />
+                        <Heart size={16} className="text-red-500 fill-red-500" />
                     )}
                     {review.complete && (
-                        <Trophy size={14} className="text-yellow-400 fill-yellow-400" />
+                        <Trophy size={16} className="text-yellow-400 fill-yellow-400" />
                     )}
                 </div>
             </div>
@@ -182,8 +181,8 @@ function ReviewCard({ review }) {
 
             {/* Footer */}
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
-                <div className="flex items-center gap-1 text-gray-500 text-xs">
-                    <Heart size={12} className="text-red-500 fill-red-500" />
+                <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+                    <Heart size={14} className="text-red-500 fill-red-500" />
                     <span>{review.likes}</span>
                 </div>
                 <span className="text-gray-600 text-xs">{review.timeAgo}</span>
@@ -194,9 +193,15 @@ function ReviewCard({ review }) {
 
 function GameScore({ score }) {
     return (
-        <div className="flex gap-0.5">
+        <div className="flex gap-1">
+            {/* tamanho travado em w-4 h-4 (celular) e w-5 h-5 (desktop) */}
             {Array.from({ length: 5 }).map((_, i) => (
-                <img key={i} className="w-[10%]" src={notaSvg}></img>
+                <img 
+                    key={i} 
+                    className={`w-4 h-4 md:w-5 md:h-5 transition-all duration-300 ${i < score ? "" : "opacity-30 grayscale"}`} 
+                    src={notaSvg} 
+                    alt="Nota"
+                />
             ))}
         </div>
     );

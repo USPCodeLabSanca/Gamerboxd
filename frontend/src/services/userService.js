@@ -46,30 +46,53 @@ export async function unfollowUser (userId) {
     return res.data;    // { message }
 }
 
-export async function getFollowers (userId, {pageSize, cursor, search, order} = {}) {
-    const res = await api.get(`/users/follow/followers/${userId}`, {
-        params: {
-            page_size: pageSize,
-            cursor: cursor,
-            search: search,
-            order: order,
-        }
-    });
 
-    return res.data;    // Schema PAGE_RESULT com lista de schemas USER
+export async function getFollowers(userId, {
+    pageSize,
+    cursor,
+    search,
+    order,
+    nextUrl
+} = {}) {
+
+    const res = await api.get(
+        nextUrl || `/users/follow/followers/${userId}`,
+        nextUrl ? {} : {
+            params: {
+                page_size: pageSize,
+                cursor,
+                search,
+                order,
+            }
+        }
+    );
+
+    return res.data;
 }
 
-export async function getFollowings (userId, {pageSize, cursor, search, order} = {}) {
-    const res = await api.get(`/users/follow/followings/${userId}`, {
-        params: {
-            page_size: pageSize,
-            cursor: cursor,
-            search: search,
-            order: order,
-        }
-    });
 
-    return res.data;    // Schema PAGE_RESULT com lista de schemas USER
+
+export async function getFollowings(userId, {
+    pageSize,
+    cursor,
+    search,
+    order,
+    nextUrl
+} = {}) {
+
+    const res = await api.get(
+        nextUrl || `/users/follow/followings/${userId}`,
+        nextUrl ? {} : {
+            params: {
+                page_size: pageSize,
+                cursor,
+                search,
+                order,
+            }
+        }
+    );
+
+    return res.data;
 }
 
 export async function blockUser (userId) {
@@ -84,15 +107,26 @@ export async function unblockUser (userId) {
     return res.data;
 }
 
-export async function getBlocks ({pageSize, cursor, search, order} = {}) {
-    const res = await api.get(`/users/block`, {
-        params: {
-            page_size: pageSize,
-            cursor: cursor,
-            search: search,
-            order: order,
+
+export async function getBlocks({
+    pageSize,
+    cursor,
+    search,
+    order,
+    nextUrl
+} = {}) {
+
+    const res = await api.get(
+        nextUrl || '/users/block',
+        nextUrl ? {} : {
+            params: {
+                page_size: pageSize,
+                cursor,
+                search,
+                order,
+            }
         }
-    });
+    );
 
     return res.data;
 }
