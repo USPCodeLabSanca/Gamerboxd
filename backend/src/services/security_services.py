@@ -1,8 +1,10 @@
-import bcrypt
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
 from jose import jwt
 import math
+import re
 
 from ..models.schemas import ListNew, ListEdit, ReviewNew, ReviewEdit, UserNew, UserEdit
 from .db_services import (
@@ -22,21 +24,25 @@ from .db_services import (
 from ..utils import errors as err
 from ..utils.utils import RelationshipStatus
 
-def passwords_match(stored_password, tested_password):
+
+def passwords_match(stored_password: str, tested_password: str):
     """Testa se a senha que o usuário está tentando para logar é a mesma que ele cadastrou a criar a conta"""
 
-    tested_password_bytes = tested_password.encode('utf-8')
-    stored_password_bytes = stored_password.encode('utf-8')
+    ph = PasswordHasher()
+    try:
+        ph.verify(stored_password, tested_password)
 
-    return bcrypt.checkpw(tested_password_bytes, stored_password_bytes)
+    except VerifyMismatchError:
+        return False
+
+    return True
 
 
 def encrypt_password(password: str):
     """Passa a senha por um hash"""
 
-    password_bytes = password.encode('utf-8')
-    encrypted_password_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
-    return encrypted_password_bytes.decode('utf-8')
+    ph = PasswordHasher()
+    return ph.hash(password)
 
 
 def encode_token(user_id: str, exp_in_minutes: int, key: str):
@@ -57,23 +63,33 @@ def decode_token(cookies, token_name: str, key: str):
     return jwt.decode(cookies[token_name], key, algorithms=["HS256"], options={"verify_exp": False})
 
 
-async def is_user_valid(conn, user: UserNew | UserEdit, user_id: str = None):
-    """Testa se uma conta de usuário ao criar ou editar é válida para entrar no DB"""
+async def is_username_valid(conn, username: str, user_id: str = None):
+    """Testa se um username ao criar ou editar é válido para entrar no DB"""
 
-    username = user.username.strip()
+    username = username.strip()
 
     if (len(username) < 4) or (len(username) > 24):
         raise err.QueryError(400, "O username deve ter entre 4 e 24 caracteres!")
         
-    user_id_exists = await DB_read_user_column(conn=conn, column="id", username=user.username)
+    user_id_exists = await DB_read_user_column(conn, column="id", username=username)
 
     if user_id_exists is not None:
-        if ((user_id is not None) and (user_id_exists != user_id)) or (user_id is None):
+        if (user_id_exists != user_id) or (user_id is None):
             raise err.QueryError(409, f'O username "{username}" já está sendo utilizado!')
 
-    user.username = username
-    
-    email = user.email.strip()
+    tokens = re.split(r'[._-]+', username)
+    joined_tokens = "".join(tokens)
+
+    if not joined_tokens.isalnum():
+        raise err.QueryError(400, 'O username só pode conter Aa-Zz, 0-9, e os caractéres "-", "_", "."')
+
+    return username
+
+
+async def is_email_valid(conn, email: str, user_id: str = None):
+    """Testa se um email ao criar ou editar é válido para entrar no DB"""
+
+    email = email.strip()
 
     try:
         validate_email(email)
@@ -85,38 +101,56 @@ async def is_user_valid(conn, user: UserNew | UserEdit, user_id: str = None):
     if (email_exists is not None) and (email_exists != user_id):
         raise err.QueryError(409, f'O email "{email}" já está sendo utilizado!')
 
-    user.email = email
+    return email
+
+
+def is_password_valid(password: str):
+    """Testa se uma senha é segura o suficiente para entrar no DB"""
+
+    if not ((len(password) < 65) and (len(password) > 7)):
+        raise err.QueryError(400, "A senha deve conter entre 8 a 64 caracteres!")
     
-    if hasattr(user, "password"):
-        password = user.password
+    if not any(char.isdigit() for char in password):
+        raise err.QueryError(400, "A senha deve conter pelo menos um número!")
+    
+    if not any(not char.isalnum() for char in password):
+        raise err.QueryError(400, "A senha deve conter pelo menos um símbolo!")
+    
+    if not (any(char.isupper() for char in password) and any(char.islower() for char in password)):
+        raise err.QueryError(400, "A senha deve conter pelo menos uma letra minúscula e uma letra maiúscula!")
 
-        if not ((len(password) < 65) and (len(password) > 7)):
-            raise err.QueryError(400, "A senha deve conter entre 8 a 64 caracteres!")
+
+def is_bio_valid(bio: str | None):
+    """Testa se a bio do usuário segue a regras de negócio do modelo"""
+
+    if bio is not None:
+        bio = bio.strip()
+
+        if len(bio) > 280:
+            raise err.QueryError(400, "A bio não pode ter mais que 280 caracteres!")
+
+        if len(bio) == 0:
+            raise err.QueryError(400, "A bio não pode ser apenas espaço vazio!")
+
+    return bio
+
+
+async def is_user_insertion_valid(conn, user: UserNew):
+    """Testa se uma conta de usuário ao criar é válida para entrar no DB"""
+
+    user.username = await is_username_valid(conn, user.username)
+    user.email = await is_email_valid(conn, user.email)
+    is_password_valid(user.password)
         
-        if not any(char.isdigit() for char in password):
-            raise err.QueryError(400, "A senha deve conter pelo menos um número!")
-        
-        if not any(not char.isalnum() for char in password):
-            raise err.QueryError(400, "A senha deve conter pelo menos um símbolo!")
-        
-        if not (any(char.isupper() for char in password) and any(char.islower() for char in password)):
-            raise err.QueryError(400, "A senha deve conter pelo menos uma letra minúscula e uma letra maiúscula!")
+    return user
 
-    if hasattr(user, "bio"):
-        bio = user.bio
 
-        if bio is not None:
+async def is_user_update_valid(conn, user: UserEdit, user_id: str):
+    """Testa se uma conta de usuário ao editar é válida para entrar no DB"""
 
-            if len(bio) > 280:
-                raise err.QueryError(400, "A bio não pode ter mais que 280 caracteres!")
+    user.username = await is_username_valid(conn, user.username, user_id)
+    user.bio = is_bio_valid(user.bio)
 
-            bio_stripped = bio.strip()
-
-            if len(bio_stripped) == 0:
-                raise err.QueryError(400, "A bio não pode ser apenas espaço vazio!")
-
-            user.bio = bio
-        
     return user
 
 
@@ -152,6 +186,7 @@ async def is_list_update_valid(conn, user_id: str, list_in: ListEdit, list_id: s
         raise err.QueryError(409, f'Você já possui uma lista com o nome "{list_in.name}"!')
       
     return _basic_list_checks(list_in)
+
 
 
 def _basic_list_checks(list_in: ListNew | ListEdit):

@@ -3,7 +3,18 @@ from fastapi.responses import JSONResponse
 
 from ..models.schemas.user import UserNew, UserDetails, UserEdit
 from ..models.schemas.list import ListNew
-from ..services.security_services import encrypt_password, is_user_valid, encode_token, classify_relationship, resolve_user_clearence
+from ..services.security_services import (
+    encrypt_password,
+    is_user_insertion_valid,
+    is_user_update_valid,
+    is_username_valid,
+    is_password_valid,
+    is_email_valid,
+    is_bio_valid,
+    encode_token,
+    classify_relationship,
+    resolve_user_clearence
+)
 from ..services.db_services.user import *
 from ..services.db_services.list import DB_create_list, DB_create_list_save, DB_read_user_basic_lists
 from ..utils import pagination as pag
@@ -19,8 +30,8 @@ async def new_user(user: UserNew, conn = Depends(dep.get_conn), key = Depends(de
     """Cria uma nova conta de usuário. Ao criar a conta, 2 listas padrão são geradas (Favoritos e Completados)"""
 
     async with conn.transaction():
-        user = await is_user_valid(conn, user)          # Validação do username, email e senha
-        user.password = encrypt_password(user.password) # Encriptação da senha  
+        user = await is_user_insertion_valid(conn, user)# Validação do username, email e senha
+        user.password = encrypt_password(user.password) # Hashing da senha  
         new_user_id = await DB_create_user(conn, user)  # Adiciona ao DB
         await _first_lists(new_user_id, conn)           # Cria e salva as listas de favoritos e de completados
 
@@ -39,10 +50,46 @@ async def edit_user(user: UserEdit, conn = Depends(dep.get_conn), user_id = Depe
     """Atualiza os dados do usuário autenticado"""
 
     async with conn.transaction():
-        user = await is_user_valid(conn, user, user_id)             # Validação do usuário
+        user = await is_user_update_valid(conn, user, user_id)      # Validação do usuário
         await DB_update_user(conn, user, user_id)                   # Atualiza o usuário no DB
         user_full = await _get_user_account(conn, user_id, RelationshipStatus.OWNER)  
     return JSONResponse(user_full.model_dump())
+
+
+@user_router.get("/validate/username/{username}")
+async def validate_username(username: str, user_id: str = None, conn = Depends(dep.get_conn)):
+    """Verifica se o username providenciado pelo usuário é válido para entrar/editar no DB"""
+
+    await is_username_valid(conn, username, user_id)
+
+    return JSONResponse({"message": "Username válido!"})
+
+
+@user_router.get("/validate/email/{email}")
+async def validate_email(email: str, user_id: str = None, conn = Depends(dep.get_conn)):
+    """Verifica se o email providenciado pelo usuário é válido para entrar/editar no DB"""
+
+    await is_email_valid(conn, email, user_id)
+
+    return JSONResponse({"message": "Email válido!"})
+
+
+@user_router.get("/validate/password/{password}")
+async def validate_password(password: str):
+    """Verifica se a senha providenciada pelo usuário é válida para entrar no DB"""
+
+    is_password_valid(password)
+
+    return JSONResponse({"message": "Senha válida!"})
+
+
+@user_router.get("/validate/bio/{bio}")
+async def validate_bio(bio: str):
+    """Verifica se a bio providenciada pelo usuário é válida para entrar no DB"""
+
+    is_bio_valid(bio)
+
+    return JSONResponse({"message": "Bio válida!"})
 
 
 @user_router.delete("")

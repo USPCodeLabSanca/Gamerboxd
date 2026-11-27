@@ -1,26 +1,29 @@
-import { useState } from "react";
-import api from "../api/axios";
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { getGames, getGame, getAllGames } from '../services/gameService';
 
-export function useGames() {
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export function useGames({ search = "", page = 1, pageSize = 20, detail = false } = {}) {
+    return useQuery({
+        queryKey: ['games', { search, page, pageSize, detail }],
+        queryFn: () => getGames({ search, page, pageSize, detail }),
+        retry: false,
+        placeholderData: keepPreviousData, 
+    })
+}
 
-  const search = async (term, page = 1) => {
-    if (!term.trim()) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.get(`/game/${term}`, {
-        params: { page, page_size: 20 },
-      });
-      setResults(res.data.games);
-    } catch (err) {
-      setError(err.response?.data?.detail);
-    } finally {
-      setLoading(false);
-    }
-  };
+export function useGame(gameId) {
+    return useQuery({
+        queryKey: ['game', gameId],
+        queryFn: () => getGame(gameId),
+        enabled: !!gameId,
+        retry: false,
+    })
+}
 
-  return { results, loading, error, search };
+export function useAllGames({ search = "", detail = true } = {}) {
+    return useQuery({
+        queryKey: ['games', 'all', { search, detail }],
+        queryFn: () => getAllGames({ search, detail }),
+        retry: false,
+        staleTime: 60_000,
+    })
 }
