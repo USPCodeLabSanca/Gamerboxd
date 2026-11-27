@@ -7,6 +7,16 @@ class User(BaseModel):
     pfp: str | None = None
 
 
+class UserDetails(User):
+    """Dados um pouco mais completos de um usuário"""
+
+    reviews: int
+    lists: int
+    liked: int
+    followers: int
+    followeds: int
+
+
 class UserAuth(BaseModel):
     """Dados necessários para fazer o login"""
     email_or_username: str
@@ -38,7 +48,7 @@ class UserOut(User):
 
 from .list import ListGames
 
-class UserDetails(UserOut):
+class UserComplete(UserOut):
     """Dados completos para preencher a conta do usuário"""
     follower_count: int
     following_count: int

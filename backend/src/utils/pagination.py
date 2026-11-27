@@ -57,28 +57,35 @@ def build_where(page_clauses: PageClauses, param_queries: PageQuery, count: bool
 
     # Condição básica de selecionar linhas de um DB
     clauses = [bc[0] for bc in page_clauses.basic_conditions]
-    params = [bc[1] for bc in page_clauses.basic_conditions]
+    params = [bc[1] for bc in page_clauses.basic_conditions if len(bc) > 1]
 
     # Condição de busca (ILIKE)
     if param_queries.search is not None:
         params.append(escape_like(param_queries.search) + "%")
         clauses.append(f"{page_clauses.search_col} ILIKE ${len(params)}")
 
+    _count_expr = {
+        "follower_count": "(SELECT COUNT(*) FROM Follows x WHERE x.followed = u.id)",
+        "review_count": "(SELECT COUNT(*) FROM Reviews x WHERE x.reviewer = u.id)",
+        "list_count": "(SELECT COUNT(*) FROM Lists x WHERE x.creator = u.id)",
+    }
+
     col1, col2 = col_name(page_clauses.table_alias, param_queries.order), col_name(page_clauses.table_alias, page_clauses.col2)
+    expr1, expr2 = _count_expr.get(col1, col1), _count_expr.get(col2, col2)
     op = "<" if param_queries.order[0] == "!" else ">"
 
     # Cursor para ordenar
     if not count:
         if (param_queries.cursor is not None):
             val1, val2 = decode_cursor_to_tuple(param_queries.cursor)
-            clauses.append(f"({col1}, {col2}) {op} (${len(params)+1}, ${len(params)+2})")
+            clauses.append(f"({expr1}, {expr2}) {op} (${len(params)+1}, ${len(params)+2})")
             params += [val1, val2]
 
         params.append(param_queries.page_size+1)
 
     where = " AND ".join(clauses)
-    order_by = f"{col1} {op_to_dir(op)}, {col2} {op_to_dir(op)}"
-    cols_for_cursor = f"{col1} AS main_col, {col2} AS other_col"
+    order_by = ", ".join([f"{expr} {op_to_dir(op)}" for expr in (expr1, expr2)])
+    cols_for_cursor = ", ".join([f"{expr1} AS main_col", f"{expr2} AS other_col"])
     return where, order_by, cols_for_cursor, params
 
 

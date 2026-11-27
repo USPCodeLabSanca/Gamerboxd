@@ -75,6 +75,22 @@ Alguns schemas vão se repetir bastante ao longo da documentação, então fica 
     "pfp": "string" | null,     // Caminho para a foto de perfil, null se não houver
 }
 ```
+
+- #### \_\_USER_DETAIL\_\_
+  
+```json
+{
+    "user_id": "string",        // Id único do usuário
+    "username": "string",       // Username do usuário
+    "pfp": "string" | null,     // Caminho para a foto de perfil, null se não houver
+    "reviews": 0,               // Quantas reviews o usuário já escreveu
+    "lists": 0,                 // Quantas listas o usuário já criou
+    "liked": 0,                 // Quantos likes o usuário já deu para games em suas reviews
+    "followers": 0,             // Quantos seguidores o usuário tem
+    "followeds": 0              // Quantas contas o usuário segue
+}
+```
+
 - #### \_\_USER_FULL\_\_
   
 ```json

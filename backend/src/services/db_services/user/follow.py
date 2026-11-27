@@ -1,4 +1,4 @@
-from ....models.schemas.user import User
+from ....models.schemas.user import User, UserDetails
 from ....utils.utils import db_query
 from ....utils import pagination as pag
 
@@ -48,6 +48,11 @@ async def _DB_read_user_follow_page(conn, user_id: str, page_query: pag.PageQuer
         where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
             SELECT u.id, u.username, u.pfp,
+            (SELECT COUNT(*) FROM Lists l WHERE l.creator = u.id) AS list_count,
+            (SELECT COUNT(*) FROM Reviews r WHERE r.reviewer = u.id) AS review_count,
+            (SELECT COUNT(*) FROM Reviews r WHERE r.reviewer = u.id AND r.liked = True) AS liked_count,
+            (SELECT COUNT(*) FROM Follows fr WHERE fr.follower = u.id) AS followed_count,
+            (SELECT COUNT(*) FROM Follows fd WHERE fd.followed = u.id) AS follower_count,
             {cursor_cols}
             FROM Follows f
             JOIN Users u ON u.id = f.{owner_col}
@@ -59,7 +64,18 @@ async def _DB_read_user_follow_page(conn, user_id: str, page_query: pag.PageQuer
         has_more = len(rows) > page_query.page_size
         rows = list(rows[:page_query.page_size])
     
-        followers = [User(user_id=r["id"], username=r["username"], pfp=r["pfp"]) for r in rows]
+        followers = [
+            UserDetails(
+                user_id=r["id"], 
+                username=r["username"],
+                pfp=r["pfp"],
+                reviews=r["review_count"],
+                lists=r["list_count"],
+                liked=r["liked_count"],
+                followeds=r["followed_count"],
+                followers=r["follower_count"]
+            ) for r in rows
+        ]
 
         return pag.PageResult(
             total=total_followers,
@@ -93,13 +109,13 @@ async def DB_read_user_follows(conn, user_id: str):
         total_followers = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Follows f
-            WHERE f.follower = $1
+            WHERE f.followed = $1
         ''', user_id)
 
         total_followeds = await conn.fetchval(f'''
             SELECT COUNT(*)
             FROM Follows f
-            WHERE f.followed = $1
+            WHERE f.follower = $1
         ''', user_id)
 
     return total_followers, total_followeds
@@ -114,3 +130,75 @@ async def DB_read_already_follows(conn, user_id_follower: str, user_id_followed:
         FROM Follows f
         WHERE f.follower = $1 AND f.followed = $2
     ''', user_id_follower, user_id_followed)
+
+
+
+
+@db_query
+async def DB_read_follow_suggestions_page(conn, user_id: str, page_query: pag.PageQuery):
+    """Lê uma página de seguidores de segundo grau do usuário"""
+
+    async with conn.transaction():
+
+        clauses = pag.PageClauses(
+            basic_conditions=[
+                ("f.follower = $1", user_id), 
+                ("f2.followed <> $1",), 
+                ("NOT EXISTS (SELECT 1 FROM Follows z WHERE z.follower = $1 AND z.followed = f2.followed)",)
+            ],
+            table_alias="f2",
+            col2="followed",
+            search_col="u.username"
+        )
+
+        # Conta quantos seguidores de segundo grau do usuário correspondem a busca
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, True)
+        total_suggestions = await conn.fetchval(f'''
+            SELECT COUNT(DISTINCT f2.followed)
+            FROM Follows f
+            JOIN Follows f2 ON f.followed = f2.follower
+            JOIN Users u ON u.id = f2.followed
+            WHERE {where}
+        ''', *params)
+
+        # Pega uma página de seguidores de segundo grau do usuário
+        where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
+        rows = await conn.fetch(f'''
+            SELECT DISTINCT u.id, u.username, u.pfp,
+            (SELECT COUNT(*) FROM Lists l WHERE l.creator = u.id) AS list_count,
+            (SELECT COUNT(*) FROM Reviews r WHERE r.reviewer = u.id) AS review_count,
+            (SELECT COUNT(*) FROM Reviews r WHERE r.reviewer = u.id AND r.liked = True) AS liked_count,
+            (SELECT COUNT(*) FROM Follows fr WHERE fr.follower = u.id) AS followed_count,
+            (SELECT COUNT(*) FROM Follows fd WHERE fd.followed = u.id) AS follower_count,
+            {cursor_cols}
+            FROM Follows f
+            JOIN Follows f2 ON f.followed = f2.follower
+            JOIN Users u ON u.id = f2.followed
+            WHERE {where}
+            ORDER BY {order_by}
+            LIMIT ${len(params)}
+        ''', *params)
+    
+        has_more = len(rows) > page_query.page_size
+        rows = list(rows[:page_query.page_size])
+    
+        suggestions = [
+            UserDetails(
+                user_id=r["id"], 
+                username=r["username"],
+                pfp=r["pfp"],
+                reviews=r["review_count"],
+                lists=r["list_count"],
+                liked=r["liked_count"],
+                followeds=r["followed_count"],
+                followers=r["follower_count"]
+            ) for r in rows
+        ]
+
+        return pag.PageResult(
+            total=total_suggestions,
+            page_len=len(rows),
+            content=suggestions,
+            current_url=page_query.cursor,
+            next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
+        )

@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from ..models.schemas.user import UserNew, UserDetails, UserEdit
+from ..models.schemas.user import UserNew, UserComplete, UserEdit
 from ..models.schemas.list import ListNew
 from ..services.security_services import (
     hash_password,
@@ -218,6 +218,28 @@ async def view_blocks(page_query = Depends(dep.validate_queries(["username", "cr
     return JSONResponse(blockeds_page_with_url.model_dump())
 
 
+@user_router.get("/suggestions")
+async def user_suggestions(page_query = Depends(dep.validate_queries(["username", "review_count", "follower_count", "list_count"], "!follower_count")),
+    conn = Depends(dep.get_conn), user_id = Depends(dep.require_login), url = Depends(dep.get_current_url)):
+    """Busca os usuários com 2 grau de relação do usuário autenticado"""
+
+    suggestions_page = await DB_read_follow_suggestions_page(conn, user_id, page_query)
+    suggestions_page_with_url = pag.convert_cursors_to_paths(suggestions_page, url)
+
+    return JSONResponse(suggestions_page_with_url.model_dump())
+
+
+@user_router.get("/search")
+async def search_users(page_query = Depends(dep.validate_queries(["username", "review_count", "follower_count", "list_count"], "!follower_count")),
+    conn = Depends(dep.get_conn), user_id = Depends(dep.optional_login), url = Depends(dep.get_current_url)):
+    """Busca usuários do gamerboxd"""
+
+    search_page = await DB_read_users_page(conn, user_id, page_query)
+    search_page_with_url = pag.convert_cursors_to_paths(search_page, url)
+
+    return JSONResponse(search_page_with_url.model_dump())
+
+
 @user_router.get("/{user_id}")
 async def see_account(user_id: str = Depends(dep.user_id_exists), conn = Depends(dep.get_conn), user_id_viewer = Depends(dep.require_login)):
     """Retorna os dados de um usuário pelo user_id"""
@@ -263,7 +285,7 @@ async def _get_user_account(conn, user_id_viewed: str, rel: int):
     followers, followeds = await DB_read_user_follows(conn, user_id_viewed)      # Dados de seguidores do usuário                 
     lists = await DB_read_user_basic_lists(conn, user_id_viewed, rel)    # Dados das listas básicas do usuário 
     
-    return UserDetails(
+    return UserComplete(
         user_id=user_id_viewed,
         username=out.username,
         pfp=out.pfp,
@@ -275,3 +297,8 @@ async def _get_user_account(conn, user_id_viewed: str, rel: int):
         following_count=followeds,
         rel=rel
     )
+
+
+
+
+    
