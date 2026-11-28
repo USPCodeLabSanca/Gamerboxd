@@ -7,7 +7,6 @@ const getters = {
     year: getYear,
     rating: (game) => game.gamerboxd_rating ?? null,
     likes: (game) => game.like_count ?? null,
-    reviews: (game) => game.review_count ?? null,
     completed: (game) => game.completed_count ?? null,
 };
 

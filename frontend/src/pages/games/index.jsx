@@ -34,10 +34,6 @@ const FILTERS = [
     { key: "likes", name: "Curtidas", kind: "sort", description: "Quantidade de pessoas que marcaram que curtiram o jogo nas reviews.", options: [
         { label: "Mais curtidos primeiro (jogo)", value: "likes:desc" },
     ] },
-    { key: "reviews", name: "Avaliações", kind: "sort", unavailable: "Mais avaliados por curtidas nas reviews: indisponível. A API não retorna o total dessas curtidas por jogo.", options: [
-        { label: "Mais avaliados primeiro (curtidas nas reviews)", value: "reviewLikes:desc", disabled: true },
-        { label: "Maior quantidade de reviews", value: "reviews:desc" },
-    ] },
     { key: "completed", name: "Completados", kind: "sort", description: "Marcações de completado nas reviews de todos os usuários. Não inclui jogos adicionados diretamente às listas.", options: [
         { label: "Mais completados primeiro", value: "completed:desc" },
     ] },
@@ -188,7 +184,7 @@ function Filter({ sort, decade, onSort, onDecade, onClear, hasFilter }) {
 
                         {isOpen && (
                             <ul className="absolute left-0 top-full z-30 mt-1 max-h-64 min-w-48 overflow-y-auto rounded-md bg-neutral-700/95 py-1 shadow-xl ring-1 ring-white/10 backdrop-blur">
-                                {(filter.unavailable || filter.description) && <li className="px-4 py-2 text-sm text-white/60">{filter.unavailable || filter.description}</li>}
+                                {filter.description && <li className="px-4 py-2 text-sm text-white/60">{filter.description}</li>}
                                 {filter.options.map((o) => {
                                     const isSelected = o.value === selected;
 
@@ -196,7 +192,6 @@ function Filter({ sort, decade, onSort, onDecade, onClear, hasFilter }) {
                                         <li key={o.value}>
                                             <button
                                                 className={`flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-2 text-left text-sm transition-colors hover:bg-roxo hover:text-white ${isSelected ? "bg-roxo font-semibold text-white" : "text-white"}`}
-                                                disabled={!!o.disabled}
                                                 onClick={() => pick(filter, o.value)}
                                             >
                                                 {o.label}

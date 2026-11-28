@@ -109,7 +109,7 @@ it.skipIf(!apiUrl)('persiste o ciclo de uma review e atualiza os agregados na AP
         const previousCatalogRequests = catalogRequests;
         const updatedCatalog = await getAllGames();
         record({ event: 'catalog-reloaded', total: updatedCatalog.length, getGamesRequests: catalogRequests - previousCatalogRequests });
-        for (const [sort, field] of [['rating:desc', 'gamerboxd_rating'], ['likes:desc', 'like_count'], ['reviews:desc', 'review_count'], ['completed:desc', 'completed_count']]) {
+        for (const [sort, field] of [['rating:desc', 'gamerboxd_rating'], ['likes:desc', 'like_count'], ['completed:desc', 'completed_count']]) {
             const sorted = sortGames(updatedCatalog, sort);
             expect(sorted).toHaveLength(updatedCatalog.length);
             const numbers = sorted.map((game) => game[field]).filter((value) => value !== null);
