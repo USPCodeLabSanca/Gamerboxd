@@ -2,6 +2,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from datetime import datetime, timedelta, timezone
 from email_validator import validate_email, EmailNotValidError
+from fastapi import Response, Request
 from jose import jwt
 import math
 import re
@@ -38,29 +39,75 @@ def passwords_match(stored_password: str, tested_password: str):
     return True
 
 
-def encrypt_password(password: str):
+def hash_password(password: str):
     """Passa a senha por um hash"""
 
     ph = PasswordHasher()
     return ph.hash(password)
 
 
-def encode_token(user_id: str, exp_in_minutes: int, key: str):
-    """Cria os jwt para guardar nos cookies"""
+def add_cookie(response: Response, jwt_config: dict, name: str, user_id: str):
+    """Adiciona um cookie à resposta HTTP"""
 
-    exp_time = datetime.now(tz=timezone.utc) + timedelta(minutes=exp_in_minutes)
+    claims = {
+        "sub": user_id,
+        "exp": jwt_config[name + "_exp"],
+        "iss": jwt_config["iss"],
+        "aud": jwt_config["aud"]
+    }
+
+    response.set_cookie(
+        key = name,
+        value = encode_token(jwt_config["key"], claims),
+        secure = jwt_config["secure"],
+        httponly = True,
+        samesite = "strict",
+        max_age  =  int(60 * jwt_config[name + "_exp"]) if "refresh" in name else None
+    ) 
+
+    return response 
+
+
+def remove_cookie(response: Response, jwt_config: dict, name: str):
+    """Remove um cookie da resposta HTTP"""
+
+    response.delete_cookie(
+        key=name,
+        secure=jwt_config["secure"],
+        httponly=True,
+        samesite="strict"
+    )
+
+    return response
+
+
+def encode_token(key: str, claims: dict):
+    """Cria um jwt para guardar nos cookies"""
+
+    exp_time = datetime.now(tz=timezone.utc) + timedelta(minutes=claims.pop("exp", 10))
     exp_time_int = int(exp_time.timestamp())
+    claims["exp"] = exp_time_int
 
-    claims = {"sub": user_id, "exp": exp_time_int}
-    token = jwt.encode(claims, key, algorithm="HS256")
-
-    return token
+    return jwt.encode(claims, key, algorithm="HS256")
 
 
-def decode_token(cookies, token_name: str, key: str):
+def decode_token(token: str, key: str, issuer: str, audience: str):
     """Lê o que está num jwt"""
 
-    return jwt.decode(cookies[token_name], key, algorithms=["HS256"], options={"verify_exp": False})
+    return jwt.decode(
+        token, 
+        key,
+        algorithms="HS256",
+        issuer=issuer,
+        audience=audience,
+        options={
+            "require_exp": True, 
+            "verify_exp": False,
+            "require_sub": True, 
+            "require_iss": True,
+            "require_aud": True,             
+        },
+    )
 
 
 async def is_username_valid(conn, username: str, user_id: str = None):

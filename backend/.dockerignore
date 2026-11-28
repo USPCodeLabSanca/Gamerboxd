@@ -8,6 +8,9 @@ Dockerfile
 docs/
 */.env.example
 
+# env
+.env
+
 # Python Cache & Artifacts
 __pycache__/
 *.pyc

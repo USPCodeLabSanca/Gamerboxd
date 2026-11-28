@@ -18,6 +18,8 @@
 - [GET `/users/validate/email/{email}` — Validar um email ANTES de enviar para o backend](#get-usersvalidateemailemail--validar-um-email-antes-de-enviar-para-o-backend)
 - [GET `/users/validate/password/{password}` — Validar uma senha ANTES de enviar para o backend](#get-usersvalidatepasswordpassword--validar-uma-senha-antes-de-enviar-para-o-backend)
 - [GET `/users/validate/bio/{bio}` — Validar uma bio ANTES de enviar para o backend](#get-usersvalidatebiobio--validar-uma-bio-antes-de-enviar-para-o-backend)
+- [GET `/users/suggestion` — Ver possíveis amigos do usuário (conexões de segundo grau)](#get-userssuggestion--ver-possíveis-amigos-do-usuário-conexões-de-segundo-grau)
+- [GET `/users/search` — Ver usuários do Gamerboxd](#get-userssearch--ver-usuários-do-gamerboxd)
 
 ---
  
@@ -252,7 +254,7 @@ Busca de forma paginada os seguidores do usuário.
 
 ### Resposta de Sucesso — `200`
  
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_USER_DETAIL\_\_**](./routes.md#__user_detail__).
  
 ### [Erros](./routes.md#erros) possíveis
  
@@ -288,7 +290,8 @@ Busca de forma paginada os seguidos pelo usuário.
 
 ### Resposta de Sucesso — `200`
  
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_USER_DETAIL\_\_**](./routes.md#__user_detail__).
+ 
  
 ### [Erros](./routes.md#erros) possíveis
  
@@ -385,7 +388,8 @@ Busca de forma paginada os bloqueados pelo usuário autenticado.
 
 ### Resposta de Sucesso — `200`
  
-Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas **\_\_USER\_\_**.
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_USER\_\_**](./routes.md#__user__).
+ 
  
 ### [Erros](./routes.md#erros) possíveis
  
@@ -511,3 +515,63 @@ Verifica se a bio providenciada pelo usuário é válida para entrar no DB
 |--------|--------|------------------------------|
 | `400`  | ✅     | Bio muito longa, ou apenas "   " |
 | `500`  | ❌     | Erro interno                 |
+
+
+---
+
+
+## GET `/users/suggestion` — Ver possíveis amigos do usuário (conexões de segundo grau)
+
+Busca de forma paginada as conexões de segundo grau do usuário autenticado.
+
+**Regras e comportamentos:**
+- **Requer login**.
+
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
+
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis usernames dos possiveis amigos pelo usuário.
+- order padrão é `!follower_count`, que mostra os usuários com maior número de seguidores. Os orders possíveis são: `["username", ""username", "review_count", "!review_count", "follower_count", "!follower_count",, "list_count", "!list_count"]`.
+
+### Resposta de Sucesso — `200`
+ 
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_USER_DETAIL\_\_**](./routes.md#__user_detail__).
+ 
+ 
+### [Erros](./routes.md#erros) possíveis
+ 
+| Status | HR     | Causa                           |
+|--------|--------|---------------------------------|
+| `401`  | ✅     | Usuário não autenticado         |
+| `422`  | ❌     | Query parameters inválidos      |
+| `500`  | ❌     | Erro interno                    |
+
+---
+
+
+## GET `/users/search` — Ver usuários do Gamerboxd
+
+Busca de forma paginada usuários com conta gamerboxd.
+
+**Regras e comportamentos:**
+- **Não requer login**.
+
+### Query Parameters ([Paginação](./routes.md#rotas-paginadas))
+
+**\_\_PAGE_QUERY\_\_**:
+- search busca por possíveis usernames de usuários
+- order padrão é `!follower_count`, que mostra os usuários com maior número de seguidores. Os orders possíveis são: `["username", ""username", "review_count", "!review_count", "follower_count", "!follower_count",, "list_count", "!list_count"]`.
+
+### Resposta de Sucesso — `200`
+ 
+Retorna schema **\_\_PAGE_RESULT\_\_**, onde o content é uma lista de schemas [**\_\_USER_DETAIL\_\_**](./routes.md#__user_detail__).
+ 
+ 
+### [Erros](./routes.md#erros) possíveis
+ 
+| Status | HR     | Causa                           |
+|--------|--------|---------------------------------|
+| `422`  | ❌     | Query parameters inválidos      |
+| `500`  | ❌     | Erro interno                    |
+
+---

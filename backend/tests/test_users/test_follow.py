@@ -163,7 +163,7 @@ def test_follow_pagination(direction, pagination_tests, users, create_account, f
         return usernames
 
     seed.cleanup = create_account.cleanup
-    seed.expected_content = ["user_id", "username", "pfp"]
+    seed.expected_content = ["user_id", "username", "pfp", "reviews", "lists", "liked", "followers", "followeds"]
     seed.valid_orders = ["created_at", "username"]
     seed.searches = ["Alex", "Beto", "Carla"]
     seed.return_obj = "username"

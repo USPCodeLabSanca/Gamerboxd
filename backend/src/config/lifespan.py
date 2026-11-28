@@ -32,7 +32,7 @@ class LifespanConfig():
         env_keys = [
             "IS_TESTING", "VM_USER", "VM_PASS", "DB_USER", "DB_PASS", "DB_NAME",
             "DB_HOST", "DB_PORT", "JWT_KEY", "RAWG_KEY", "FRONT_URL", "BACK_URL",
-            "LOAD_GAMES"
+            "LOAD_GAMES", "SECURE", "ACCESS_TOKEN_DURATION_MIN", "REFRESH_TOKEN_DURATION_MIN"
         ]
 
         for key in env_keys:
@@ -41,11 +41,26 @@ class LifespanConfig():
 
             else:
                 value = str(self.env[key])
-                parsed_value = int(value) if value.isdigit() else value
+
+                if value.isdigit():
+                    if "DURATION" in key:
+                        parsed_value = float(value)
+
+                    elif value in ["0", "1"]:
+                        parsed_value = bool(int(value)) 
+
+                    else:
+                        parsed_value = int(value)
+                        
+                else:
+                    parsed_value = value
+
                 setattr(self, key.lower(), parsed_value)
 
-        if self.load_games not in ["all", "skip", "new"]:
-            raise ValueError('O campo LOAD_GAMES tem que ser "all", "skip" ou "new"!')
+        #if self.load_games not in ["all", "skip", "new"]:
+        #    raise ValueError(f'O campo LOAD_GAMES tem que ser "all", "skip" ou "new"! Veio "{self.load_games}"')
+
+        self.load_games = "skip"
 
 
     async def create_database(self, conn): 
@@ -59,13 +74,6 @@ class LifespanConfig():
             query = f"""
                 CREATE ROLE {self.db_user} WITH
                     LOGIN
-                    SUPERUSER
-                    CREATEDB
-                    CREATEROLE
-                    INHERIT
-                    NOREPLICATION
-                    NOBYPASSRLS
-                    CONNECTION LIMIT -1
                     PASSWORD '{self.db_pass}';
                 """
             
@@ -152,7 +160,14 @@ class LifespanConfig():
             # Armazena no app as chaves e os pools de conexão
             app.state.internal_pool = await self.create_internal_pool()
             app.state.external_pool = await self.create_external_pool()
-            app.state.jwt_key = self.jwt_key
+            app.state.jwt_config = {
+                "key": self.jwt_key,
+                "secure": self.secure,
+                "iss": self.back_url,
+                "aud": self.front_url,
+                "access-token_exp": self.access_token_duration_min,
+                "refresh-token_exp": self.refresh_token_duration_min,
+            }
             app.state.rawg_key = self.rawg_key
 
             # Cria as tabelas

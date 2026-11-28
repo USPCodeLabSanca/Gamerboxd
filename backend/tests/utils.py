@@ -66,9 +66,6 @@ def create_account_by_username(username: str):
     session = requests.Session()
     response = session.post(BASE_URL_USERS, json=payload)
 
-    for c in session.cookies:
-        c.secure = False
-
     response_json = response.json()
 
     assert response.status_code == 200, response_json

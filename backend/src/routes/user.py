@@ -1,19 +1,20 @@
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from ..models.schemas.user import UserNew, UserDetails, UserEdit
+from ..models.schemas.user import UserNew, UserComplete, UserEdit
 from ..models.schemas.list import ListNew
 from ..services.security_services import (
-    encrypt_password,
+    hash_password,
     is_user_insertion_valid,
     is_user_update_valid,
     is_username_valid,
     is_password_valid,
     is_email_valid,
     is_bio_valid,
-    encode_token,
+    add_cookie,
     classify_relationship,
-    resolve_user_clearence
+    resolve_user_clearence,
+    remove_cookie
 )
 from ..services.db_services.user import *
 from ..services.db_services.list import DB_create_list, DB_create_list_save, DB_read_user_basic_lists
@@ -26,21 +27,19 @@ user_router = APIRouter(prefix="/users", tags=["user"])
 
 
 @user_router.post("")
-async def new_user(user: UserNew, conn = Depends(dep.get_conn), key = Depends(dep.get_key)):
+async def new_user(user: UserNew, conn = Depends(dep.get_conn), jwt_config = Depends(dep.get_jwt_config)):
     """Cria uma nova conta de usuário. Ao criar a conta, 2 listas padrão são geradas (Favoritos e Completados)"""
 
     async with conn.transaction():
         user = await is_user_insertion_valid(conn, user)# Validação do username, email e senha
-        user.password = encrypt_password(user.password) # Hashing da senha  
+        user.password = hash_password(user.password) # Hashing da senha  
         new_user_id = await DB_create_user(conn, user)  # Adiciona ao DB
         await _first_lists(new_user_id, conn)           # Cria e salva as listas de favoritos e de completados
 
     # Loga o usuário
     response = JSONResponse({"message":"Conta criada com sucesso!", "user_id": new_user_id})
-    new_access_token = encode_token(new_user_id, 10, key)
-    new_refresh_token = encode_token(new_user_id, 720, key)
-    response.set_cookie("access-token", new_access_token, samesite="strict", secure=True, httponly=True)
-    response.set_cookie("refresh-token", new_refresh_token, samesite="strict", secure=True, httponly=True)
+    response = add_cookie(response, jwt_config, "access-token", new_user_id)
+    response = add_cookie(response, jwt_config, "refresh-token", new_user_id)
     
     return response
 
@@ -93,14 +92,14 @@ async def validate_bio(bio: str):
 
 
 @user_router.delete("")
-async def delete_user(conn = Depends(dep.get_conn), user_id = Depends(dep.require_login)):
+async def delete_user(conn = Depends(dep.get_conn), user_id = Depends(dep.require_login), jwt_config = Depends(dep.get_jwt_config)):
     """Remove permanentemente a conta do usuário autenticado"""
 
     await DB_delete_user(conn, user_id)
 
     response = JSONResponse({"message":"Conta deletada com sucesso!"})
-    response.delete_cookie("refresh-token", secure=True, httponly=True, samesite="strict")
-    response.delete_cookie("access-token", secure=True, httponly=True, samesite="strict")
+    response = remove_cookie(response, jwt_config, "refresh-token")
+    response = remove_cookie(response, jwt_config, "access-token")
     
     return response
 
@@ -221,6 +220,28 @@ async def view_blocks(page_query = Depends(dep.validate_queries(["username", "cr
     return JSONResponse(blockeds_page_with_url.model_dump())
 
 
+@user_router.get("/suggestions")
+async def user_suggestions(page_query = Depends(dep.validate_queries(["username", "review_count", "follower_count", "list_count"], "!follower_count")),
+    conn = Depends(dep.get_conn), user_id = Depends(dep.require_login), url = Depends(dep.get_current_url)):
+    """Busca os usuários com 2 grau de relação do usuário autenticado"""
+
+    suggestions_page = await DB_read_follow_suggestions_page(conn, user_id, page_query)
+    suggestions_page_with_url = pag.convert_cursors_to_paths(suggestions_page, url)
+
+    return JSONResponse(suggestions_page_with_url.model_dump())
+
+
+@user_router.get("/search")
+async def search_users(page_query = Depends(dep.validate_queries(["username", "review_count", "follower_count", "list_count"], "!follower_count")),
+    conn = Depends(dep.get_conn), user_id = Depends(dep.optional_login), url = Depends(dep.get_current_url)):
+    """Busca usuários do gamerboxd"""
+
+    search_page = await DB_read_users_page(conn, user_id, page_query)
+    search_page_with_url = pag.convert_cursors_to_paths(search_page, url)
+
+    return JSONResponse(search_page_with_url.model_dump())
+
+
 @user_router.get("/{user_id}")
 async def see_account(user_id: str = Depends(dep.user_id_exists), conn = Depends(dep.get_conn), user_id_viewer = Depends(dep.require_login)):
     """Retorna os dados de um usuário pelo user_id"""
@@ -266,7 +287,7 @@ async def _get_user_account(conn, user_id_viewed: str, rel: int):
     followers, followeds = await DB_read_user_follows(conn, user_id_viewed)      # Dados de seguidores do usuário                 
     lists = await DB_read_user_basic_lists(conn, user_id_viewed, rel)    # Dados das listas básicas do usuário 
     
-    return UserDetails(
+    return UserComplete(
         user_id=user_id_viewed,
         username=out.username,
         pfp=out.pfp,
@@ -278,3 +299,8 @@ async def _get_user_account(conn, user_id_viewed: str, rel: int):
         following_count=followeds,
         rel=rel
     )
+
+
+
+
+    

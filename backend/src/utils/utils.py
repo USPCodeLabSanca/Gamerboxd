@@ -63,6 +63,9 @@ def col_name(table_alias: str, col: str):
     if col[0] == "!":
         col = col[1:]
 
+    if "count" in col:
+        return col
+
     main_cols = {
         "username": "u",
         "title": "g",

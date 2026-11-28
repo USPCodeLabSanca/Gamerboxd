@@ -81,7 +81,7 @@ async def DB_read_user_blockeds(conn, user_id: str, page_query: pag.PageQuery):
             total=total_blockeds,
             page_len=len(rows),
             content=blocks,
-            current_len=page_query.cursor,
+            current_url=page_query.cursor,
             next_url=pag.encode_tuple_to_cursor((rows[-1]["main_col"], rows[-1]["other_col"])) if has_more else None
         )
 

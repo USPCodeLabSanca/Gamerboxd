@@ -1,4 +1,4 @@
-name: Gamerboxd
+name: Gamerboxd-dev
 
 services:
   frontend:
