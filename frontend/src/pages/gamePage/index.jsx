@@ -131,6 +131,12 @@ const mockLists = [
   },
 ];
 
+const compact = new Intl.NumberFormat("pt-BR", { notation: "compact" });
+const fmt = (n) => compact.format(n ?? 0);
+
+const animatedLink =
+  "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
+
 export default function GamePage() {
   const { id } = useParams();
   const { data, isLoading, isError } = useGame(id);
@@ -169,145 +175,217 @@ export default function GamePage() {
         completed={startCompleted}
         onSaved={(reviewId) => setParams({ review: reviewId })}
       />
-      <div className="min-h-screen bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20 pb-5 grid grid-cols-6 grid-rows-2 gap-x-20">
-        <GameHero
-          game={game}
-          onAvaliar={() => { setStartCompleted(undefined); setModalOpen(true); }}
-          canReview={!!me && !authPending && !own.isLoading}
-          hasReview={!!ownReview}
-          wishlist={wishlist}
-          onWishlist={() => setWishlist(w => !w)}
-          completo={ownReview?.completed ?? false}
-          onCompleto={() => { setStartCompleted(!ownReview?.completed); setModalOpen(true); }}
-        />
-        <Details game={game} />
-        <div className="mb-10 col-span-4 text-white flex flex-col gap-4">
-          <h2 className="border-b border-white py-2">{selectedId ? "Review selecionada" : "Sua review"}</h2>
-          {own.error && <p role="alert">Não foi possível consultar suas reviews. {getErrorMessage(own.error)}</p>}
-          {selected.error && <p role="alert">{getErrorMessage(selected.error)}</p>}
-          {!me && <Link to="/login">Entre para avaliar este jogo.</Link>}
-          {(selected.isLoading || own.isLoading) && <p>Carregando review...</p>}
-          {selectedId && selected.data?.game.game_id !== undefined && selected.data.game.game_id !== Number(id) && <p>Esta review pertence a outro jogo.</p>}
-          {selected.data?.game.game_id === Number(id)
-            ? <Review review={selected.data} onDeleted={() => setParams({})} />
-            : !selectedId && own.data && <Review review={own.data} />}
-          {me && own.data === null && !selectedId && <p>Você ainda não avaliou este jogo.</p>}
+      <div className="relative min-h-screen overflow-x-hidden bg-linear-to-b from-cinza to-black">
+        <Backdrop src={game.url} />
+        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-20 pt-36 pb-16">
+          <GameHero
+            game={game}
+            onAvaliar={() => { setStartCompleted(undefined); setModalOpen(true); }}
+            canReview={!!me && !authPending && !own.isLoading}
+            hasReview={!!ownReview}
+            wishlist={wishlist}
+            onWishlist={() => setWishlist(w => !w)}
+            completo={ownReview?.completed ?? false}
+            onCompleto={() => { setStartCompleted(!ownReview?.completed); setModalOpen(true); }}
+          />
+          <div className="mt-20 grid grid-cols-1 gap-12 lg:grid-cols-3">
+            <div className="mb-10 min-w-0 lg:col-span-2 text-white flex flex-col gap-4">
+              <h2 className="border-b border-white py-2">{selectedId ? "Review selecionada" : "Sua review"}</h2>
+              {own.error && <p role="alert">Não foi possível consultar suas reviews. {getErrorMessage(own.error)}</p>}
+              {selected.error && <p role="alert">{getErrorMessage(selected.error)}</p>}
+              {!me && <Link to="/login">Entre para avaliar este jogo.</Link>}
+              {(selected.isLoading || own.isLoading) && <p>Carregando review...</p>}
+              {selectedId && selected.data?.game.game_id !== undefined && selected.data.game.game_id !== Number(id) && <p>Esta review pertence a outro jogo.</p>}
+              {selected.data?.game.game_id === Number(id)
+                ? <Review review={selected.data} onDeleted={() => setParams({})} />
+                : !selectedId && own.data && <Review review={own.data} />}
+              {me && own.data === null && !selectedId && <p>Você ainda não avaliou este jogo.</p>}
+            </div>
+            <GameLists />
+          </div>
         </div>
-        <GameLists />
       </div>
     </>
   );
 }
 
-function GameHero({ game, onAvaliar, canReview, hasReview, wishlist, onWishlist, completo, onCompleto }) {
+function Backdrop({ src }) {
+  if (!src) return null;
+
+  const fade = "linear-gradient(to bottom, black 30%, transparent)";
+
   return (
-    <div className="flex flex-row items-center self-center gap-4 h-[50%] relative col-span-4 row-span-1">
-      <div className="w-[30%]">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] overflow-hidden"
+      style={{ maskImage: fade, WebkitMaskImage: fade }}
+    >
+      <img src={src} alt="" className="h-full w-full scale-100 object-cover opacity-40 blur-3xl saturate-150" />
+    </div>
+  );
+}
+
+function GameHero({ game, onAvaliar, canReview, hasReview, wishlist, onWishlist, completo, onCompleto }) {
+  const [hovered, setHovered] = useState(null);
+
+  const hoverProps = (name) => ({
+    onMouseEnter: () => setHovered(name),
+    onMouseLeave: () => setHovered(null),
+    onFocus: () => setHovered(name),
+    onBlur: () => setHovered(null),
+  });
+
+  const fx = (name) => (hovered === name ? "scale-105" : "");
+
+  return (
+    <div className="flex flex-col items-center gap-10 md:flex-row md:items-start">
+      {}
+      <div className="w-60 shrink-0">
         <Card game={game} status={true} />
+        <div className="mt-3 flex justify-center gap-5 text-xs text-white/70">
+          <Counter icon={<IconCheck />} value={game.totalCompleted} label="completaram" />
+          <Counter icon={<IconMessage />} value={game.totalReviews} label="avaliações" />
+          <Counter icon={<IconHeart />} value={game.totalLikes} label="curtidas" />
+        </div>
       </div>
-      <div className="flex flex-col gap-4">
-        <h1 className="text-white text-5xl font-bold">{game.title}</h1>
-        <div className="flex flex-row gap-4 text-white">
-          <p>{game.year}</p>
-          <p>Empresa</p>
-        </div>
-        <p className="text-white">Sinopse</p>
-        <div className="flex flex-row items-center justify-center gap-4 text-white font-semibold absolute bottom-0">
 
-          <button
-            disabled={!canReview}
-            onClick={onAvaliar}
-            className="w-40 h-10 py-2 bg-roxo/80 hover:bg-roxo rounded-sm shadow-md cursor-pointer transition-colors"
-          >
-            {hasReview ? "EDITAR REVIEW" : "AVALIE"}
-          </button>
+      {}
+      <div className="flex w-full flex-1 flex-col gap-6 md:pt-24">
+        <h1 className="text-3xl font-bold leading-tight text-white md:text-4xl">
+          {game.title}
+          {game.year && <span className="ml-3 text-xl font-normal text-white/60">{game.year}</span>}
+        </h1>
+        <RatingBox game={game} onAvaliar={onAvaliar} canReview={canReview} />
+      </div>
 
-          <button
-            onClick={onWishlist}
-            className={`w-40 h-10 py-2 rounded-sm shadow-md cursor-pointer transition-colors ${wishlist ? "bg-turquesa text-white font-bold" : "bg-turquesa/80 hover:bg-turquesa"
-              }`}
-          >
-            {wishlist ? "✓ NA WISHLIST" : "QUERO JOGAR"}
-          </button>
+      {}
+      <div className="flex w-full flex-col gap-2 text-sm font-semibold text-white md:w-72 md:shrink-0 md:pt-24">
+        <button
+          disabled={!canReview}
+          onClick={onAvaliar}
+          {...hoverProps("avalie")}
+          className={`h-11 w-full cursor-pointer rounded-sm bg-roxo/80 shadow-md transition-all duration-200 hover:bg-roxo ${fx("avalie")}`}
+        >
+          {hasReview ? "EDITAR REVIEW" : "AVALIE"}
+        </button>
 
-          <button
-            disabled={!canReview}
-            onClick={onCompleto}
-            className={`w-40 h-10 flex items-center justify-center group relative overflow-hidden rounded-sm shadow-md cursor-pointer transition-colors ${completo ? "bg-amarelo text-white font-bold" : "bg-amarelo/90"
-              }`}
-          >
-            {!completo && (
-              <span className="absolute inset-0 block w-full h-full bg-linear-to-r from-transparent via-white/80 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out -skew-x-12" />
-            )}
-            <span className="relative z-10">{completo ? "✓ COMPLETEI" : "COMPLETEI"}</span>
-          </button>
+        <button
+          onClick={onWishlist}
+          {...hoverProps("wishlist")}
+          className={`h-11 w-full cursor-pointer rounded-sm shadow-md transition-all duration-200 ${wishlist ? "bg-turquesa font-bold" : "bg-turquesa/80 hover:bg-turquesa"} ${fx("wishlist")}`}
+        >
+          {wishlist ? "✓ NA WISHLIST" : "QUERO JOGAR"}
+        </button>
 
-          <button className="h-9 aspect-square bg-verde/90 rounded-sm shadow-md hover:cursor-pointer flex items-center justify-center">
-            <img src={list} alt="list icon" />
-          </button>
+        <button
+          disabled={!canReview}
+          onClick={onCompleto}
+          {...hoverProps("completei")}
+          className={`group relative flex h-11 w-full cursor-pointer items-center justify-center overflow-hidden rounded-sm shadow-md transition-all duration-200 ${completo ? "bg-amarelo font-bold" : "bg-amarelo/90"} ${fx("completei")}`}
+        >
+          {!completo && (
+            <span className="absolute inset-0 block h-full w-full -translate-x-full -skew-x-12 bg-linear-to-r from-transparent via-white/80 to-transparent transition-transform duration-1000 ease-out group-hover:translate-x-full" />
+          )}
+          <span className="relative z-10">{completo ? "✓ COMPLETEI" : "COMPLETEI"}</span>
+        </button>
 
-        </div>
+        <button
+          {...hoverProps("lista")}
+          className={`flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-sm bg-verde/90 shadow-md transition-all duration-200 hover:bg-verde ${fx("lista")}`}
+        >
+          <img src={list} alt="" className="h-5" />
+          ADICIONAR À LISTA
+        </button>
       </div>
     </div>
   );
 }
 
-function Details({ game }) {
-  const [isSelected, setIsSelected] = useState(["Detalhes", "Plataformas", "Studio"].map((item) => item === "Detalhes"));
+function RatingBox({ game, onAvaliar, canReview }) {
+  const hasRating = typeof game.avgNota === "number" && Number.isFinite(game.avgNota);
 
   return (
-    <div className="col-span-2 row-span-1 self-center">
-      <div className="flex flex-row gap-4 mb-4">
-        {["Detalhes", "Plataformas", "Studio"].map((item, index) => (
-          <button
-            key={index}
-            className={`text-sm font-semibold px-4 py-2 rounded-tl-lg rounded-tr-lg ${
-              isSelected[index] ? "bg-roxo text-white" : "bg-neutral-700 text-gray-400"
-            }`}
-            onClick={() => {
-              const newSelection = [false, false, false];
-              newSelection[index] = true;
-              setIsSelected(newSelection);
-            }}
-          >
-            {item}
+    <div className="w-full max-w-md">
+      <p className="border-b border-white/30 pb-1 text-sm text-white/60">Avaliação média</p>
+
+      {hasRating ? (
+        <div className="mt-3 flex items-center justify-between">
+          <Stars value={game.avgNota} className="text-3xl" />
+          <span className="text-4xl font-semibold text-white">{game.avgNota.toFixed(1)}</span>
+        </div>
+      ) : (
+        <p className="mt-3 text-white/70">
+          Ninguém avaliou ainda.{" "}
+          <button disabled={!canReview} onClick={onAvaliar} className="cursor-pointer text-turquesa hover:underline">
+            Seja o primeiro a avaliar
           </button>
-        ))}
-      </div>
-      <div className="bg-neutral-700 p-4 rounded-b-lg text-white">
-        {isSelected[0] && (
-          <div>
-            <p><strong>Gênero:</strong> {game.genre ?? "—"}</p>
-            <p><strong>Ano de lançamento:</strong> {game.year ?? "—"}</p>
-            <p><strong>Jogadores:</strong> 1</p>
-            <p><strong>Linguagens:</strong> Português, Inglês</p>
-          </div>
-        )}
-        {isSelected[1] && (
-          <div>
-            <p>Plataformas: PC, PS5, Xbox Series X</p>
-          </div>
-        )}
-        {isSelected[2] && (
-          <div>
-            <p>Studio: Rockstar Games</p>
-          </div>
-        )}
-      </div>
+        </p>
+      )}
     </div>
-  )
+  );
+}
+
+
+function Stars({ value = 0, className = "" }) {
+  const pct = (Math.max(0, Math.min(5, value)) / 5) * 100;
+
+  return (
+    <span
+      className={`relative inline-block whitespace-nowrap leading-none tracking-wider ${className}`}
+      role="img"
+      aria-label={`Nota ${value.toFixed(1)} de 5`}
+    >
+      <span className="text-white/20">★★★★★</span>
+      <span className="absolute inset-0 overflow-hidden whitespace-nowrap text-amarelo" style={{ width: `${pct}%` }}>
+        ★★★★★
+      </span>
+    </span>
+  );
+}
+
+function Counter({ icon, value, label }) {
+  return (
+    <span className="flex items-center gap-1.5" title={`${value ?? 0} ${label}`}>
+      {icon}
+      {fmt(value)}
+    </span>
+  );
+}
+
+const iconProps = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  className: "h-4 w-4",
+  "aria-hidden": true,
+};
+
+const IconCheck = () => (
+  <svg {...iconProps}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></svg>
+);
+const IconMessage = () => (
+  <svg {...iconProps}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+);
+const IconHeart = () => (
+  <svg {...iconProps}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
+);
+
+function SectionHeader({ title }) {
+  return (
+    <div className="flex w-full flex-row items-center justify-between border-b border-white py-2">
+      <p className="text-sm text-white">{title}</p>
+      <a className={animatedLink}>Mostrar mais</a>
+    </div>
+  );
 }
 
 function GameLists() {
-  const animatedLink =
-    "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
-
   return (
-    <div className="col-span-2 row-span-1 self-start">
-      <div className="mt-20 w-full border-b border-white flex flex-row items-center justify-between py-2">
-        <p className="text-white text-sm">Suas listas com esse jogo</p>
-        <a className={animatedLink}>Mostrar mais</a>
-      </div>
+    <div>
+      <SectionHeader title="Suas listas com esse jogo" />
       <div className="mt-4">
         <List lists={mockLists} />
       </div>
