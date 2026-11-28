@@ -22,7 +22,7 @@ export function useGame(gameId) {
 export function useAllGames({ search = "", detail = true } = {}) {
     return useQuery({
         queryKey: ['games', 'all', { search, detail }],
-        queryFn: () => getAllGames({ search, detail }),
+        queryFn: ({ signal }) => getAllGames({ search, detail, signal }),
         retry: false,
         staleTime: 60_000,
     })

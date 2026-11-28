@@ -352,4 +352,6 @@ async def resolve_review_clearence(conn, review_id: str | None, user_id_atv: str
     if rel in total_uncleared_rels.keys():
         raise err.QueryError(*total_uncleared_rels[rel])
 
+    return rel
+
 

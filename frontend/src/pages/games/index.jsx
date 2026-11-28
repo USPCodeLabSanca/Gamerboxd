@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Card from "../../components/gameCard";
-import Review from "../../components/gameReview";
+
 import { useGames, useAllGames } from "../../hooks/useGames";
 import { toCardGame } from "../../services/gameService";
+
+import { sortGames, inDecade } from "../../utils/gameFilters";
 
 const PAGE_SIZE = 15;
 
@@ -20,36 +22,23 @@ function useDebounce(value, delay = 400) {
 }
 
 
-const getYear = (g) => {
-    const y = parseInt(String(g.year ?? "").slice(0, 4));
-    return Number.isNaN(y) ? null : y;
-};
-
-const getters = {
-    year: getYear,
-    rating: (g) => g.gamerboxd_rating ?? null,
-    likes: (g) => g.like_count ?? null,
-    reviews: (g) => g.review_count ?? null,
-    completed: (g) => g.completed_count ?? null,
-};
-
-
 const FILTERS = [
     { key: "year", name: "Ano", kind: "sort", options: [
         { label: "Mais novos primeiro", value: "year:desc" },
         { label: "Mais antigos primeiro", value: "year:asc" },
     ] },
-    { key: "rating", name: "Rating", kind: "sort", options: [
+    { key: "rating", name: "Rating", kind: "sort", description: "Média das notas de todas as reviews de cada jogo.", options: [
         { label: "Melhores primeiro", value: "rating:desc" },
         { label: "Piores primeiro", value: "rating:asc" },
     ] },
-    { key: "likes", name: "Curtidas", kind: "sort", options: [
-        { label: "Mais curtidos primeiro", value: "likes:desc" },
+    { key: "likes", name: "Curtidas", kind: "sort", description: "Quantidade de pessoas que marcaram que curtiram o jogo nas reviews.", options: [
+        { label: "Mais curtidos primeiro (jogo)", value: "likes:desc" },
     ] },
-    { key: "reviews", name: "Avaliações", kind: "sort", options: [
-        { label: "Mais avaliados primeiro", value: "reviews:desc" },
+    { key: "reviews", name: "Avaliações", kind: "sort", unavailable: "Mais avaliados por curtidas nas reviews: indisponível. A API não retorna o total dessas curtidas por jogo.", options: [
+        { label: "Mais avaliados primeiro (curtidas nas reviews)", value: "reviewLikes:desc", disabled: true },
+        { label: "Maior quantidade de reviews", value: "reviews:desc" },
     ] },
-    { key: "completed", name: "Completados", kind: "sort", options: [
+    { key: "completed", name: "Completados", kind: "sort", description: "Marcações de completado nas reviews de todos os usuários. Não inclui jogos adicionados diretamente às listas.", options: [
         { label: "Mais completados primeiro", value: "completed:desc" },
     ] },
     { key: "decade", name: "Década", kind: "decade", options: [
@@ -61,28 +50,6 @@ const FILTERS = [
     ] },
 ];
 
-
-function sortGames(games, sort) {
-    if (!sort) return games;
-
-    const [field, dir] = sort.split(":");
-    const get = getters[field];
-    const mult = dir === "asc" ? 1 : -1;
-
-    return [...games].sort((a, b) => {
-        const va = get(a), vb = get(b);
-        if (va === null && vb === null) return 0;
-        if (va === null) return 1;
-        if (vb === null) return -1;
-        return (va - vb) * mult;
-    });
-}
-
-function inDecade(game, decade) {
-    const y = getYear(game);
-    if (y === null) return false;
-    return decade === 1980 ? y < 1990 : y >= decade && y < decade + 10;
-}
 
 export default function Games() {
     const [search, setSearch] = useState("");
@@ -128,7 +95,7 @@ export default function Games() {
         content = (
             <div className="flex flex-col">
                 <PopularGames games={popularGames} onShowAll={() => setShowAll(true)} />
-                <PopularReviews game={popularGames[0]} />
+                <PopularReviews />
             </div>
         );
     }
@@ -195,10 +162,12 @@ function Filter({ sort, decade, onSort, onDecade, onClear, hasFilter }) {
                                             </button>
                                         </li>
                                     )}
+                                    {(filter.unavailable || filter.description) && <li className="px-4 py-2 text-sm text-white/60">{filter.unavailable || filter.description}</li>}
                                     {filter.options.map((o) => (
                                         <li key={o.value}>
                                             <button
                                                 className={`w-full text-left px-4 py-2 text-sm hover:bg-roxo hover:text-white cursor-pointer ${o.value === selected ? "text-roxo" : "text-white"}`}
+                                                disabled={!!o.disabled}
                                                 onClick={() => pick(filter, o.value)}
                                             >
                                                 {o.label}
@@ -291,7 +260,7 @@ function GridView({ title, onBack, games, page, totalPages, onPage, isLoading, i
                 <p className="text-white text-center">Nenhum jogo encontrado.</p>
             )}
 
-            {!isLoading && games.length > 0 && (
+            {!isLoading && !isError && games.length > 0 && (
                 <div className="flex flex-row items-center gap-4">
                     <button className={arrow} disabled={page === 1} onClick={() => onPage(page - 1)}>
                         ‹
@@ -352,7 +321,7 @@ function FilteredGrid({ search, sort, decade, onBack }) {
 
     return (
         <GridView
-            title={isLoading ? "Carregando..." : `Jogos (${filtered.length})`}
+            title={isLoading ? "Carregando todos os resultados para filtrar..." : isError ? "Não foi possível carregar todos os resultados para filtrar" : `Jogos (${filtered.length}) — todos os resultados da busca carregados`}
             onBack={onBack}
             games={games}
             page={page}
@@ -364,31 +333,11 @@ function FilteredGrid({ search, sort, decade, onBack }) {
     )
 }
 
-function PopularReviews({ game }) {
-
-    const animatedLink = "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl"
-
-    const reviews = [
-        { id: 1, complete: false, content: "Esse jogo é incrível! A história é envolvente e os gráficos são de tirar o fôlego. Recomendo para todos os fãs de jogos de ação.", author: { username: "Gamer123", avatar: "https://i.pravatar.cc/150?img=1" } },
-        { id: 2, complete: false, content: "Não gostei muito desse jogo. Achei a jogabilidade confusa e a história fraca. Não recomendo.", author: { username: "Player456", avatar: "https://i.pravatar.cc/150?img=2" } },
-        { id: 3, complete: true, content: "Esse jogo é mediano. Tem seus momentos bons, mas também tem muitos problemas técnicos. Vale a pena jogar se você for fã do gênero.", author: { username: "GameLover789", avatar: "https://i.pravatar.cc/150?img=3" } },
-    ]
-
+function PopularReviews() {
     return (
-        <div className="mb-10">
-            <div className="mt-20 w-full border-b border-white flex flex-row items-center justify-between py-2">
-                <p className="text-white text-sm">Avaliações populares da semana</p>
-                <a
-                    className={animatedLink}
-                >Mostrar mais</a>
-            </div>
-            <div className="flex flex-col gap-6 mt-4">
-                {game && reviews.map((review) => {
-                    return (
-                        <Review key={review.id} review={review} game={game} gameClassName="w-40" />
-                    )
-                })}
-            </div>
+        <div className="mb-10 text-white">
+            <div className="mt-20 w-full border-b border-white py-2"><p className="text-sm">Avaliações populares da semana</p></div>
+            <p className="mt-4 text-white/60">As avaliações em destaque estarão disponíveis em breve.</p>
         </div>
-    )
+    );
 }

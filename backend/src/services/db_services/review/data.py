@@ -152,8 +152,8 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
         # Pega uma página de reviews criadas
         where, order_by, cursor_cols, params = pag.build_where(clauses, page_query, False)
         rows = await conn.fetch(f'''
-            SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.name, g.picture, g.year,
-            (SELECT COUNT(*) FROM ReviewLikes rl  WHERE rl.usr  = r.reviewer) AS like_count,
+            SELECT r.*, u.id AS user_id, u.pfp, u.username, g.id AS game_id, g.title, g.picture, g.year,
+            (SELECT COUNT(*) FROM ReviewLikes rl WHERE rl.review = r.id) AS like_count,
             {cursor_cols}
             FROM Reviews r
             JOIN Users u ON u.id = r.reviewer
@@ -175,7 +175,7 @@ async def DB_read_user_created_reviews(conn, user_id: str, clearence: int, page_
             privacy = r["privacy"],
             like_count = r["like_count"],
             game = GameOverview(game_id=r["game_id"], title=r["title"], picture=r["picture"], year=r["year"]),
-            created_at = r["created_at"]
+            created_at = fix_date(r["created_at"])
         ) for r in rows]
 
         return pag.PageResult(

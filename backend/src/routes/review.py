@@ -105,7 +105,7 @@ async def get_reviews(user_id: str = Depends(dep.user_id_exists), page_query = D
         has_liked = await DB_read_review_like(conn, cr.review_id, user_id_viewer)
         cr.rel = RelationshipStatus.LIKED if has_liked > 0 else RelationshipStatus.ANY
 
-        if cr.creator.user_id == user_id_viewer:
+        if cr.reviewer.user_id == user_id_viewer:
             cr.rel += RelationshipStatus.OWNER
 
     created_reviews_page_with_urls = pag.convert_cursors_to_paths(created_reviews_page, path)

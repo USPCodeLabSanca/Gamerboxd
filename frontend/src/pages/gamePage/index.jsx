@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import Card from "../../components/gameCard";
 import Review from "../../components/gameReview";
 import List from "../../components/List";
 import ReviewModal from "../../components/ReviewModal";
+
+import { useMe } from "../../hooks/useAuth";
+import { useUserGameReview, useReview } from "../../hooks/useReviews";
+import { getErrorMessage } from "../../api/errors";
 
 import { useGame } from "../../hooks/useGames";
 import { toCardGame } from "../../services/gameService";
@@ -106,41 +110,6 @@ const mockGames = [
   },
 ];
 
-// Reviews mockados separados do jogo — futuramente virão de GET /games/:id/reviews
-const mockReviews = [
-  {
-    id: 1,
-    gameId: 1,
-    complete: false,
-    content:
-      "Esse jogo é incrível! A história é envolvente e os gráficos são de tirar o fôlego. Recomendo para todos os fãs de jogos de ação.",
-    author: { username: "Gamer123", avatar: "https://i.pravatar.cc/150?img=1" },
-  },
-  {
-    id: 2,
-    gameId: 1,
-    complete: false,
-    content:
-      "Melhor jogo da geração, sem dúvida. O mapa é enorme e cada detalhe foi cuidado com carinho.",
-    author: {
-      username: "Player456",
-      avatar: "https://i.pravatar.cc/150?img=2",
-    },
-  },
-  {
-    id: 3,
-    gameId: 1,
-    complete: true,
-    content:
-      "Divertido, mas esperava mais em termos de inovação. Vale muito a pena mesmo assim.",
-    author: {
-      username: "GameLover789",
-      avatar: "https://i.pravatar.cc/150?img=3",
-    },
-  },
-];
-
-
 const mockLists = [
   {
     id: 1,
@@ -167,15 +136,16 @@ export default function GamePage() {
   const { data, isLoading, isError } = useGame(id);
   const game = data ? toCardGame(data) : null;
 
-  const [reviews, setReviews] = useState([]);
+  const { data: me, isPending: authPending } = useMe();
+  const own = useUserGameReview(game);
+  const [params, setParams] = useSearchParams();
+  const selectedId = params.get("review");
+  const selected = useReview(selectedId);
+  const ownReview = selected.data?.reviewer.user_id === me?.user_id && selected.data?.game.game_id === Number(id) ? selected.data : own.data;
+  const [startCompleted, setStartCompleted] = useState(undefined);
   const [modalOpen, setModalOpen] = useState(false);
   const [wishlist, setWishlist] = useState(false);
-  const [completo, setCompleto] = useState(false);
 
-  useEffect(() => {
-    const foundReviews = mockReviews.filter((r) => r.gameId === Number(id));
-    setReviews(foundReviews);
-  }, [id]);
 
   if (isLoading) return (
     <div className="bg-linear-to-b from-cinza to-black min-h-screen flex items-center justify-center">
@@ -195,26 +165,41 @@ export default function GamePage() {
         game={game}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSubmit={(data) => console.log("Review enviada:", data)}
+        review={ownReview}
+        completed={startCompleted}
+        onSaved={(reviewId) => setParams({ review: reviewId })}
       />
       <div className="min-h-screen bg-linear-to-b from-cinza to-black pt-28 pl-20 pr-20 pb-5 grid grid-cols-6 grid-rows-2 gap-x-20">
         <GameHero
           game={game}
-          onAvaliar={() => setModalOpen(true)}
+          onAvaliar={() => { setStartCompleted(undefined); setModalOpen(true); }}
+          canReview={!!me && !authPending && !own.isLoading}
+          hasReview={!!ownReview}
           wishlist={wishlist}
           onWishlist={() => setWishlist(w => !w)}
-          completo={completo}
-          onCompleto={() => setCompleto(c => !c)}
+          completo={ownReview?.completed ?? false}
+          onCompleto={() => { setStartCompleted(!ownReview?.completed); setModalOpen(true); }}
         />
         <Details game={game} />
-        <PopularReviews game={game} />
-        <GameLists game={game} />
+        <div className="mb-10 col-span-4 text-white flex flex-col gap-4">
+          <h2 className="border-b border-white py-2">{selectedId ? "Review selecionada" : "Sua review"}</h2>
+          {own.error && <p role="alert">Não foi possível consultar suas reviews. {getErrorMessage(own.error)}</p>}
+          {selected.error && <p role="alert">{getErrorMessage(selected.error)}</p>}
+          {!me && <Link to="/login">Entre para avaliar este jogo.</Link>}
+          {(selected.isLoading || own.isLoading) && <p>Carregando review...</p>}
+          {selectedId && selected.data?.game.game_id !== undefined && selected.data.game.game_id !== Number(id) && <p>Esta review pertence a outro jogo.</p>}
+          {selected.data?.game.game_id === Number(id)
+            ? <Review review={selected.data} onDeleted={() => setParams({})} />
+            : !selectedId && own.data && <Review review={own.data} />}
+          {me && own.data === null && !selectedId && <p>Você ainda não avaliou este jogo.</p>}
+        </div>
+        <GameLists />
       </div>
     </>
   );
 }
 
-function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto }) {
+function GameHero({ game, onAvaliar, canReview, hasReview, wishlist, onWishlist, completo, onCompleto }) {
   return (
     <div className="flex flex-row items-center self-center gap-4 h-[50%] relative col-span-4 row-span-1">
       <div className="w-[30%]">
@@ -230,10 +215,11 @@ function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto 
         <div className="flex flex-row items-center justify-center gap-4 text-white font-semibold absolute bottom-0">
 
           <button
+            disabled={!canReview}
             onClick={onAvaliar}
             className="w-40 h-10 py-2 bg-roxo/80 hover:bg-roxo rounded-sm shadow-md cursor-pointer transition-colors"
           >
-            AVALIE
+            {hasReview ? "EDITAR REVIEW" : "AVALIE"}
           </button>
 
           <button
@@ -245,6 +231,7 @@ function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto 
           </button>
 
           <button
+            disabled={!canReview}
             onClick={onCompleto}
             className={`w-40 h-10 flex items-center justify-center group relative overflow-hidden rounded-sm shadow-md cursor-pointer transition-colors ${completo ? "bg-amarelo text-white font-bold" : "bg-amarelo/90"
               }`}
@@ -260,60 +247,6 @@ function GameHero({ game, onAvaliar, wishlist, onWishlist, completo, onCompleto 
           </button>
 
         </div>
-      </div>
-    </div>
-  );
-}
-
-function PopularReviews({ game }) {
-  const animatedLink =
-    "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
-
-  const reviews = [
-    {
-      id: 1,
-      complete: false,
-      content:
-        "Esse jogo é incrível! A história é envolvente e os gráficos são de tirar o fôlego. Recomendo para todos os fãs de jogos de ação.",
-      author: {
-        username: "Gamer123",
-        avatar: "https://i.pravatar.cc/150?img=1",
-      },
-    },
-    {
-      id: 2,
-      complete: false,
-      content:
-        "Não gostei muito desse jogo. Achei a jogabilidade confusa e a história fraca. Não recomendo.",
-      author: {
-        username: "Player456",
-        avatar: "https://i.pravatar.cc/150?img=2",
-      },
-    },
-    {
-      id: 3,
-      complete: true,
-      content:
-        "Esse jogo é mediano. Tem seus momentos bons, mas também tem muitos problemas técnicos. Vale a pena jogar se você for fã do gênero.",
-      author: {
-        username: "GameLover789",
-        avatar: "https://i.pravatar.cc/150?img=3",
-      },
-    },
-  ];
-
-  return (
-    <div className="mb-10 col-span-4">
-      <div className="mt-20 w-full border-b border-white flex flex-row items-center justify-between py-2">
-        <p className="text-white text-sm">Avaliações populares da semana</p>
-        <a className={animatedLink}>Mostrar mais</a>
-      </div>
-      <div className="flex flex-col gap-6 mt-4">
-        {reviews.map((review) => {
-          return (
-            <Review key={review.id} review={review} game={game} gameClassName="w-28" />
-          );
-        })}
       </div>
     </div>
   );
@@ -365,7 +298,7 @@ function Details({ game }) {
   )
 }
 
-function GameLists({ game }) {
+function GameLists() {
   const animatedLink =
     "text-white text-sm hover:cursor-pointer relative inline-block z-10 overflow-hidden before:absolute before:inset-0 before:bg-roxo before:-z-10 before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100 px-4 py-1 rounded-2xl";
 

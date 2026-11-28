@@ -1,191 +1,106 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-
-import likeIcon from "../assets/icons/liked.svg";
+import { useRef, useState } from "react";
+import { useCreateReview, useEditReview } from "../hooks/useReviews";
+import { getErrorMessage } from "../api/errors";
+import Rating from "./Rating";
 import completeIcon from "../assets/icons/complete.svg";
-import notaIcon from "../assets/icons/nota.svg";
-import jogouIcon from "../assets/icons/jogou.svg";
+import likeIcon from "../assets/icons/liked.svg";
 
-const XIcon = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-);
+export default function ReviewModal({ game, review, isOpen, onClose, onSaved, completed }) {
+    if (!isOpen) return null;
+    return <ReviewForm key={review?.review_id ?? game.id} game={game} review={review} onClose={onClose} onSaved={onSaved} completed={completed} />;
+}
 
-export default function ReviewModal({ game, isOpen, onClose, onSubmit }) {
-    const [rating, setRating] = useState(0);
-    const [hoverRating, setHoverRating] = useState(0);
-    const [jogou, setJogou] = useState(false);
-    const [curtiu, setCurtiu] = useState(false);
-    const [completou, setCompletou] = useState(false);
-    const [texto, setTexto] = useState("");
-    const [tags, setTags] = useState("");
-    const [jogadoEm, setJogadoEm] = useState(
-        new Date().toLocaleDateString("pt-BR").split("/").reverse().join("-")
-    );
+function ReviewForm({ game, review, onClose, onSaved, completed }) {
+    const formRef = useRef(null);
+    const [rating, setRating] = useState(review?.rating_num ?? 0);
+    const [texto, setTexto] = useState(review?.rating_text ?? "");
+    const [curtiu, setCurtiu] = useState(review?.liked ?? false);
+    const [completou, setCompletou] = useState(completed ?? review?.completed ?? false);
+    const [privacy, setPrivacy] = useState(review?.privacy ?? 0);
+    const [hours, setHours] = useState(review?.time_played ?? "");
+    const create = useCreateReview();
+    const edit = useEditReview();
+    const mutation = review ? edit : create;
 
-    useEffect(() => {
-        const handleKey = (e) => { if (e.key === "Escape") onClose(); };
-        if (isOpen) window.addEventListener("keydown", handleKey);
-        return () => window.removeEventListener("keydown", handleKey);
-    }, [isOpen, onClose]);
+    async function handleSubmit(event) {
+        event.preventDefault();
+        const values = {
+            rating_num: Number(rating), rating_text: texto || null,
+            liked: curtiu, completed: completou, privacy: Number(privacy),
+            time_played: hours === "" ? null : Number(hours),
+        };
+        try {
+            const saved = review
+                ? await edit.mutateAsync({ reviewId: review.review_id, review: values })
+                : await create.mutateAsync({ ...values, game_id: game.id });
+            onSaved?.(saved.review_id);
+            onClose();
+        } catch { return; }
+    }
 
-    const handleSubmit = () => {
-        onSubmit?.({ rating, jogou, curtiu, completou, texto, tags, jogadoEm });
-        onClose();
-    };
+    function handleTab(event) {
+        if (event.key !== "Tab" || mutation.isPending) return;
+        const controls = [...formRef.current.querySelectorAll('button, input, select, textarea')].filter((control) => !control.disabled);
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    }
 
-    const displayRating = hoverRating || rating;
-
+    const inputClass = "w-full min-w-0 rounded-lg border border-white/10 bg-neutral-700/50 px-3 py-2 text-white outline-none focus:border-roxo focus-visible:ring-1 focus-visible:ring-roxo";
+    const toggleClass = "relative flex cursor-pointer flex-col items-center gap-2 rounded-lg px-3 py-2 transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-roxo";
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-                    />
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        transition={{ type: "spring", duration: 0.4 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
-                    >
-                        <div
-                            className="bg-neutral-800/95 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-2xl pointer-events-auto border border-white/5"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <div className="flex gap-6 p-6">
-                                {/* Capa */}
-                                <div className="shrink-0 w-32">
-                                    <div className="aspect-4/5 rounded-xl overflow-hidden shadow-lg">
-                                        <img src={game.url} alt={game.title} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="mt-3">
-                                        <p className="text-white/50 text-xs mb-1">Jogado em:</p>
-                                        <input
-                                            type="date"
-                                            value={jogadoEm}
-                                            onChange={(e) => setJogadoEm(e.target.value)}
-                                            className="w-full bg-roxo/20 text-roxo text-xs rounded-lg px-3 py-2 outline-none border border-roxo/30 focus:border-roxo transition-colors"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Direita */}
-                                <div className="flex-1 flex flex-col gap-4 min-w-0">
-                                    <div className="flex items-start justify-between">
-                                        <h2 className="text-white font-bold text-xl leading-tight">
-                                            {game.title}
-                                            <span className="text-white/40 font-normal text-sm ml-2">{game.year}</span>
-                                        </h2>
-                                        <button onClick={onClose} className="text-white/30 hover:text-white transition-colors ml-2 shrink-0">
-                                            <XIcon />
-                                        </button>
-                                    </div>
-
-                                    <textarea
-                                        value={texto}
-                                        onChange={(e) => setTexto(e.target.value)}
-                                        placeholder="Descreva sua aventura..."
-                                        rows={6}
-                                        className="w-full bg-neutral-700/50 text-white text-sm rounded-xl px-4 py-3 outline-none resize-none border border-white/5 focus:border-roxo/40 transition-colors placeholder:text-white/25 leading-relaxed"
-                                    />
-
-                                    <div className="flex items-center justify-between">
-                                        {/* Toggles */}
-                                        <div className="flex items-center gap-5">
-                                            {/* 100% — ícone de complete */}
-                                            <button
-                                                onClick={() => setCompletou(!completou)}
-                                                className="flex flex-col items-center gap-1 hover:cursor-pointer hover:scale-105 duration-300 transition-all"
-                                            >
-                                                <img
-                                                    src={completeIcon}
-                                                    alt="100%"
-                                                    className="w-7 h-7 transition-all duration-200"
-                                                    style={{ opacity: completou ? 1 : 0.25, filter: completou ? "brightness(1.4) sepia(1) hue-rotate(10deg) saturate(3)" : "none" }}
-                                                />
-                                                <span className={`text-[10px] transition-colors ${completou ? "text-amarelo" : "text-white/30"}`}>100%</span>
-                                            </button>
-
-                                            {/* Curtiu — ícone de like */}
-                                            <button
-                                                onClick={() => setCurtiu(!curtiu)}
-                                                className="flex flex-col items-center gap-1 hover:cursor-pointer hover:scale-105 duration-300 transition-all"
-                                            >
-                                                <img
-                                                    src={likeIcon}
-                                                    alt="Curtiu"
-                                                    className="w-7 h-7 transition-all duration-200"
-                                                    style={{ opacity: curtiu ? 1 : 0.25}}
-                                                />
-                                                <span className={`text-[10px] transition-colors ${curtiu ? "text-roxo" : "text-white/30"}`}>Curtiu</span>
-                                            </button>
-
-                                            {/* Jogou — ícone de nota (estrela) */}
-                                            <button
-                                                onClick={() => setJogou(!jogou)}
-                                                className="flex flex-col items-center gap-1 hover:cursor-pointer hover:scale-105 duration-300 transition-all"
-                                            >
-                                                <img
-                                                    src={jogouIcon}
-                                                    alt="Jogou"
-                                                    className="w-7 h-7 transition-all duration-200"
-                                                    style={{ opacity: jogou ? 1 : 0.25, filter: jogou ? "brightness(1.2)" : "none" }}
-                                                />
-                                                <span className={`text-[10px] transition-colors ${jogou ? "text-turquesa" : "text-white/30"}`}>Jogou</span>
-                                            </button>
-                                        </div>
-
-                                        {/* Rating com ícone de nota */}
-                                        <div className="flex flex-col items-end gap-1">
-                                            <span className="text-white/40 text-[10px]">
-                                                Rating: {displayRating > 0 ? `${displayRating} de 5` : "—"}
-                                            </span>
-                                            <div className="flex gap-1">
-                                                {[1, 2, 3, 4, 5].map((i) => (
-                                                    <button
-                                                        key={i}
-                                                        onMouseEnter={() => setHoverRating(i)}
-                                                        onMouseLeave={() => setHoverRating(0)}
-                                                        onClick={() => setRating(i === rating ? 0 : i)}
-                                                        className={`transition-all duration-150 hover:cursor-pointer ${i <= displayRating ? "scale-110" : "scale-100"}`}
-                                                    >
-                                                        <img
-                                                            src={notaIcon}
-                                                            alt={`${i} estrelas`}
-                                                            className="w-7 h-7"
-                                                            style={{
-                                                                opacity: i <= displayRating ? 1 : 0.2,
-                                                                transition: "opacity 0.15s, filter 0.15s"
-                                                            }}
-                                                        />
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-end">
-                                        <button
-                                            onClick={handleSubmit}
-                                            className="relative overflow-hidden border-2 border-white text-white rounded-2xl px-6 py-2 opacity-80 after:content-[''] after:absolute after:top-0 after:left-0 after:w-0 after:h-full after:transition-all after:duration-300 after:bg-roxo hover:after:w-full cursor-pointer transition-colors duration-300 hover:scale-105 after:-z-10"
-                                        >
-                                            <span className="relative z-10 font-semibold">Enviar</span>
-                                        </button>
-                                    </div>
-                                </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6" onKeyDown={(event) => { if (event.key === "Escape" && !mutation.isPending) onClose(); }}>
+            <form ref={formRef} onSubmit={handleSubmit} onKeyDown={handleTab} role="dialog" aria-modal="true" aria-label={review ? "Editar review" : "Criar review"} className="relative max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-neutral-800 p-5 text-white shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-8">
+                <fieldset disabled={mutation.isPending} className="flex min-w-0 flex-col gap-6">
+                    <button type="button" onClick={onClose} aria-label="Fechar" className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-2xl text-white/50 hover:bg-white/5 hover:text-white focus-visible:outline-2 focus-visible:outline-roxo">×</button>
+                    <div className="grid min-w-0 gap-6 sm:grid-cols-[9rem_minmax(0,1fr)]">
+                        <div className="flex min-w-0 items-start gap-4 pr-7 sm:block sm:pr-0">
+                            <img src={game.url} alt={game.title} className="aspect-3/4 w-20 shrink-0 rounded-xl object-cover shadow-lg sm:w-full" />
+                            <div className="min-w-0 sm:mt-4">
+                                <h2 className="break-words text-xl font-bold leading-tight">{game.title}</h2>
+                                {game.year && <p className="mt-2 text-sm text-white/40">{game.year}</p>}
                             </div>
                         </div>
-                    </motion.div>
-                </>
-            )}
-        </AnimatePresence>
+                        <div className="flex min-w-0 flex-col gap-2 sm:pt-3">
+                            <label className="flex min-w-0 flex-1 flex-col gap-2 text-sm text-white/60">Review<textarea aria-label="Review" autoFocus value={texto} onChange={(event) => setTexto(event.target.value)} maxLength={300} rows={7} placeholder="Descreva sua aventura..." className={`${inputClass} min-h-44 flex-1 resize-y leading-relaxed sm:min-h-64`} /></label>
+                            <span className="self-end text-xs text-white/40">{texto.length}/300</span>
+                        </div>
+                    </div>
+                    <div className="grid min-w-0 grid-cols-2 items-start gap-5 border-t border-white/10 pt-5 lg:grid-cols-[auto_auto_minmax(8rem,1fr)_minmax(0,2fr)]">
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="text-xs text-white/50">Progresso</span>
+                            <label className={`${toggleClass} ${completou ? "bg-roxo/10" : "hover:bg-white/5"}`}>
+                                <input type="checkbox" aria-label="Completei o jogo" checked={completou} onChange={(event) => setCompletou(event.target.checked)} className="sr-only" />
+                                <img src={completeIcon} alt="" aria-hidden="true" className={`h-8 w-8 ${completou ? "opacity-100" : "opacity-30"}`} />
+                                <span aria-hidden="true" className="text-xs">Completado</span>
+                            </label>
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="text-xs text-white/50">Curtiu</span>
+                            <label className={`${toggleClass} ${curtiu ? "bg-roxo/10" : "hover:bg-white/5"}`}>
+                                <input type="checkbox" aria-label="Curti o jogo" checked={curtiu} onChange={(event) => setCurtiu(event.target.checked)} className="sr-only" />
+                                <img src={likeIcon} alt="" aria-hidden="true" className={`h-8 w-8 ${curtiu ? "opacity-100" : "opacity-30"}`} />
+                                <span aria-hidden="true" className="text-xs">Gostei</span>
+                            </label>
+                        </div>
+                        <div className="col-span-2 flex min-w-0 flex-col gap-2 lg:col-span-1">
+                            <label className="flex flex-col gap-2 text-xs text-white/50">Tempo jogado (horas)<input type="number" min="0" step="1" value={hours} onChange={(event) => setHours(event.target.value)} className={inputClass} /></label>
+                        </div>
+                        <div className="col-span-2 min-w-0 lg:col-span-1"><Rating value={rating} onChange={setRating} disabled={mutation.isPending} /></div>
+                    </div>
+                    {mutation.isError && <p role="alert">{getErrorMessage(mutation.error)}</p>}
+                    <div className="flex flex-col gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-end sm:justify-between">
+                        <label className="flex min-w-0 flex-col gap-2 text-xs text-white/50 sm:w-48">Privacidade<select value={privacy} onChange={(event) => setPrivacy(event.target.value)} className={inputClass}><option value={0}>Pública</option><option value={20}>Pessoas que sigo</option><option value={40}>Só eu</option></select></label>
+                        <button type="submit" className="rounded-full border border-roxo bg-roxo/15 px-8 py-2.5 font-semibold transition-colors hover:bg-roxo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-roxo disabled:opacity-50">{mutation.isPending ? "Salvando..." : "Salvar review"}</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
     );
 }

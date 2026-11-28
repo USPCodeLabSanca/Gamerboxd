@@ -22,7 +22,7 @@ function renderActiveTab(activeTab, user) {
         </div>
       );
     case "diario":
-      return <div>Diário</div>;
+      return <RecentReviews user={user} />;
     case "listas":
       return <UserLists user={user} />;
     case "curtidos":
