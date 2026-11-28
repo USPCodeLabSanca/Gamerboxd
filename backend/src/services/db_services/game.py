@@ -2,7 +2,7 @@ from ...models.schemas.game import GameOverview, GameComplete, GamesOut
 from ...utils.utils import db_query, escape_like
 
 @db_query
-async def DB_create_game(conn, game: GameOverview, relevancy: int):
+async def DB_create_game(conn, game: GameOverview, relevancy: int = 0):
     """Adiciona um jogo ao DB"""
 
     already_exists = await conn.fetchrow('''
